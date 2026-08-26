@@ -1,19 +1,345 @@
 from __future__ import annotations
 
+import contextlib
 import hashlib
+import io
 import json
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
+from mva_prioritizer.cli import main
+from mva_prioritizer.reference_bundle import (
+    ReferenceAcquisition,
+    ReferenceBundleVerification,
+)
+from mva_prioritizer.reference_install import ReferenceInstallation
 from mva_prioritizer.synthetic import run_synthetic
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class CliTests(unittest.TestCase):
+    def test_verify_environment_emits_only_content_free_counts(self) -> None:
+        protected_canary = "protected-environment-canary"
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            public = root / "public"
+            private = root / protected_canary
+            public.mkdir(mode=0o700)
+            private.mkdir(mode=0o700)
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            result_value = mock.Mock(
+                state="ready",
+                check_count=10,
+                artifact_count=22,
+                installed_count=22,
+                support_count=2,
+                tool_count=7,
+            )
+            with (
+                mock.patch(
+                    "mva_prioritizer.cli.verify_environment",
+                    return_value=result_value,
+                    create=True,
+                ),
+                contextlib.redirect_stdout(stdout),
+                contextlib.redirect_stderr(stderr),
+            ):
+                result = main(
+                    [
+                        "verify-environment",
+                        "--public-root",
+                        str(public),
+                        "--private-root",
+                        str(private),
+                    ]
+                )
+
+        self.assertEqual(result, 0)
+        self.assertEqual(stderr.getvalue(), "")
+        self.assertEqual(
+            json.loads(stdout.getvalue()),
+            {
+                "artifact_count": 22,
+                "check_count": 10,
+                "external_actions": 0,
+                "installed_count": 22,
+                "state": "ready",
+                "support_count": 2,
+                "tool_count": 7,
+            },
+        )
+        self.assertNotIn(protected_canary, stdout.getvalue() + stderr.getvalue())
+
+    def test_verify_environment_failure_does_not_reflect_private_context(self) -> None:
+        protected_canary = "protected-environment-failure-canary"
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            public = root / "public"
+            private = root / protected_canary
+            public.mkdir(mode=0o700)
+            private.mkdir(mode=0o700)
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with (
+                mock.patch(
+                    "mva_prioritizer.cli.verify_environment",
+                    side_effect=ValueError(protected_canary),
+                ),
+                contextlib.redirect_stdout(stdout),
+                contextlib.redirect_stderr(stderr),
+            ):
+                result = main(
+                    [
+                        "verify-environment",
+                        "--public-root",
+                        str(public),
+                        "--private-root",
+                        str(private),
+                    ]
+                )
+
+        self.assertEqual(result, 2)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertEqual(
+            stderr.getvalue(),
+            '{"error":"input_rejected","state":"failed_closed"}\n',
+        )
+        self.assertNotIn(protected_canary, stdout.getvalue() + stderr.getvalue())
+
+    def test_reference_install_emits_only_content_free_counts(self) -> None:
+        protected_canary = "protected-reference-install-canary"
+        manifest = {
+            "artifacts": [
+                {
+                    "expected_bytes": 11,
+                    "expected_sha256": "a" * 64,
+                    "filename": "tool-1.0.tar.gz",
+                    "install_kind": "source-tar",
+                    "name": protected_canary,
+                    "role": "tool_source",
+                    "source_checksum": {"algorithm": "sha256", "value": "a" * 64},
+                    "source_url": "https://github.com/example/project/releases/download/1.0/tool-1.0.tar.gz",
+                    "version": "1.0",
+                }
+            ],
+            "assembly": "GRCh38",
+            "bundle_version": "2026-08-26.2",
+            "fastq_included": False,
+            "network_during_private_run": False,
+            "private_runtime": "m1-encrypted-workspace",
+            "protected_data_allowed_on_public_compute": False,
+            "schema_version": 2,
+            "status": "verified",
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            public = root / "public"
+            private = root / "private"
+            config = public / "config"
+            config.mkdir(parents=True, mode=0o700)
+            private.mkdir(mode=0o700)
+            (config / "reference-bundle.json").write_text(
+                json.dumps(manifest, ensure_ascii=False, separators=(",", ":"), sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with (
+                mock.patch(
+                    "mva_prioritizer.cli.install_reference_artifact",
+                    return_value=ReferenceInstallation(
+                        state="installed",
+                        file_count=1,
+                        directory_count=1,
+                        byte_count=11,
+                    ),
+                ),
+                contextlib.redirect_stdout(stdout),
+                contextlib.redirect_stderr(stderr),
+            ):
+                result = main(
+                    [
+                        "reference-install",
+                        "--public-root",
+                        str(public),
+                        "--private-root",
+                        str(private),
+                        "--artifact",
+                        protected_canary,
+                    ]
+                )
+
+        self.assertEqual(result, 0)
+        self.assertEqual(stderr.getvalue(), "")
+        self.assertEqual(
+            json.loads(stdout.getvalue()),
+            {
+                "byte_count": 11,
+                "directory_count": 1,
+                "external_actions": 0,
+                "file_count": 1,
+                "state": "installed",
+            },
+        )
+        self.assertNotIn(protected_canary, stdout.getvalue() + stderr.getvalue())
+
+    def test_reference_verify_emits_only_content_free_counts(self) -> None:
+        protected_canary = "protected-reference-verify-canary"
+        manifest = {
+            "artifacts": [
+                {
+                    "expected_bytes": 11,
+                    "expected_sha256": "a" * 64,
+                    "filename": "tool-1.0.tar.gz",
+                    "install_kind": "source-tar",
+                    "name": protected_canary,
+                    "role": "tool_source",
+                    "source_checksum": {"algorithm": "sha256", "value": "a" * 64},
+                    "source_url": "https://github.com/example/project/releases/download/1.0/tool-1.0.tar.gz",
+                    "version": "1.0",
+                }
+            ],
+            "assembly": "GRCh38",
+            "bundle_version": "2026-08-26.2",
+            "fastq_included": False,
+            "network_during_private_run": False,
+            "private_runtime": "m1-encrypted-workspace",
+            "protected_data_allowed_on_public_compute": False,
+            "schema_version": 2,
+            "status": "verified",
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            public = root / "public"
+            private = root / "private"
+            config = public / "config"
+            config.mkdir(parents=True, mode=0o700)
+            private.mkdir(mode=0o700)
+            (config / "reference-bundle.json").write_text(
+                json.dumps(manifest, ensure_ascii=False, separators=(",", ":"), sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with (
+                mock.patch(
+                    "mva_prioritizer.cli.verify_reference_bundle",
+                    return_value=ReferenceBundleVerification(
+                        state="verified",
+                        artifact_count=1,
+                        byte_count=11,
+                    ),
+                ),
+                contextlib.redirect_stdout(stdout),
+                contextlib.redirect_stderr(stderr),
+            ):
+                result = main(
+                    [
+                        "reference-verify",
+                        "--public-root",
+                        str(public),
+                        "--private-root",
+                        str(private),
+                    ]
+                )
+
+        self.assertEqual(result, 0)
+        self.assertEqual(stderr.getvalue(), "")
+        self.assertEqual(
+            json.loads(stdout.getvalue()),
+            {
+                "artifact_count": 1,
+                "byte_count": 11,
+                "external_actions": 0,
+                "state": "verified",
+            },
+        )
+        self.assertNotIn(protected_canary, stdout.getvalue() + stderr.getvalue())
+
+    def test_reference_acquire_emits_only_content_free_counts(self) -> None:
+        protected_canary = "protected-reference-canary"
+        manifest = {
+            "artifacts": [
+                {
+                    "expected_bytes": 11,
+                    "expected_sha256": "a" * 64,
+                    "filename": "tool-1.0.tar.gz",
+                    "install_kind": "source-tar",
+                    "name": protected_canary,
+                    "role": "tool_source",
+                    "source_checksum": {"algorithm": "sha256", "value": "a" * 64},
+                    "source_url": "https://github.com/example/project/releases/download/1.0/tool-1.0.tar.gz",
+                    "version": "1.0",
+                }
+            ],
+            "assembly": "GRCh38",
+            "bundle_version": "2026-08-26.2",
+            "fastq_included": False,
+            "network_during_private_run": False,
+            "private_runtime": "m1-encrypted-workspace",
+            "protected_data_allowed_on_public_compute": False,
+            "schema_version": 2,
+            "status": "declared",
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            public = root / "public"
+            private = root / "private"
+            config = public / "config"
+            config.mkdir(parents=True, mode=0o700)
+            private.mkdir(mode=0o700)
+            (config / "reference-bundle.json").write_text(
+                json.dumps(manifest, ensure_ascii=False, separators=(",", ":"), sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with (
+                mock.patch(
+                    "mva_prioritizer.cli.acquire_reference_artifact",
+                    return_value=ReferenceAcquisition(
+                        state="verified",
+                        verified_count=1,
+                        pin_required_count=0,
+                        byte_count=11,
+                        measured_sha256="a" * 64,
+                    ),
+                ),
+                contextlib.redirect_stdout(stdout),
+                contextlib.redirect_stderr(stderr),
+            ):
+                result = main(
+                    [
+                        "reference-acquire",
+                        "--public-root",
+                        str(public),
+                        "--private-root",
+                        str(private),
+                        "--artifact",
+                        protected_canary,
+                    ]
+                )
+
+        self.assertEqual(result, 0)
+        self.assertEqual(stderr.getvalue(), "")
+        self.assertEqual(
+            json.loads(stdout.getvalue()),
+            {
+                "byte_count": 11,
+                "external_actions": 1,
+                "pin_required_count": 0,
+                "state": "verified",
+                "verified_count": 1,
+            },
+        )
+        self.assertNotIn(protected_canary, stdout.getvalue() + stderr.getvalue())
+
     def test_synthetic_run_emits_one_content_free_status_record(self) -> None:
         fixture = ROOT / "tests" / "fixtures" / "synthetic_case.json"
         config = ROOT / "config" / "scoring-v1.json"

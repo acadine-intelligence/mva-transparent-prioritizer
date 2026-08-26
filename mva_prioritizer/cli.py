@@ -6,9 +6,16 @@ import sys
 from pathlib import Path
 from typing import Optional, Sequence
 
+from .environment import verify_environment
 from .manifest import validate_manifest
 from .paths import validate_root_pair
 from .privacy_scan import scan_public_tree
+from .reference_bundle import (
+    acquire_reference_artifact,
+    load_reference_bundle,
+    verify_reference_bundle,
+)
+from .reference_install import install_reference_artifact
 from .safe_projection import project_safe_learning, read_forbidden_values
 from .synthetic import run_synthetic
 from .verify import verify_synthetic_run
@@ -39,6 +46,20 @@ def _parser() -> argparse.ArgumentParser:
     privacy_scan.add_argument("--public-root", required=True)
     privacy_scan.add_argument("--private-root", required=True)
     privacy_scan.add_argument("--forbidden-values", required=True)
+    reference_acquire = subcommands.add_parser("reference-acquire")
+    reference_acquire.add_argument("--public-root", required=True)
+    reference_acquire.add_argument("--private-root", required=True)
+    reference_acquire.add_argument("--artifact", required=True)
+    reference_verify = subcommands.add_parser("reference-verify")
+    reference_verify.add_argument("--public-root", required=True)
+    reference_verify.add_argument("--private-root", required=True)
+    reference_install = subcommands.add_parser("reference-install")
+    reference_install.add_argument("--public-root", required=True)
+    reference_install.add_argument("--private-root", required=True)
+    reference_install.add_argument("--artifact", required=True)
+    verify_environment_command = subcommands.add_parser("verify-environment")
+    verify_environment_command.add_argument("--public-root", required=True)
+    verify_environment_command.add_argument("--private-root", required=True)
     return parser
 
 
@@ -132,6 +153,66 @@ def _dispatch(args: argparse.Namespace) -> int:
             "external_actions": result.external_actions,
             "file_count": result.file_count,
             "state": result.state,
+        }
+        print(json.dumps(status, separators=(",", ":"), sort_keys=True))
+        return 0
+    if args.command == "reference-acquire":
+        roots = validate_root_pair(Path(args.public_root), Path(args.private_root))
+        bundle = load_reference_bundle(roots.public_root / "config" / "reference-bundle.json")
+        result = acquire_reference_artifact(
+            roots.private_root,
+            bundle,
+            args.artifact,
+        )
+        status = {
+            "byte_count": result.byte_count,
+            "external_actions": 1,
+            "pin_required_count": result.pin_required_count,
+            "state": result.state,
+            "verified_count": result.verified_count,
+        }
+        print(json.dumps(status, separators=(",", ":"), sort_keys=True))
+        return 0
+    if args.command == "reference-verify":
+        roots = validate_root_pair(Path(args.public_root), Path(args.private_root))
+        bundle = load_reference_bundle(roots.public_root / "config" / "reference-bundle.json")
+        result = verify_reference_bundle(roots.private_root, bundle)
+        status = {
+            "artifact_count": result.artifact_count,
+            "byte_count": result.byte_count,
+            "external_actions": 0,
+            "state": result.state,
+        }
+        print(json.dumps(status, separators=(",", ":"), sort_keys=True))
+        return 0
+    if args.command == "reference-install":
+        roots = validate_root_pair(Path(args.public_root), Path(args.private_root))
+        bundle = load_reference_bundle(roots.public_root / "config" / "reference-bundle.json")
+        result = install_reference_artifact(
+            roots.private_root,
+            bundle,
+            args.artifact,
+        )
+        status = {
+            "byte_count": result.byte_count,
+            "directory_count": result.directory_count,
+            "external_actions": 0,
+            "file_count": result.file_count,
+            "state": result.state,
+        }
+        print(json.dumps(status, separators=(",", ":"), sort_keys=True))
+        return 0
+    if args.command == "verify-environment":
+        roots = validate_root_pair(Path(args.public_root), Path(args.private_root))
+        result = verify_environment(roots.public_root, roots.private_root)
+        status = {
+            "artifact_count": result.artifact_count,
+            "check_count": result.check_count,
+            "external_actions": 0,
+            "installed_count": result.installed_count,
+            "state": result.state,
+            "support_count": result.support_count,
+            "tool_count": result.tool_count,
         }
         print(json.dumps(status, separators=(",", ":"), sort_keys=True))
         return 0

@@ -1,32 +1,320 @@
 {
-  "schema_version": 1,
-  "bundle_version": "2026-08-26.1",
+  "artifacts": [
+    {
+      "expected_bytes": 20328716,
+      "expected_sha256": "91bcdebfdde239a003ae93738a7fce0f9230fee5c4bc2b86f6e6e8c6f98aabe8",
+      "filename": "Python-3.11.16.tar.xz",
+      "install_kind": "source-tar",
+      "name": "python-source",
+      "role": "tool_source",
+      "source_checksum": {
+        "algorithm": "sha256",
+        "value": "91bcdebfdde239a003ae93738a7fce0f9230fee5c4bc2b86f6e6e8c6f98aabe8"
+      },
+      "source_url": "https://www.python.org/ftp/python/3.11.16/Python-3.11.16.tar.xz",
+      "version": "3.11.16"
+    },
+    {
+      "expected_bytes": 5004265,
+      "expected_sha256": "28a8de191381c7a97a35675ceac76fa1ea95e7b678d6a2e9d600a7874e4077de",
+      "filename": "htslib-1.24.tar.bz2",
+      "install_kind": "source-tar",
+      "name": "htslib-source",
+      "role": "tool_source",
+      "source_checksum": {
+        "algorithm": "sha256",
+        "value": "28a8de191381c7a97a35675ceac76fa1ea95e7b678d6a2e9d600a7874e4077de"
+      },
+      "source_url": "https://github.com/samtools/htslib/releases/download/1.24/htslib-1.24.tar.bz2",
+      "version": "1.24"
+    },
+    {
+      "expected_bytes": 8272861,
+      "expected_sha256": "8caddc22610ee2851666047c859bb91da0c1e32d0c2ec553db6f153ad130e46f",
+      "filename": "bcftools-1.24.tar.bz2",
+      "install_kind": "source-tar",
+      "name": "bcftools-source",
+      "role": "tool_source",
+      "source_checksum": {
+        "algorithm": "sha256",
+        "value": "8caddc22610ee2851666047c859bb91da0c1e32d0c2ec553db6f153ad130e46f"
+      },
+      "source_url": "https://github.com/samtools/bcftools/releases/download/1.24/bcftools-1.24.tar.bz2",
+      "version": "1.24"
+    },
+    {
+      "expected_bytes": 200073404,
+      "expected_sha256": "3623232f33a9c3baadf304480b2535f9a3cba8a58d42ecbb438ba267315d9998",
+      "filename": "OpenJDK21U-jdk_aarch64_mac_hotspot_21.0.12.1_1.tar.gz",
+      "install_kind": "archive",
+      "name": "openjdk-macos-aarch64",
+      "role": "runtime_archive",
+      "source_checksum": {
+        "algorithm": "sha256",
+        "value": "3623232f33a9c3baadf304480b2535f9a3cba8a58d42ecbb438ba267315d9998"
+      },
+      "source_url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_aarch64_mac_hotspot_21.0.12.1_1.tar.gz",
+      "version": "21.0.12.1+1"
+    },
+    {
+      "expected_bytes": 170449958,
+      "expected_sha256": "47faa54d4791686c9dc3f896762834630e9eaf607ad3cf3399074353c3dda248",
+      "filename": "exomiser-cli-15.1.0-distribution.zip",
+      "install_kind": "archive",
+      "name": "exomiser-cli",
+      "role": "runtime_archive",
+      "source_checksum": {
+        "algorithm": "sha256",
+        "value": "47faa54d4791686c9dc3f896762834630e9eaf607ad3cf3399074353c3dda248"
+      },
+      "source_url": "https://github.com/exomiser/Exomiser/releases/download/15.1.0/exomiser-cli-15.1.0-distribution.zip",
+      "version": "15.1.0"
+    },
+    {
+      "expected_bytes": 63447329,
+      "expected_sha256": "a3aede9c19643772826e3e427eccd9de14ec060d58959a41703baffb7cda2c96",
+      "filename": "97c24b205f4ba8b44ccc75b839512a1d59104019.tar.gz",
+      "install_kind": "source-tar",
+      "name": "ensembl-vep-source",
+      "role": "tool_source",
+      "source_checksum": {
+        "algorithm": "none",
+        "value": null
+      },
+      "source_url": "https://github.com/Ensembl/ensembl-vep/archive/97c24b205f4ba8b44ccc75b839512a1d59104019.tar.gz",
+      "version": "116.1 commit 97c24b205f4ba8b44ccc75b839512a1d59104019"
+    },
+    {
+      "expected_bytes": 23576028714,
+      "expected_sha256": "2ed14f8b63b5612068591648d8c3c6e34ce9d1c66c08a78990597f78031df447",
+      "filename": "2602_hg38.zip",
+      "install_kind": "data-zip",
+      "name": "exomiser-hg38-data",
+      "role": "reference_data",
+      "source_checksum": {
+        "algorithm": "none",
+        "value": null
+      },
+      "source_url": "https://g-879a9f.f5dc97.75bc.dn.glob.us/data/2602_hg38.zip",
+      "version": "2602_hg38"
+    },
+    {
+      "expected_bytes": 13478530504,
+      "expected_sha256": "aa923530ca43cf5051ed2ba7b221bb73deb2b0dd66695b2ba60460db052f0493",
+      "filename": "2602_phenotype.zip",
+      "install_kind": "data-zip",
+      "name": "exomiser-phenotype-data",
+      "role": "reference_data",
+      "source_checksum": {
+        "algorithm": "none",
+        "value": null
+      },
+      "source_url": "https://g-879a9f.f5dc97.75bc.dn.glob.us/data/2602_phenotype.zip",
+      "version": "2602"
+    },
+    {
+      "expected_bytes": 881964081,
+      "expected_sha256": "d8c3af0094a7bba6125763bad779ec18a81483c739c6ed122094bdf86c187b92",
+      "filename": "Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
+      "install_kind": "reference-gzip",
+      "name": "ensembl-grch38-primary-assembly",
+      "role": "reference_data",
+      "source_checksum": {
+        "algorithm": "none",
+        "value": null
+      },
+      "source_url": "https://ftp.ensembl.org/pub/release-116/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
+      "version": "Ensembl release 116 GRCh38"
+    },
+    {
+      "expected_bytes": 27644657162,
+      "expected_sha256": "014c7dd9bb5ad06665866d62eb80f31ca761197bcb9b59280300676f996e600d",
+      "filename": "homo_sapiens_vep_116_GRCh38.tar.gz",
+      "install_kind": "archive",
+      "name": "vep-cache-human-grch38",
+      "role": "reference_data",
+      "source_checksum": {
+        "algorithm": "none",
+        "value": null
+      },
+      "source_url": "https://ftp.ensembl.org/pub/release-116/variation/indexed_vep_cache/homo_sapiens_vep_116_GRCh38.tar.gz",
+      "version": "116_GRCh38"
+    },
+    {
+      "expected_bytes": 193420805,
+      "expected_sha256": "d66b75c1cc433dd63471444fbf980fbc6ee07d6060f3b62b8f1910d52650933d",
+      "filename": "clinvar_20260822.vcf.gz",
+      "install_kind": "vcf-gzip",
+      "name": "clinvar-grch38-vcf",
+      "role": "reference_data",
+      "source_checksum": {
+        "algorithm": "md5",
+        "value": "a3a9897df14f14277f257bb6cd32ebbb"
+      },
+      "source_url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/clinvar_20260822.vcf.gz",
+      "version": "2026-08-22 GRCh38"
+    },
+    {
+      "expected_bytes": 610582,
+      "expected_sha256": "4bc81ef519b77ea8c89b6345bb74537a408ad3466dc19f29a4025d61e771cbbb",
+      "filename": "clinvar_20260822.vcf.gz.tbi",
+      "install_kind": "tabix-index",
+      "name": "clinvar-grch38-index",
+      "role": "index",
+      "source_checksum": {
+        "algorithm": "none",
+        "value": null
+      },
+      "source_url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/clinvar_20260822.vcf.gz.tbi",
+      "version": "2026-08-22 GRCh38"
+    },
+    {
+      "expected_bytes": 6877468,
+      "expected_sha256": "a49b7bed6aca87546ad0ee7ea83e0f30c88465c51b230cf482f2d40bc22bad82",
+      "filename": "0d852313c420a1d5128b6774635125ebbac03350.tar.gz",
+      "install_kind": "source-tar",
+      "name": "ensembl-core-api",
+      "role": "tool_source",
+      "source_checksum": {
+        "algorithm": "sha256",
+        "value": "a49b7bed6aca87546ad0ee7ea83e0f30c88465c51b230cf482f2d40bc22bad82"
+      },
+      "source_url": "https://github.com/Ensembl/ensembl/archive/0d852313c420a1d5128b6774635125ebbac03350.tar.gz",
+      "version": "release/116 commit 0d852313c420a1d5128b6774635125ebbac03350"
+    },
+    {
+      "expected_bytes": 40554345,
+      "expected_sha256": "a5742dd1d3b903b0521f5d5cd6fcb19fc23411a816d93b9928e86aa971d93050",
+      "filename": "db7394a02523a6e519cb0d89f84b2889bac12737.tar.gz",
+      "install_kind": "source-tar",
+      "name": "ensembl-variation-api",
+      "role": "tool_source",
+      "source_checksum": {
+        "algorithm": "sha256",
+        "value": "a5742dd1d3b903b0521f5d5cd6fcb19fc23411a816d93b9928e86aa971d93050"
+      },
+      "source_url": "https://github.com/Ensembl/ensembl-variation/archive/db7394a02523a6e519cb0d89f84b2889bac12737.tar.gz",
+      "version": "release/116 commit db7394a02523a6e519cb0d89f84b2889bac12737"
+    },
+    {
+      "expected_bytes": 2207400,
+      "expected_sha256": "aac8132f013bbd2d09b03f9af6131a2fb1c7db174dfd40397a56a05acae80d14",
+      "filename": "90049ea7ee4d8ae3a6d298dca46d6c6ab20538c4.tar.gz",
+      "install_kind": "source-tar",
+      "name": "ensembl-funcgen-api",
+      "role": "tool_source",
+      "source_checksum": {
+        "algorithm": "sha256",
+        "value": "aac8132f013bbd2d09b03f9af6131a2fb1c7db174dfd40397a56a05acae80d14"
+      },
+      "source_url": "https://github.com/Ensembl/ensembl-funcgen/archive/90049ea7ee4d8ae3a6d298dca46d6c6ab20538c4.tar.gz",
+      "version": "release/116 commit 90049ea7ee4d8ae3a6d298dca46d6c6ab20538c4"
+    },
+    {
+      "expected_bytes": 10598136,
+      "expected_sha256": "bf37e395259b269ec99d9147f528cb9941f84f50fac869be8eb0d47f1ace8183",
+      "filename": "aa58db6179591cfa35cdd6d5a14767355d63433a.tar.gz",
+      "install_kind": "source-tar",
+      "name": "ensembl-compara-api",
+      "role": "tool_source",
+      "source_checksum": {
+        "algorithm": "sha256",
+        "value": "bf37e395259b269ec99d9147f528cb9941f84f50fac869be8eb0d47f1ace8183"
+      },
+      "source_url": "https://github.com/Ensembl/ensembl-compara/archive/aa58db6179591cfa35cdd6d5a14767355d63433a.tar.gz",
+      "version": "release/116 commit aa58db6179591cfa35cdd6d5a14767355d63433a"
+    },
+    {
+      "expected_bytes": 2215603,
+      "expected_sha256": "45154809117aff507b91df86fe5fd74a4df0bcf3b588f0b0d0f6ea5278ee28cc",
+      "filename": "6afb5dc27a5ae6881d75959153fbe6e9a4a7e788.tar.gz",
+      "install_kind": "source-tar",
+      "name": "ensembl-io-api",
+      "role": "tool_source",
+      "source_checksum": {
+        "algorithm": "sha256",
+        "value": "45154809117aff507b91df86fe5fd74a4df0bcf3b588f0b0d0f6ea5278ee28cc"
+      },
+      "source_url": "https://github.com/Ensembl/ensembl-io/archive/6afb5dc27a5ae6881d75959153fbe6e9a4a7e788.tar.gz",
+      "version": "release/116 commit 6afb5dc27a5ae6881d75959153fbe6e9a4a7e788"
+    },
+    {
+      "expected_bytes": 10277139,
+      "expected_sha256": "43a23dbd845a30f4e32a988dedd7806b4ffb57c2f600487cded0e64b189accc9",
+      "filename": "f7d99adaad39ee0076a93dd93d0e866c184645fb.tar.gz",
+      "install_kind": "source-tar",
+      "name": "bioperl-api",
+      "role": "tool_source",
+      "source_checksum": {
+        "algorithm": "sha256",
+        "value": "43a23dbd845a30f4e32a988dedd7806b4ffb57c2f600487cded0e64b189accc9"
+      },
+      "source_url": "https://github.com/bioperl/bioperl-live/archive/f7d99adaad39ee0076a93dd93d0e866c184645fb.tar.gz",
+      "version": "release-1-6-924 commit f7d99adaad39ee0076a93dd93d0e866c184645fb"
+    },
+    {
+      "expected_bytes": 4226834,
+      "expected_sha256": "f2407df9f97f0bb6b07656579e41a1ca5100464067b6b21bf962a2ea4b0efd65",
+      "filename": "htslib-1.13.tar.bz2",
+      "install_kind": "source-tar",
+      "name": "vep-htslib-source",
+      "role": "tool_source",
+      "source_checksum": {
+        "algorithm": "sha256",
+        "value": "f2407df9f97f0bb6b07656579e41a1ca5100464067b6b21bf962a2ea4b0efd65"
+      },
+      "source_url": "https://github.com/samtools/htslib/releases/download/1.13/htslib-1.13.tar.bz2",
+      "version": "1.13 tag commit 8969d01339bc4e93bddba6075d80ef01a2634cdd"
+    },
+    {
+      "expected_bytes": 5130394,
+      "expected_sha256": "9e249adae396ddbd87c1efd48d8ad8de35d4fbef069d5b0644275514fabd04ba",
+      "filename": "3.02.tar.gz",
+      "install_kind": "source-tar",
+      "name": "bio-db-hts",
+      "role": "tool_source",
+      "source_checksum": {
+        "algorithm": "sha256",
+        "value": "9e249adae396ddbd87c1efd48d8ad8de35d4fbef069d5b0644275514fabd04ba"
+      },
+      "source_url": "https://github.com/Ensembl/Bio-DB-HTS/archive/refs/tags/3.02.tar.gz",
+      "version": "3.02 tag commit c370bc55b2ef4ea9134683eff69e03dd90375e0b"
+    },
+    {
+      "expected_bytes": 70702,
+      "expected_sha256": "6fd4000e4022968e2ce5b83c07b189219ef1925ecb72977b52a6f7d76adbc349",
+      "filename": "Set-IntervalTree-0.12.tar.gz",
+      "install_kind": "source-tar",
+      "name": "perl-set-intervaltree",
+      "role": "tool_source",
+      "source_checksum": {
+        "algorithm": "sha256",
+        "value": "6fd4000e4022968e2ce5b83c07b189219ef1925ecb72977b52a6f7d76adbc349"
+      },
+      "source_url": "https://cpan.metacpan.org/authors/id/S/SL/SLOYD/Set-IntervalTree-0.12.tar.gz",
+      "version": "0.12"
+    },
+    {
+      "expected_bytes": 148519,
+      "expected_sha256": "dfcaec925a788b0ba41e51bc6d16e21b0e98b4c7af9b79395090add75f5e506f",
+      "filename": "Text-CSV-2.06.tar.gz",
+      "install_kind": "source-tar",
+      "name": "perl-text-csv",
+      "role": "tool_source",
+      "source_checksum": {
+        "algorithm": "sha256",
+        "value": "dfcaec925a788b0ba41e51bc6d16e21b0e98b4c7af9b79395090add75f5e506f"
+      },
+      "source_url": "https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/Text-CSV-2.06.tar.gz",
+      "version": "2.06"
+    }
+  ],
   "assembly": "GRCh38",
-  "status": "declared",
-  "private_runtime": "m1-encrypted-workspace",
+  "bundle_version": "2026-08-26.2",
+  "fastq_included": false,
   "network_during_private_run": false,
-  "tools": [
-    {"name": "python", "version": "3.11", "sha256": null},
-    {"name": "bcftools", "version": "1.24", "sha256": null},
-    {"name": "htslib", "version": "1.24", "sha256": null},
-    {"name": "openjdk", "version": "21", "sha256": null},
-    {"name": "exomiser-cli", "version": "15.1.0", "source": "https://github.com/exomiser/Exomiser/releases/download/15.1.0/exomiser-cli-15.1.0-distribution.zip", "source_sha256": "47faa54d4791686c9dc3f896762834630e9eaf607ad3cf3399074353c3dda248", "sha256": null},
-    {"name": "ensembl-vep", "version": "116", "sha256": null}
-  ],
-  "assets": [
-    {"name": "exomiser-variant-data", "version": "2602_hg38", "source": "https://g-879a9f.f5dc97.75bc.dn.glob.us/data/2602_hg38.zip", "sha256": null},
-    {"name": "exomiser-phenotype-data", "version": "2602", "source": "https://g-879a9f.f5dc97.75bc.dn.glob.us/data/2602_phenotype.zip", "sha256": null},
-    {"name": "ensembl-grch38-primary-assembly", "version": "release-116", "source": "https://ftp.ensembl.org/pub/release-116/fasta/homo_sapiens/dna/", "sha256": null},
-    {"name": "clinvar-grch38", "version": "snapshot-at-acquisition", "source": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/", "sha256": null},
-    {"name": "vep-cache-homo-sapiens", "version": "116_GRCh38", "source": "https://ftp.ensembl.org/pub/release-116/variation/indexed_vep_cache/", "sha256": null}
-  ],
-  "contig_policy": {
-    "source_style": "unprefixed-grch38-with-decoys",
-    "primary_contigs": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "M"],
-    "rename": {"M": "MT"},
-    "excluded_contigs_reported": true
-  },
-  "resource_limits": {"exomiser_heap_gib": 5, "threads": 1},
+  "private_runtime": "m1-encrypted-workspace",
   "protected_data_allowed_on_public_compute": false,
-  "fastq_included": false
+  "schema_version": 2,
+  "status": "verified"
 }

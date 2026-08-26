@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import hashlib
 import sys
 import tempfile
 import unittest
@@ -9,7 +10,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from mva_prioritizer.paths import PathSecurityError, read_regular_input, validate_root_pair
+from mva_prioritizer.paths import (
+    PathSecurityError,
+    hash_regular_input,
+    read_regular_input,
+    validate_root_pair,
+)
 
 
 class PathGuardTests(unittest.TestCase):
@@ -36,6 +42,24 @@ class PathGuardTests(unittest.TestCase):
         self.assertEqual(read_regular_input(roots.private_root, "data/input.bin", max_bytes=32), b"synthetic-bytes")
         self.assertEqual(roots.public_root, self.public.resolve())
         self.assertEqual(roots.private_root, self.private.resolve())
+
+    def test_hashes_a_regular_file_without_loading_it_as_one_buffer(self) -> None:
+        data = self.private / "data"
+        data.mkdir(mode=0o700)
+        content = (b"synthetic-reference-block\n" * 50_000) + b"end\n"
+        input_file = data / "reference.bin"
+        input_file.write_bytes(content)
+        input_file.chmod(0o400)
+
+        result = hash_regular_input(
+            self.private,
+            "data/reference.bin",
+            max_bytes=len(content),
+            chunk_bytes=4096,
+        )
+
+        self.assertEqual(result.byte_count, len(content))
+        self.assertEqual(result.sha256, hashlib.sha256(content).hexdigest())
 
     def test_rejects_equal_nested_and_ancestor_roots(self) -> None:
         with self.assertRaisesRegex(PathSecurityError, "root_overlap"):

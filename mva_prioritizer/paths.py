@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import errno
+import hashlib
 import os
 import stat
 from dataclasses import dataclass
@@ -15,6 +16,13 @@ class PathSecurityError(ValueError):
 class RootPair:
     public_root: Path
     private_root: Path
+
+
+@dataclass(frozen=True)
+class FileDigest:
+    byte_count: int
+    sha256: str
+    md5: str
 
 
 def validate_root_pair(public_root: Path, private_root: Path) -> RootPair:
@@ -73,6 +81,81 @@ def read_regular_input(private_root: Path, relative_path: str, max_bytes: int) -
             if len(content) > max_bytes:
                 raise PathSecurityError("size_limit")
             return content
+        finally:
+            os.close(file_fd)
+    finally:
+        os.close(directory_fd)
+
+
+def hash_regular_input(
+    private_root: Path,
+    relative_path: str,
+    *,
+    max_bytes: int,
+    chunk_bytes: int = 1_048_576,
+) -> FileDigest:
+    parts = validate_relative_path(relative_path)
+    if (
+        not isinstance(max_bytes, int)
+        or isinstance(max_bytes, bool)
+        or max_bytes < 0
+        or not isinstance(chunk_bytes, int)
+        or isinstance(chunk_bytes, bool)
+        or chunk_bytes <= 0
+        or chunk_bytes > 16_777_216
+    ):
+        raise PathSecurityError("invalid_size_limit")
+
+    directory_fd = _open_directory_nofollow(Path(private_root))
+    try:
+        for part in parts[:-1]:
+            child_fd = _open_child_directory(directory_fd, part)
+            os.close(directory_fd)
+            directory_fd = child_fd
+
+        file_stat = _stat_child(directory_fd, parts[-1])
+        if stat.S_ISLNK(file_stat.st_mode):
+            raise PathSecurityError("symlink_component")
+        if not stat.S_ISREG(file_stat.st_mode):
+            raise PathSecurityError("not_regular")
+        if file_stat.st_size > max_bytes:
+            raise PathSecurityError("size_limit")
+
+        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+        try:
+            file_fd = os.open(parts[-1], flags, dir_fd=directory_fd)
+        except OSError as exc:
+            raise _mapped_open_error(exc) from None
+        try:
+            opened_stat = os.fstat(file_fd)
+            if not stat.S_ISREG(opened_stat.st_mode):
+                raise PathSecurityError("not_regular")
+            if (opened_stat.st_dev, opened_stat.st_ino) != (file_stat.st_dev, file_stat.st_ino):
+                raise PathSecurityError("path_changed")
+            sha256_digest = hashlib.sha256()
+            md5_digest = hashlib.md5()
+            byte_count = 0
+            while True:
+                chunk = os.read(file_fd, chunk_bytes)
+                if not chunk:
+                    break
+                byte_count += len(chunk)
+                if byte_count > max_bytes:
+                    raise PathSecurityError("size_limit")
+                sha256_digest.update(chunk)
+                md5_digest.update(chunk)
+            final_stat = os.fstat(file_fd)
+            if (
+                final_stat.st_size != opened_stat.st_size
+                or final_stat.st_mtime_ns != opened_stat.st_mtime_ns
+                or final_stat.st_ctime_ns != opened_stat.st_ctime_ns
+            ):
+                raise PathSecurityError("path_changed")
+            return FileDigest(
+                byte_count=byte_count,
+                sha256=sha256_digest.hexdigest(),
+                md5=md5_digest.hexdigest(),
+            )
         finally:
             os.close(file_fd)
     finally:
