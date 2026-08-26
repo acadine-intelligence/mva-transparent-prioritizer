@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "case_id": "SYNTHETIC_CASE_ALPHA",
+  "findings": [
+    {
+      "finding_id": "single-alpha",
+      "finding_type": "single",
+      "variants": [
+        {"variant_id": "SYNVAR_ALPHA", "gene": "SYNGENE_ALPHA", "impact": "high", "quality": "pass"}
+      ],
+      "source_rank": 2,
+      "source_score": "0.860000",
+      "phenotype_score": "0.910000",
+      "population_frequency": "0.000001",
+      "clinical_evidence": "pathogenic",
+      "mva_relation": "core",
+      "inheritance": "recessive",
+      "phase": "not_applicable"
+    },
+    {
+      "finding_id": "pair-beta",
+      "finding_type": "pair",
+      "variants": [
+        {"variant_id": "SYNVAR_BETA_1", "gene": "SYNGENE_BETA", "impact": "moderate", "quality": "pass"},
+        {"variant_id": "SYNVAR_BETA_2", "gene": "SYNGENE_BETA", "impact": "moderate", "quality": "pass"}
+      ],
+      "source_rank": 1,
+      "source_score": "0.820000",
+      "phenotype_score": "0.880000",
+      "population_frequency": "0.000010",
+      "clinical_evidence": "uncertain",
+      "mva_relation": "spectrum",
+      "inheritance": "recessive",
+      "phase": "unknown"
+    }
+  ]
+}

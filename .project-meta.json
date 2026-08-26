@@ -1,0 +1,12 @@
+{
+  "slug": "mva-transparent-prioritizer",
+  "name": "MVA Transparent Prioritizer",
+  "canonical_root": ".",
+  "paths": {
+    "app": ".",
+    "docs": "docs"
+  },
+  "kanban_epic": null,
+  "vault_note": null,
+  "session_protocol": "Read product.json, then run Build OS check before implementation."
+}

@@ -1,0 +1,278 @@
+{
+  "dossier": {
+    "finding_fields": [
+      "clinical_evidence",
+      "finding_id",
+      "finding_type",
+      "inheritance",
+      "mva_relation",
+      "phase",
+      "phenotype_score",
+      "population_frequency",
+      "review_score",
+      "review_score_components",
+      "source_rank",
+      "source_score",
+      "variants",
+      "warnings"
+    ],
+    "review_component_fields": [
+      "clinical_evidence",
+      "impact",
+      "mva_relation",
+      "phenotype_score",
+      "rarity",
+      "source_score"
+    ],
+    "top_fields_empty": [
+      "case_id",
+      "external_actions",
+      "findings",
+      "method_version",
+      "next_analytical_gap",
+      "review_score_is_probability",
+      "schema_version",
+      "state",
+      "synthetic"
+    ],
+    "top_fields_ranked": [
+      "case_id",
+      "external_actions",
+      "findings",
+      "method_version",
+      "review_score_is_probability",
+      "schema_version",
+      "state",
+      "synthetic"
+    ],
+    "variant_fields": [
+      "gene",
+      "impact",
+      "quality",
+      "variant_id"
+    ],
+    "warning_values": [
+      "phase_unresolved",
+      "review_score_incomplete"
+    ]
+  },
+  "manifest": {
+    "artifact_classes": [
+      "config",
+      "input",
+      "reference"
+    ],
+    "artifact_fields": [
+      "bytes",
+      "class",
+      "format",
+      "name",
+      "privacy_class",
+      "relative_path",
+      "sha256"
+    ],
+    "assembly": "GRCh38",
+    "privacy_by_run_kind": {
+      "private": [
+        "controlled",
+        "public"
+      ],
+      "synthetic": [
+        "public",
+        "synthetic"
+      ]
+    },
+    "run_kinds": [
+      "private",
+      "synthetic"
+    ],
+    "sample_count": 1,
+    "tool_fields": [
+      "binary_sha256",
+      "name",
+      "version"
+    ],
+    "top_fields": [
+      "artifacts",
+      "assembly",
+      "run_kind",
+      "sample_count",
+      "schema_version",
+      "tools"
+    ]
+  },
+  "method_version": "transparent-review-v1",
+  "privacy_scan": {
+    "max_file_bytes": 10485760,
+    "max_files": 10000,
+    "max_forbidden_value_bytes": 4096,
+    "max_forbidden_values": 256,
+    "max_tree_bytes": 104857600
+  },
+  "public_source_scan": {
+    "allowed_names": [
+      ".env.example"
+    ],
+    "content_rules": [
+      "aws_access_key",
+      "bearer_token",
+      "openai_style_key",
+      "private_key",
+      "source_machine_path"
+    ],
+    "denied_name_prefixes": [
+      ".env."
+    ],
+    "denied_names": [
+      ".env"
+    ],
+    "denied_path_segments": [
+      "private",
+      "runtime",
+      "uploads"
+    ],
+    "denied_suffixes": [
+      ".bam",
+      ".bcf",
+      ".cram",
+      ".fastq",
+      ".fastq.gz",
+      ".fq",
+      ".fq.gz",
+      ".vcf",
+      ".vcf.gz"
+    ],
+    "max_git_listing_bytes": 1048576
+  },
+  "run_artifacts": [
+    "dossier.json",
+    "dossier.md",
+    "receipt.json",
+    "run.json",
+    "safe-learnings.json"
+  ],
+  "run_receipt": {
+    "top_fields": [
+      "inputs",
+      "method_version",
+      "outputs",
+      "run_id",
+      "schema_version",
+      "synthetic"
+    ]
+  },
+  "safe_learning": {
+    "finding_type_keys": [
+      "pair",
+      "single"
+    ],
+    "output_name": "safe-learnings.json",
+    "states": [
+      "empty_result",
+      "review_ready"
+    ],
+    "top_fields": [
+      "external_actions",
+      "finding_count",
+      "finding_type_counts",
+      "method_version",
+      "schema_version",
+      "state",
+      "synthetic",
+      "warning_count"
+    ]
+  },
+  "schema_version": 1,
+  "scoring_config": {
+    "clinical_keys": [
+      "benign",
+      "conflicting",
+      "likely_pathogenic",
+      "pathogenic",
+      "uncertain"
+    ],
+    "impact_keys": [
+      "high",
+      "low",
+      "moderate"
+    ],
+    "mva_relation_keys": [
+      "core",
+      "none",
+      "pathway",
+      "spectrum"
+    ],
+    "required_disclaimer": "Research prioritization only. This score is heuristic and is not a calibrated clinical probability, diagnosis, treatment recommendation, or evidence of clinical benefit.",
+    "top_fields": [
+      "clinical_values",
+      "disclaimer",
+      "impact_values",
+      "mva_relation_values",
+      "rarity_thresholds",
+      "rule_set",
+      "schema_version",
+      "weights"
+    ],
+    "weight_fields": [
+      "clinical_evidence",
+      "impact",
+      "mva_relation",
+      "phenotype_score",
+      "rarity",
+      "source_score"
+    ]
+  },
+  "synthetic_fixture": {
+    "case_id_pattern": "SYNTHETIC_[A-Z0-9_]{1,54}",
+    "finding_fields": [
+      "clinical_evidence",
+      "finding_id",
+      "finding_type",
+      "inheritance",
+      "mva_relation",
+      "phase",
+      "phenotype_score",
+      "population_frequency",
+      "source_rank",
+      "source_score",
+      "variants"
+    ],
+    "finding_id_pattern": "[a-z0-9][a-z0-9-]{0,63}",
+    "finding_types": [
+      "pair",
+      "single"
+    ],
+    "gene_pattern": "SYNGENE_[A-Z0-9_]{1,55}",
+    "inheritance_values": [
+      "dominant",
+      "mitochondrial",
+      "recessive",
+      "unknown",
+      "x_linked"
+    ],
+    "pair_phase_values": [
+      "in_cis",
+      "in_trans",
+      "unknown"
+    ],
+    "quality_values": [
+      "fail",
+      "pass",
+      "review"
+    ],
+    "single_phase": "not_applicable",
+    "top_fields": [
+      "case_id",
+      "findings",
+      "schema_version",
+      "synthetic"
+    ],
+    "variant_fields": [
+      "gene",
+      "impact",
+      "quality",
+      "variant_id"
+    ],
+    "variant_id_pattern": "SYNVAR_[A-Z0-9_]{1,56}"
+  }
+}

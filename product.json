@@ -1,0 +1,162 @@
+{
+  "schema_version": 2,
+  "product": {
+    "slug": "mva-transparent-prioritizer",
+    "name": "MVA Transparent Prioritizer",
+    "kind": "standalone",
+    "owner": "Jonathan / Acadine",
+    "canonical_root": ".",
+    "mission": "Produce an auditable local research ranking from controlled MVA phenotype and VCF inputs while keeping every patient-level value inside the encrypted workspace.",
+    "core_output": "A private candidate dossier plus a separate public-safe methods and learnings packet.",
+    "hero_workflow": "Verify receipts, run synthetic acceptance, execute the offline private pipeline, review a reasoned candidate dossier, then build a privacy-scanned public projection.",
+    "differentiation": "It wraps established rare-disease tools with strict path confinement, exact provenance, independent evidence lanes, tamper detection, and a tested public-private projection boundary.",
+    "non_goals": [
+      "Diagnosis, treatment, dose, safety, or clinical benefit claims",
+      "Automatic challenge submission, publication, repository push, or messaging",
+      "Hosted processing of protected case data",
+      "Use or reconstruction of a hidden confirmed answer",
+      "FASTQ processing without a named analytical gap",
+      "A general-purpose rare-disease web platform"
+    ]
+  },
+  "problem": {
+    "target_user": "Jonathan, acting as the local research operator for the MVA Hackathon case",
+    "painful_job": "Turn a controlled phenotype document and whole-genome VCF into a short, reproducible candidate list that a specialist can audit under time pressure.",
+    "current_workaround": "Run annotation and phenotype tools separately, compare spreadsheets manually, and assemble a report without one deterministic receipt or enforced public-private boundary.",
+    "evidence": [
+      "Official Track 1 requires ranked candidate rows and a methods report: https://huggingface.co/spaces/SageBio/rare-disease-real-kid-mva-hackathon-2026/blob/main/tabs/submit_track1.py",
+      "The controlled dataset supplies a phenotype document and GRCh38 VCF: https://huggingface.co/datasets/SageBio/mva-hackathon-2026-data/blob/main/README.md",
+      "Content-free local inspection on 2026-08-26 confirmed one sample, GRCh38 plus decoys, genotype quality fields, and explicit HPO identifiers"
+    ],
+    "frequency": "At least one full analysis cycle, plus replay after each reference, configuration, code, or evidence change before submission.",
+    "consequence": "A weak or opaque ranking can waste review time, miss a plausible mechanism, expose protected data, or create false clinical confidence.",
+    "value_hypothesis": "A confined, receipt-bound workflow will make candidate review faster and make every ranking reason challengeable without weakening privacy.",
+    "success_metric": "One deterministic synthetic replay and one private review-ready run whose candidate rows all carry provenance, quality, phenotype, inheritance, and uncertainty fields.",
+    "kill_criteria": "Stop on unresolved reference identity, any protected export, failed path containment, or stale evidence. Move to a named analytical-gap decision when coding and targeted non-coding lanes yield no credible candidate."
+  },
+  "research": {
+    "sources": [
+      "https://huggingface.co/spaces/SageBio/rare-disease-real-kid-mva-hackathon-2026/blob/main/tabs/rules.py",
+      "https://huggingface.co/datasets/SageBio/mva-hackathon-2026-data/blob/main/README.md",
+      "https://huggingface.co/spaces/SageBio/rare-disease-real-kid-mva-hackathon-2026/blob/main/tabs/submit_track1.py",
+      "https://huggingface.co/spaces/SageBio/rare-disease-real-kid-mva-hackathon-2026/blob/main/evaluation.py",
+      "https://exomiser.readthedocs.io/en/stable",
+      "https://samtools.github.io/bcftools/bcftools.html",
+      "https://www.ensembl.org/info/docs/tools/vep/script/vep_cache.html",
+      "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38"
+    ],
+    "alternatives": [
+      "Direct Exomiser execution with manual review",
+      "bcftools and VEP with spreadsheet curation",
+      "Hosted-model variant review, excluded for protected case data"
+    ],
+    "workflow_observations": [
+      "Track 1 accepts one-variant and paired-variant rows and sorts by submitted confidence.",
+      "The supplied VCF has one sample and no advertised consequence annotation.",
+      "The phenotype document contains explicit HPO identifiers, so local deterministic extraction is feasible.",
+      "The VCF header does not advertise structural-variant fields, so variant-class coverage needs an explicit warning."
+    ],
+    "market_gap": "Established tools rank variants, but the case needs a small offline layer that enforces privacy, proves provenance, preserves independent evidence lanes, and creates a safe public projection.",
+    "constraints": [
+      "Protected runtime has 8 GB memory and Apple Silicon.",
+      "Private execution must be offline and remain inside the encrypted workspace.",
+      "Single-sample data limits inheritance and phase conclusions.",
+      "Public output cannot contain patient-level values or row-level derivatives.",
+      "Controlled and derived data follow the challenge deletion deadline.",
+      "Scientific review remains required before any clinical use."
+    ]
+  },
+  "acceptance": {
+    "criteria": [
+      "Two synthetic runs are byte-identical.",
+      "Unsafe paths and tampered receipts fail before private content is read or written.",
+      "Private execution emits content-free status and detailed files only under the private root.",
+      "Every candidate preserves source score, evidence reasons, inheritance uncertainty, and provenance.",
+      "No-result and unsupported-variant-class states remain explicit.",
+      "The public projection passes seeded-canary and forbidden-field scans.",
+      "Independent review covers exact current commit and all valid blockers are resolved."
+    ]
+  },
+  "experience": {
+    "surfaces": ["cli", "library"],
+    "direction": "A staged, receipt-first operator CLI with content-free stdout and detailed private files.",
+    "design_references": ["Laboratory run receipt", "Unix command exit-code contract"],
+    "tokens": {
+      "color": ["No color-only meaning", "Optional ANSI disabled when output is redirected"],
+      "typography": ["Inherited terminal monospace"],
+      "spacing": ["One blank line between sections", "Fixed indentation for nested evidence"]
+    },
+    "states": ["loading", "empty", "error", "success", "disabled", "stale", "destructive", "recovery", "ready", "running", "incomplete", "failed_closed", "empty_result", "review_ready", "stale_receipt", "privacy_blocked"],
+    "visual_evidence": [],
+    "accessibility_target": "WCAG 2.2 AA"
+  },
+  "architecture": {
+    "system_context": "Public code and reference acquisition are separate from a private offline runtime inside an encrypted M1 workspace. Hosted agents and external services receive public code, public sources, synthetic fixtures, and aggregate status only.",
+    "data_model": "Versioned InputManifest, ReferenceBundle, PhenotypeSet, VariantObservation, CandidateFinding, EvidenceRecord, RunReceipt, and SafeLearning schemas.",
+    "api_contract": "No network API. The contract is a versioned CLI plus JSON schemas. Unknown schema versions fail closed.",
+    "hermes_integration": {
+      "mode": "standalone",
+      "boundary": "The product owns protected reads, deterministic analysis, scoring, receipts, and reports. Hermes may orchestrate public research and content-free status checks."
+    },
+    "risks": [
+      "Reference mismatch corrupts normalization or annotation.",
+      "8 GB memory pressure interrupts a whole-genome prioritization lane.",
+      "Single-sample data overstates inheritance or phase.",
+      "Missing structural calls are misread as a biological negative.",
+      "A generic export path leaks private rows.",
+      "A deterministic ranking creates false clinical confidence.",
+      "Tool or reference drift silently changes rank."
+    ],
+    "privacy": "Protected inputs, HPO identifiers, variants, coordinates, genotypes, sample metadata, logs, rankings, and dossier text remain under the encrypted private root. The public projector uses a fixed allowlist and seeded-canary scan."
+  },
+  "verification": {
+    "commands": [
+      {"name": "compile", "argv": ["python3", "-m", "compileall", "-q", "mva_prioritizer", "scripts", "tests"], "required": true},
+      {"name": "unit-tests", "argv": ["python3", "-m", "unittest", "discover", "-s", "tests", "-p", "test_*.py", "-v"], "required": true},
+      {"name": "known-bad-tests", "argv": ["python3", "scripts/known_bad_tests.py"], "required": true},
+      {"name": "synthetic-journey", "argv": ["bash", "scripts/verify.sh"], "required": true},
+      {"name": "privacy-scan", "argv": ["python3", "scripts/verify_public_tree.py"], "required": true},
+      {"name": "contract-check", "argv": ["python3", "-m", "unittest", "tests.test_contract", "-v"], "required": true},
+      {"name": "cli-help", "argv": ["python3", "-m", "mva_prioritizer.cli", "--help"], "required": true}
+    ],
+    "independent_review": {
+      "required": true,
+      "policy": "A reviewer who did not implement the change must inspect the exact Git commit and report security, logic, and contract findings"
+    },
+    "user_journeys": [
+      "Operator runs the frozen synthetic fixture and receives review_ready with byte-identical artifacts on replay.",
+      "Operator runs a private manifest and receives content-free stage status while the detailed dossier stays under the encrypted root.",
+      "Operator tampers with a reference receipt and receives stale_receipt before candidate generation.",
+      "Operator seeds a protected canary and verifies that the safe projection contains no canary or forbidden private field."
+    ],
+    "performance_budget": {"synthetic_seconds": 10, "private_peak_memory_gb": 7, "stdout_private_value_count": 0}
+  },
+  "operations": {
+    "install": "Use the project bootstrap for public code. Use the private M1 bootstrap only after the encrypted volume is mounted. Both environments stay separate from Hermes's private environment.",
+    "run": "Run synthetic acceptance first, then invoke private-run with the trusted manifest inside the encrypted workspace.",
+    "health": "verify-environment checks mount state, free space, memory, binaries, reference receipts, input receipts, offline policy, and root containment.",
+    "rollback": "Select the prior verified Git commit, reference bundle receipt, and canonical config. Existing run directories are immutable and never overwritten.",
+    "support_owner": "Jonathan / Acadine",
+    "data_backup": "The encrypted Expansion workspace and retained FileVault source provide current local custody. Source retirement requires a separate verified recovery and deletion decision."
+  },
+  "release": {
+    "version": "",
+    "user_acceptance": {
+      "status": "pending",
+      "evidence": ""
+    },
+    "known_limitations": [
+      "Research software only. It does not provide diagnosis or treatment advice.",
+      "Single-sample data cannot prove inheritance, phase, or de novo status.",
+      "The supplied VCF may omit structural or calling classes.",
+      "Exomiser and custom evidence rules do not produce calibrated clinical probabilities.",
+      "Public sharing and challenge submission remain pending review and approval."
+    ]
+  },
+  "adoption": {
+    "active_users": 0,
+    "feedback_cycles": 0,
+    "metric_observations": [],
+    "decision": "pending"
+  }
+}

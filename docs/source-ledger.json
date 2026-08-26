@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": 1,
+      "url": "https://huggingface.co/spaces/SageBio/rare-disease-real-kid-mva-hackathon-2026/blob/main/tabs/rules.py",
+      "title": "MVA Hackathon rules",
+      "accessed": "2026-08-26"
+    },
+    {
+      "id": 2,
+      "url": "https://huggingface.co/datasets/SageBio/mva-hackathon-2026-data/blob/main/README.md",
+      "title": "MVA Hackathon dataset card",
+      "accessed": "2026-08-26"
+    },
+    {
+      "id": 3,
+      "url": "https://huggingface.co/spaces/SageBio/rare-disease-real-kid-mva-hackathon-2026/blob/main/tabs/submit_track1.py",
+      "title": "MVA Hackathon Track 1 submission",
+      "accessed": "2026-08-26"
+    },
+    {
+      "id": 4,
+      "url": "https://huggingface.co/spaces/SageBio/rare-disease-real-kid-mva-hackathon-2026/blob/main/evaluation.py",
+      "title": "MVA Hackathon Track 1 evaluation",
+      "accessed": "2026-08-26"
+    },
+    {
+      "id": 5,
+      "url": "https://exomiser.readthedocs.io/en/stable",
+      "title": "Exomiser stable documentation",
+      "accessed": "2026-08-26"
+    },
+    {
+      "id": 6,
+      "url": "https://samtools.github.io/bcftools/bcftools.html",
+      "title": "bcftools manual",
+      "accessed": "2026-08-26"
+    },
+    {
+      "id": 7,
+      "url": "https://www.ensembl.org/info/docs/tools/vep/script/vep_cache.html",
+      "title": "Ensembl VEP cache documentation",
+      "accessed": "2026-08-26"
+    },
+    {
+      "id": 8,
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38",
+      "title": "NCBI ClinVar GRCh38 VCF directory",
+      "accessed": "2026-08-26"
+    },
+    {
+      "id": 9,
+      "url": "https://api.github.com/repos/exomiser/Exomiser/releases/latest",
+      "title": "Exomiser latest release API",
+      "accessed": "2026-08-26"
+    },
+    {
+      "id": 10,
+      "url": "https://api.github.com/repos/samtools/bcftools/releases/latest",
+      "title": "bcftools latest release API",
+      "accessed": "2026-08-26"
+    },
+    {
+      "id": 11,
+      "url": "https://exomiser.readthedocs.io/en/latest/installation.html",
+      "title": "Exomiser installation",
+      "accessed": "2026-08-26"
+    }
+  ]
+}
