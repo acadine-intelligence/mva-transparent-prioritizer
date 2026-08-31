@@ -26,6 +26,7 @@ class VerifyScriptTests(unittest.TestCase):
         self.assertIn("known_bad=pass", completed.stdout)
         self.assertIn("public_source_scan=pass", completed.stdout)
         self.assertIn("synthetic_journey=pass", completed.stdout)
+        self.assertIn("noncoding_benchmark=pass", completed.stdout)
         self.assertNotIn("Traceback", completed.stdout + completed.stderr)
 
 

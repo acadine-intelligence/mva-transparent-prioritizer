@@ -8,6 +8,7 @@ from typing import Optional, Sequence
 
 from .environment import verify_environment
 from .manifest import validate_manifest
+from .noncoding_benchmark import run_noncoding_benchmark
 from .paths import validate_root_pair
 from .privacy_scan import scan_public_tree
 from .reference_bundle import (
@@ -28,6 +29,11 @@ def _parser() -> argparse.ArgumentParser:
     synthetic.add_argument("--fixture", required=True)
     synthetic.add_argument("--config", required=True)
     synthetic.add_argument("--output-root", required=True)
+    noncoding = subcommands.add_parser("noncoding-benchmark")
+    noncoding.add_argument("--fixture", required=True)
+    noncoding.add_argument("--config", required=True)
+    noncoding.add_argument("--acquisition-manifest", required=True)
+    noncoding.add_argument("--output-root", required=True)
     verify = subcommands.add_parser("verify-run")
     verify.add_argument("--fixture", required=True)
     verify.add_argument("--config", required=True)
@@ -85,6 +91,23 @@ def _dispatch(args: argparse.Namespace) -> int:
         status = {
             "external_actions": summary.external_actions,
             "finding_count": summary.finding_count,
+            "run_id": summary.run_id,
+            "state": summary.state,
+        }
+        print(json.dumps(status, separators=(",", ":"), sort_keys=True))
+        return 0
+    if args.command == "noncoding-benchmark":
+        summary = run_noncoding_benchmark(
+            fixture_path=Path(args.fixture),
+            config_path=Path(args.config),
+            acquisition_manifest_path=Path(args.acquisition_manifest),
+            output_root=Path(args.output_root),
+        )
+        status = {
+            "case_count": summary.case_count,
+            "external_actions": summary.external_actions,
+            "passed_case_count": summary.passed_case_count,
+            "private_execution_authorized": summary.private_execution_authorized,
             "run_id": summary.run_id,
             "state": summary.state,
         }

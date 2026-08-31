@@ -46,3 +46,15 @@ python3 -m mva_prioritizer.cli verify-run \
   --config config/scoring-v1.json \
   --run-directory "$RUN_DIRECTORY"
 printf '%s\n' 'synthetic_journey=pass'
+
+NONCODING_OUTPUT_ROOT="$TEMPORARY/noncoding-output"
+mkdir -m 700 "$NONCODING_OUTPUT_ROOT"
+NONCODING_STATUS="$(python3 -m mva_prioritizer.cli noncoding-benchmark \
+  --fixture tests/fixtures/noncoding_benchmark_cases.json \
+  --config config/noncoding-benchmark-v1.json \
+  --acquisition-manifest config/noncoding-acquisition-v1.json \
+  --output-root "$NONCODING_OUTPUT_ROOT")"
+printf '%s\n' "$NONCODING_STATUS"
+python3 -c 'import json, sys; value = json.loads(sys.argv[1]); assert value["state"] == "ready_for_tool_smoke"; assert value["case_count"] == 14; assert value["passed_case_count"] == 14; assert value["external_actions"] == 0; assert value["private_execution_authorized"] is False; assert value["run_id"].startswith("benchmark-")' "$NONCODING_STATUS"
+python3 -c 'import sys; from pathlib import Path; root = Path(sys.argv[1]); runs = [path for path in root.glob("benchmark-*") if path.is_dir()]; assert len(runs) == 1; assert {path.name for path in runs[0].iterdir()} == {"benchmark-public.json", "benchmark-report.json", "receipt.json"}' "$NONCODING_OUTPUT_ROOT"
+printf '%s\n' 'noncoding_benchmark=pass'
