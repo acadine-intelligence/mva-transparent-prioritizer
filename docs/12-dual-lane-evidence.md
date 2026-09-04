@@ -53,8 +53,8 @@ candidate genes than coding alone, and the additions are phenotype-supported, no
 ## 5. Limitations
 
 - One protected genome; no cohort claims.
-- Single threshold pair (ReMM 0.914, SpliceAI 0.1); a 0.963 sensitivity run is proposed and
-  pending approval.
+- Single threshold pair (ReMM 0.914, SpliceAI 0.1); a 0.963 sensitivity comparison is staged
+  (post-hoc re-threshold of the frozen JSONL) and pending approval.
 - Exomiser gene-level funnel granularity switches between stages; documented, chainability
   verified from stage 2 onward.
 - No clinical interpretation, treatment claim, or diagnostic use. Research evidence only.
@@ -65,7 +65,19 @@ Per the 2026-08-28 requirement: all analysis was executed by deterministic open-
 (Exomiser, bcftools, VEP); Claude/GLM agents were used for orchestration, verification authoring,
 and review coordination; every substantive claim in this document traces to a frozen receipt.
 
-## 7. Next
+## 7. Relation to the public synthetic benchmark
 
-- Approval gate: public claims list (iteration-6 packet), write-up, optional ReMM 0.963 run.
-- If approved: benchmark-private analogy section; submission package prep remains Jonathan's gate.
+The public repository carries a deterministic synthetic benchmark of the same method contract
+(`benchmark-4df1927aced6a317`, 14 cases, run against staged fixtures: missing scores, strict
+thresholds, low-VAF retention, coding-lane preservation, compound-pair preservation). The
+private lane execution is the same contract applied to the protected genome: identical
+thresholds (ReMM > 0.914, SpliceAI > 0.1), identical step order, identical fail-closed
+receipts. The benchmark proves the method behaves correctly on known inputs; the private run
+demonstrates its evidence yield on real data without exposing that data. This separation is
+deliberate: public artifacts are fully publishable, private artifacts are fully custody-bound.
+
+## 8. Next
+
+- Approval gate: public claims list (iteration-6 packet), write-up, ReMM 0.963 sensitivity
+  (staged as a post-hoc re-threshold of frozen JSONL: `e13da6c2…`, no second run needed).
+- If approved: sensitivity table joins section 3; submission package prep remains Jonathan's gate.
