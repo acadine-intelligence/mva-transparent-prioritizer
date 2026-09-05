@@ -83,8 +83,10 @@ MUTATIONS = [
      "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_tsv_jsonl_consistency_check_stops_the_run"),
     (DRIVER, '            if mode is None or mode not in jsonl_modes[', '            if False and mode not in jsonl_modes[',
      "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_tsv_jsonl_consistency_check_stops_the_run"),
-    (DRIVER, '        if inputs.reread_hashes() != (inputs.tsv_sha, inputs.jsonl_sha):\n            raise', '        if False:\n            raise',
-     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_tsv_changed_during_the_engine_run_is_refused"),
+    (DRIVER, '        if inputs.reread_hashes() != (inputs.tsv_sha, inputs.jsonl_sha, inputs.receipt_sha):\n            raise', '        if False:\n            raise',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_freeze_receipt_changed_during_the_run_is_refused"),
+    (DRIVER, '        if staged_sha != inputs.tsv_sha:\n            raise', '        if False:\n            raise',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_staged_input_replaced_during_the_run_is_refused"),
     (DRIVER, '        if result.returncode != 0 or not summary.is_file() or not detail.is_file():\n            raise', '        if not summary.is_file() or not detail.is_file():\n            raise',
      "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_java_nonzero_exit_is_refused_even_when_it_wrote_outputs"),
     (DRIVER, '        if not completed:\n            os.chmod(output_root, 0o700)', '        if False:\n            os.chmod(output_root, 0o700)',
@@ -147,7 +149,7 @@ class GuardMutationTest(unittest.TestCase):
                 finally:
                     target.write_text(original)
         self.assertEqual(survivors, [], f"guards whose removal went undetected: {survivors}")
-        self.assertEqual(len(MUTATIONS), 35)
+        self.assertEqual(len(MUTATIONS), 36)
 
     def test_repo_modules_are_untouched(self):
         for module_file in (PARTITION, BOUNDED, DRIVER):

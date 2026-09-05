@@ -4,11 +4,11 @@ Date: 2026-09-05. Scope: public synthetic probe of two engine classes. No patien
 
 ## What ran
 
-A 170-line Java program compiled against the published `exomiser-core-15.1.0.jar` and executed with the pinned Temurin 21 JDK. Both artifacts were downloaded from their public release URLs into a scratch directory on the M4 and matched the SHA-256 pins in `config/reference-bundle.json` exactly. The engine source was not modified. The encrypted M1 volume was not touched.
+The Java program checked in as `tools/exomiser-probe/Probe.java` (SHA-256 `f8947dac3c5021e3...`), compiled against the published `exomiser-core-15.1.0.jar` and executed with the pinned Temurin 21 JDK. Both artifacts were downloaded from their public release URLs into a scratch directory on the M4 and matched the SHA-256 pins in `config/reference-bundle.json` exactly. The engine source was not modified. The encrypted M1 volume was not touched. The same directory holds the later `RoundTrip.java` and `Recompute.java`; each fixture in `tests/fixtures/` names the program and the run that produced it.
 
 The probe constructs synthetic `VariantEvaluation` objects on GRCh38 chromosome 1 at invented positions, runs them through the engine's own `PathogenicityFilter(false, Target.NON_CODING)` (the genome preset's configuration), and feeds survivors to the engine's own `InheritanceModeAnnotator` for a single affected proband.
 
-Artifacts: `runtime/exomiser-probe-20260905/` holds the source, raw output, and receipt. `tests/fixtures/exomiser_probe_output.json` is the verbatim output. `tests/test_exomiser_probe_fixture.py` pins the recorded behaviour.
+Artifacts: `tools/exomiser-probe/` holds the sources; the run receipt lives alongside them in the private run history. `tests/fixtures/exomiser_probe_output.json` is the verbatim output. `tests/test_exomiser_probe_fixture.py` pins the recorded behaviour.
 
 ## Findings
 

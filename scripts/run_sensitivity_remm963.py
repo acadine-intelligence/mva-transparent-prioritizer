@@ -14,6 +14,7 @@ Preconditions, all checked before anything is created:
   - the frozen run holds exactly one results/<stem>.variants.tsv, the matching
     results/<stem>.jsonl, and <run>-receipt.json with state "completed";
   - both results files hash to the values in the receipt's outputs block;
+  - the engine consumes a staged copy of the verified TSV bytes, not the frozen path;
   - the TSV and JSONL agree: same set of (gene, contig, start, ref, alt) keys, and
     every TSV MOI appears in the matching JSONL variant's compatible modes;
   - the output root does not exist, is a sibling of the frozen run, and is named
@@ -21,7 +22,8 @@ Preconditions, all checked before anything is created:
   - java runs, the exomiser lib holds exomiser-core-15.1.0.jar, and the class
     directory holds a regular Recompute.class.
 
-After the engine runs, the frozen inputs are hashed again and must be unchanged.
+After the engine runs, all three frozen inputs are re-read and hashed, and the
+staged copy is re-hashed; all must match the verified bytes.
 On any failure: exit 2, one bounded line on stderr naming no path or sample, and
 no output root left behind. The frozen run is never opened for writing.
 """
@@ -163,11 +165,10 @@ class FrozenInputs:
         self.tsv_sha = _sha256(self.tsv_raw)
         self.jsonl_sha = _sha256(self.jsonl_raw)
         self.receipt_sha = _sha256(self.receipt_raw)
-        self.tsv_path = frozen_run / "results" / self.tsv_name
 
-    def reread_hashes(self) -> tuple[str, str]:
+    def reread_hashes(self) -> tuple[str, str, str]:
         again = FrozenInputs(self.frozen_run)
-        return again.tsv_sha, again.jsonl_sha
+        return again.tsv_sha, again.jsonl_sha, again.receipt_sha
 
     def check_receipt(self) -> None:
         receipt = _strict_json(self.receipt_raw, "freeze receipt")
@@ -221,6 +222,13 @@ def _check_output_root(output_root: Path, frozen_run: Path) -> None:
         raise Refused("output root must be a sibling of the frozen run")
     if output_root.name != frozen_run.name + OUTPUT_SUFFIX:
         raise Refused("output root name must be the frozen run name plus the sensitivity suffix")
+
+
+def _stage_verified_bytes(output_root: Path, name: str, raw: bytes) -> Path:
+    """Write the verified bytes into the output root; the engine consumes this copy."""
+    staged = output_root / name
+    _write_new(staged, raw)
+    return staged
 
 
 def _hash_regular(path: Path, max_bytes: int, what: str) -> str:
@@ -285,17 +293,21 @@ def run(args: argparse.Namespace) -> dict:
     try:
         summary = output_root / "recompute-summary.json"
         detail = output_root / "recompute-detail.json"
+        staged_tsv = _stage_verified_bytes(output_root, "input.variants.tsv", inputs.tsv_raw)
         classpath = f"{class_dir}:{lib}/*"
         result = subprocess.run(
-            [str(java), "-cp", classpath, "Recompute", str(inputs.tsv_path), args.proband, str(summary), str(detail)],
+            [str(java), "-cp", classpath, "Recompute", str(staged_tsv), args.proband, str(summary), str(detail)],
             capture_output=True, text=True, timeout=3600,
         )
         if result.returncode != 0 or not summary.is_file() or not detail.is_file():
             raise Refused("recomputation did not complete")
-        if inputs.reread_hashes() != (inputs.tsv_sha, inputs.jsonl_sha):
+        if inputs.reread_hashes() != (inputs.tsv_sha, inputs.jsonl_sha, inputs.receipt_sha):
             raise Refused("frozen input changed during the run")
         os.chmod(summary, 0o400)
         os.chmod(detail, 0o400)
+        staged_sha = _hash_regular(staged_tsv, MAX_INPUT_BYTES, "staged input")
+        if staged_sha != inputs.tsv_sha:
+            raise Refused("staged input does not match the verified bytes")
 
         detail_raw = _read_regular_at(os.open(output_root, os.O_RDONLY | os.O_DIRECTORY | CLOEXEC), "recompute-detail.json", 64 * 1024 * 1024)
         partition = partition_from_detail(_strict_json(detail_raw, "recompute detail"))
@@ -303,6 +315,7 @@ def run(args: argparse.Namespace) -> dict:
             raise Refused("recomputation cutoff is not the designed cutoff")
         receipt = partition_receipt(partition, include_symbols=False)
         outputs = {
+            "input.variants.tsv": staged_sha,
             "recompute-summary.json": _hash_regular(summary, 64 * 1024 * 1024, "recompute summary"),
             "recompute-detail.json": _sha256(detail_raw),
             "partition-receipt.json": _write_new(output_root / "partition-receipt.json", (json.dumps(receipt, indent=2, sort_keys=True) + "\n").encode()),
