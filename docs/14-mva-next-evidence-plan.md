@@ -31,10 +31,12 @@ Pinned source: [preset](https://github.com/exomiser/Exomiser/blob/98f4e0b6f2f3f5
 
 ## Execution sequence
 
-1. Select and test an explicit way to change the pinned engine's ReMM cutoff. Use an isolated public-source experiment. Preserve the original executable and record the new build hash if a source change is needed.
-2. Build a public synthetic fixture with a compound pair across the threshold boundary. Include a variant at the exact cutoff and a separate coding control.
-3. Run the pinned implementation at both thresholds with identical reference inputs. Recompute full outputs. Compare variant keys and compound pairs. Record ranking changes separately.
-4. If the fixture behaves as expected, prepare an additive private full-run sensitivity comparison. Pin every configuration difference. Require a separate output directory and unchanged baseline hashes. Keep detailed evidence on the encrypted host.
+Steps 1 to 3 were completed on 2026-09-05 at class level; see `docs/17-exomiser-probe.md`. The ReMM cutoff is a compiled constant with no configuration path in 15.1.0. A validated mirror of the filter logic reproduces the engine at the baseline constant on all 15 comparisons. The compound-pair probe against the real annotator confirms that a rerun drops the recessive mode that post-hoc filtering would retain. A full reference-backed CLI comparison at both cutoffs remains undone.
+
+1. ~~Select and test an explicit way to change the pinned engine's ReMM cutoff.~~ Done at class level. A full-pipeline stricter run requires a source change and rebuilt jar, or the validated mirror applied before inheritance annotation.
+2. ~~Build a public synthetic fixture with a compound pair across the threshold boundary.~~ Done: `tests/fixtures/exomiser_probe_output.json`.
+3. ~~Run the pinned implementation at both thresholds.~~ Done for the filter and annotator classes. Not done for the full CLI with reference data.
+4. If a private full-run sensitivity comparison is approved, pin every configuration difference. Require a separate output directory and unchanged baseline hashes. Keep detailed evidence on the encrypted host. Apply the mirror before inheritance annotation and rerun annotation; do not filter frozen output.
 5. Prepare a private specialist-review dossier from the verified lanes. Preserve uncertain phase and gene-disease validity. Keep candidate scores distinct from clinical probability.
 
 Stop if the test depends on a guessed JSON field, reference mismatch, or altered frozen evidence. Resolve that defect before running private sensitivity.
