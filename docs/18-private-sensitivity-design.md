@@ -1,6 +1,6 @@
 # Private sensitivity design: ReMM 0.963 on the frozen noncoding lane
 
-Status: design for approval. Nothing here has run against private data. Written 2026-09-05 after the engine probe in `docs/17-exomiser-probe.md`.
+Status: design for approval, revision 2. Nothing here has run against private data. Written 2026-09-05 after the engine probe in `docs/17-exomiser-probe.md`. Revision 2 corrects the output path and the input file after a public round-trip through the real `JsonResultsWriter`.
 
 ## Question
 
@@ -16,21 +16,44 @@ The staged post-hoc script (`/tmp/mva-remm963-staged.sh`, never run) read the JS
 2. Keeping a record keeps its baseline `compatibleInheritanceModes`. The probe showed the real annotator drops recessive compatibility when the partner is gone, and drops the survivor entirely when its own frequency exceeds the dominant cutoff.
 3. The script changed permissions on the frozen directory to read it. The frozen lane must stay byte-identical.
 
+## What the frozen JSONL does and does not contain
+
+A public round-trip on 2026-09-05 serialized six synthetic genes through the real `JsonResultsWriter` from the hash-verified `exomiser-core-15.1.0.jar` (`runtime/exomiser-probe-20260905/roundtrip/`). The writer uses `JsonInclude.Include.NON_DEFAULT` and a mixin that exposes only the svart coordinate accessors. The variant objects it wrote contain: `contigName`, `start`, `end`, `ref`, `alt`, `type`, `length`, `filterStatus`, `passedFilterTypes`, `failedFilterTypes`, `frequencyData.frequencies[].source/.frequency`, `pathogenicityData.pathogenicityScores[].source/.score`, `compatibleInheritanceModes`, and the scalar scores.
+
+They do not contain `variantEffect`, `nonCodingVariant`, `whiteListed`, `sampleGenotypes`, or `transcriptAnnotations`. The `@JsonPropertyOrder` on `VariantEvaluation` lists those names, but the fields carry no `@JsonProperty` and the accessors are not bean getters, so Jackson skips them. The gene objects likewise omit `compatibleInheritanceModes` when the analyser did not set them.
+
+Consequence: the JSONL alone cannot drive the filter mirror (no coding/noncoding flag, no whitelist flag) or the annotator (no genotype). Revision 1 of this design was wrong on that point.
+
+The frozen lane was written with `outputFormats: [JSON, TSV_GENE, TSV_VARIANT, VCF]`, `outputFileName: lane2-genome`, `outputContributingVariantsOnly: false`, `numGenes: 0`, and `analysisMode: PASS_ONLY` (from the run's own analysis file, private path redacted here). PASS_ONLY means variants that failed the baseline 0.914 filter were never written, so the recomputation can only move variants out of the lane, never in; that is the intended direction for a stricter cutoff.
+
+The frozen lane also contains `lane2-genome.variants.tsv`. `TsvVariantResultsWriter` emits per row: `GENOTYPE` from `genotypeString()`, `FUNCTIONAL_CLASS` from `variantEffect().getSequenceOntologyTerm()`, `WHITELIST_VARIANT` as 0/1, `CONTIG`, `START`, `END`, `REF`, `ALT`, `MOI`, `ALL_FREQ` as `source=value,...`, and `ALL_PATH` as `source=value,...`. Every field both stages need is there, with one row per variant per compatible mode.
+
 ## Method
 
-Two-stage recomputation on the encrypted M1, reading the frozen JSONL read-only, writing to a new sibling directory.
+Two-stage recomputation on the encrypted M1, reading the frozen TSV read-only, writing to a new directory that is a sibling of the frozen run.
 
-Stage 1, filter. For each gene object and each variant in `variantEvaluations`: apply the validated mirror of `PathogenicityFilter.filterNonCoding` at 0.963. Inputs are exactly the serialized fields: `nonCodingVariant`, `whiteListed`, `pathogenicityData.pathogenicityScores[].source` and `.score`. Coding variants pass unchanged (`Target.NON_CODING`). Whitelisted variants pass. The CADD and SpliceAI branches are kept in the mirror even though the genome preset supplies no CADD, so the mirror cannot silently diverge from the engine.
+Stage 1, filter. Collapse TSV rows to unique `CONTIG|START|REF|ALT` keys within each gene. For each key, apply the validated mirror of `PathogenicityFilter.filterNonCoding` at 0.963. Inputs: `WHITELIST_VARIANT`; coding/noncoding decided by mapping `FUNCTIONAL_CLASS` back to `VariantEffect` and calling `VariantEffects.isNonCodingVariant`; the REMM, SpliceAI, and CADD entries parsed from `ALL_PATH`. Coding variants pass unchanged (`Target.NON_CODING`). Whitelisted variants pass.
 
-Stage 2, inheritance. For each gene, feed the stage-1 survivors to the real `InheritanceModeAnnotator` with `InheritanceModeOptions.defaults()` and the single-proband pedigree. Reconstruct each `VariantEvaluation` from the serialized `contigId`, `start`, `ref`, `alt`, `variantEffect`, `sampleGenotypes`, `pathogenicityData`, and `frequencyData`. A gene with no compatible mode after stage 2 is removed.
+Stage 2, inheritance. For each gene, rebuild each stage-1 survivor as a `VariantEvaluation` from `CONTIG`, `START`, `REF`, `ALT`, the `VariantEffect` from `FUNCTIONAL_CLASS`, the genotype from `GENOTYPE`, and `FrequencyData` from `ALL_FREQ`. Feed the survivors to the real `InheritanceModeAnnotator` with `InheritanceModeOptions.defaults()` and the single-proband pedigree. A gene with no compatible mode after stage 2 is removed.
 
-Stage 2 runs the engine's own class on the M1 with the installed JDK and the installed `exomiser-core-15.1.0.jar`, both already hash-verified in the reference bundle. No source is modified. No reference database is opened. The probe in `runtime/exomiser-probe-20260905/` is the template.
+Stage 2 runs the engine's own class on the M1 with the installed JDK and the installed `exomiser-core-15.1.0.jar`, both already hash-verified in the reference bundle. No source is modified. No reference database is opened. `runtime/exomiser-probe-20260905/RoundTrip.java` is the template for object construction.
+
+Consistency check before either stage: the set of unique keys in the TSV must equal the set of variant `start`/`ref`/`alt` triples across the JSONL gene objects, and each TSV row's `MOI` must appear in the matching JSONL variant's `compatibleInheritanceModes`. Any mismatch stops the run.
+
+## Paths
+
+Frozen input, read-only, hash checked against `receipt.json` in the frozen run directory immediately before reading:
+`analysis/noncoding/2026-09-02/lane2-run-1/results/lane2-genome.variants.tsv`
+`analysis/noncoding/2026-09-02/lane2-run-1/results/lane2-genome.jsonl` (consistency check only)
+
+Output, a sibling of the frozen run, created fresh and set to mode 0500 after freezing:
+`analysis/noncoding/2026-09-02/lane2-run-1-sensitivity-remm963/`
+
+Nothing is written under `lane2-run-1/`. The run script asserts that its output root does not have `lane2-run-1` as an ancestor before creating anything.
 
 ## Outputs
 
-All under a new directory `analysis/noncoding/2026-09-02/lane2-run-1/sensitivity-remm963/`, mode 0500 after freezing, never inside the frozen result tree:
-
-- A receipt binding the frozen JSONL hash (input), the mirror source hash, the annotator jar hash, the JDK version, and the output hashes.
+- A receipt binding the frozen TSV and JSONL hashes (input), the run script hash, the annotator jar hash, the JDK version, and the output hashes.
 - Counts on both bases, using the count-basis receipt shape from `docs/13-count-basis.md`: variants retained by stage 1, genes retained by stage 2, unique keys and TSV-row equivalents kept separate.
 - A partition of the 365 baseline variants: retained, removed by cutoff, removed by inheritance recomputation. Same for the 243 genes.
 - A list of genes whose mode set changed without the gene being removed.
@@ -43,11 +66,11 @@ No truth labels exist for this genome. Retention under a stricter cutoff is not 
 ## Prerequisites before running
 
 1. Jonathan's explicit approval of this design.
-2. A synthetic dry run on the M4: serialize the probe's synthetic pairs through the real `JsonResultsWriter`, then feed that JSONL through the two-stage recomputation and confirm it reproduces the probe's expected outcome. This closes the gap between "the mirror agrees with the engine on objects I built" and "the mirror agrees with the engine on objects the writer serialized."
-3. Confirm the frozen JSONL hash matches `lane2-run-1-receipt.json` immediately before reading.
+2. A synthetic dry run on the M4, extending the round-trip already done: write the six synthetic genes through both the real `JsonResultsWriter` and the real `TsvVariantResultsWriter`, run the two-stage recomputation on that TSV, and confirm it reproduces the direct engine answer recorded in `runtime/exomiser-probe-20260905/roundtrip/engine-strict-direct.json` for all six genes. This is public work and can proceed without approval.
+3. Confirm the frozen TSV and JSONL hashes match `receipt.json` in the frozen run directory immediately before reading.
 
-Step 2 is public work and can proceed without approval. Steps 1 and 3 gate the private run.
+Steps 1 and 3 gate the private run.
 
 ## Cost
 
-Reading the frozen JSONL once and running the annotator class per gene is seconds of compute. No new reference download. No disk beyond the output directory. No network.
+Reading two frozen files once and running the annotator class per gene is seconds of compute. No new reference download. No disk beyond the output directory. No network.
