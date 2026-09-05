@@ -81,13 +81,14 @@ class ExomiserTsvRecomputeFixtureTest(unittest.TestCase):
         self.assertEqual(modes[("SYNG5", "1", "500000", "G", "C")], {"AD"})
 
     def test_every_tsv_moi_appears_in_the_matching_jsonl_variant(self):
-        # The consistency check docs/18 requires before either stage runs.
-        jsonl_modes = {(g["geneSymbol"], str(v["start"]), v["ref"], v["alt"]): set(v.get("compatibleInheritanceModes", []))
+        # The consistency check docs/18 requires before either stage runs. The key carries the
+        # contig: on multi-contig data, start/ref/alt alone can collide across chromosomes.
+        jsonl_modes = {(g["geneSymbol"], v["contigName"], str(v["start"]), v["ref"], v["alt"]): set(v.get("compatibleInheritanceModes", []))
                        for g in self.genes for v in g["variantEvaluations"]}
-        tsv_keys = {(r["GENE_SYMBOL"], r["START"], r["REF"], r["ALT"]) for r in self.rows}
+        tsv_keys = {(r["GENE_SYMBOL"], r["CONTIG"], r["START"], r["REF"], r["ALT"]) for r in self.rows}
         self.assertEqual(tsv_keys, set(jsonl_modes))
         for r in self.rows:
-            key = (r["GENE_SYMBOL"], r["START"], r["REF"], r["ALT"])
+            key = (r["GENE_SYMBOL"], r["CONTIG"], r["START"], r["REF"], r["ALT"])
             self.assertIn(MOI_ABBREVIATION[r["MOI"]], jsonl_modes[key], key)
 
     def test_tsv_fields_the_json_omits_are_present_here(self):

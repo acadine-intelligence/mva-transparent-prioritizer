@@ -24,9 +24,9 @@ They do not contain `variantEffect`, `nonCodingVariant`, `whiteListed`, `sampleG
 
 Consequence: the JSONL alone cannot drive the filter mirror (no coding/noncoding flag, no whitelist flag) or the annotator (no genotype). Revision 1 of this design was wrong on that point.
 
-The frozen lane was written with `outputFormats: [JSON, TSV_GENE, TSV_VARIANT, VCF]`, `outputFileName: lane2-genome`, `outputContributingVariantsOnly: false`, `numGenes: 0`, and `analysisMode: PASS_ONLY` (from the run's own analysis file, private path redacted here). PASS_ONLY means variants that failed the baseline 0.914 filter were never written, so the recomputation can only move variants out of the lane, never in; that is the intended direction for a stricter cutoff.
+The frozen lane was written with `outputFormats: [JSON, TSV_GENE, TSV_VARIANT, VCF]`, an output file stem for the lane, `outputContributingVariantsOnly: false`, `numGenes: 0`, and `analysisMode: PASS_ONLY` (from the run's own analysis file, private path redacted here). PASS_ONLY means variants that failed the baseline 0.914 filter were never written, so the recomputation can only move variants out of the lane, never in; that is the intended direction for a stricter cutoff.
 
-The frozen lane also contains `lane2-genome.variants.tsv`. `TsvVariantResultsWriter` emits per row: `GENOTYPE` from `genotypeString()`, `FUNCTIONAL_CLASS` from `variantEffect().getSequenceOntologyTerm()`, `WHITELIST_VARIANT` as 0/1, `CONTIG`, `START`, `END`, `REF`, `ALT`, `MOI`, `ALL_FREQ` as `source=value,...`, and `ALL_PATH` as `source=value,...`. Every field both stages need is there, with one row per variant per compatible mode.
+The frozen lane also contains a `<stem>.variants.tsv` written by the same run. `TsvVariantResultsWriter` emits per row: `GENOTYPE` from `genotypeString()`, `FUNCTIONAL_CLASS` from `variantEffect().getSequenceOntologyTerm()`, `WHITELIST_VARIANT` as 0/1, `CONTIG`, `START`, `END`, `REF`, `ALT`, `MOI`, `ALL_FREQ` as `source=value,...`, and `ALL_PATH` as `source=value,...`. Every field both stages need is there, with one row per variant per compatible mode.
 
 ## Method
 
@@ -40,18 +40,16 @@ Stage 2 runs the engine's own class on the M1 with the installed JDK and the ins
 
 Row model. `TsvVariantResultsWriter` walks `GeneScoreRanker.rankedVariants()`: one gene score per compatible mode, and under each, every variant compatible with that mode. A variant compatible with both dominant and recessive therefore appears twice, once per `MOI`. Collapsing rows to `CONTIG|START|REF|ALT` within a gene recovers the unique variant; the set of `MOI` values across its rows recovers its baseline mode set. The lane's 454 rows over 365 unique keys are this multiplicity.
 
-Consistency check before either stage: the set of unique keys in the TSV must equal the set of variant `start`/`ref`/`alt` triples across the JSONL gene objects, and each TSV row's `MOI` must appear in the matching JSONL variant's `compatibleInheritanceModes`. Any mismatch stops the run.
+Consistency check before either stage: the set of unique `CONTIG|START|REF|ALT` keys in the TSV must equal the set of `contigName`/`start`/`ref`/`alt` tuples across the JSONL gene objects, and each TSV row's `MOI` must appear in the matching JSONL variant's `compatibleInheritanceModes`. The key carries the contig because on whole-genome data start/ref/alt alone can collide across chromosomes. Any mismatch stops the run.
 
 ## Paths
 
-Frozen input, read-only, hash checked against `lane2-run-1-receipt.json` in the frozen run directory (its `outputs` block keys each results file by name with `bytes`, `mode` and `sha256`; TSV entries also carry `rows_excluding_header`) immediately before reading:
-`analysis/noncoding/2026-09-02/lane2-run-1/results/lane2-genome.variants.tsv`
-`analysis/noncoding/2026-09-02/lane2-run-1/results/lane2-genome.jsonl` (consistency check only)
+The frozen run directory and the sensitivity output directory are named in the private run script on the encrypted volume, never in this public tree. Their relationship is what matters here:
 
-Output, a sibling of the frozen run, created fresh and set to mode 0500 after freezing:
-`analysis/noncoding/2026-09-02/lane2-run-1-sensitivity-remm963/`
+- Frozen input: the `results/` directory of the frozen noncoding run, opened read-only. The variants TSV is the working input; the JSONL is read only for the consistency check. Both hashes are checked against the freeze receipt in the frozen run directory (its `outputs` block keys each results file by name with `bytes`, `mode` and `sha256`; TSV entries also carry `rows_excluding_header`) immediately before reading.
+- Output: a new directory that is a sibling of the frozen run directory, its name derived from the frozen run's name plus a `-sensitivity-remm963` suffix, created fresh and set to mode 0500 after freezing.
 
-Nothing is written under `lane2-run-1/`. The run script asserts that its output root does not have `lane2-run-1` as an ancestor before creating anything.
+Nothing is written under the frozen run directory. The run script asserts that its output root does not have the frozen run directory as an ancestor before creating anything.
 
 ## Outputs
 
@@ -69,7 +67,7 @@ No truth labels exist for this genome. Retention under a stricter cutoff is not 
 
 1. Jonathan's explicit approval of this design.
 2. Done 2026-09-05. The six synthetic genes were run through the baseline filter and inheritance analysis, reduced with PASS_ONLY semantics exactly as `PassOnlyAnalysisRunner.getGenesWithVariants` does (failed variants removed, empty genes dropped; SYNG4 disappears), then written through the real `TsvVariantResultsWriter` (16 rows, 9 unique variants, 5 genes, no duplicate rows). `runtime/exomiser-probe-20260905/Recompute.java` read only that TSV, applied the mirror at 0.963, rebuilt survivors, and asked the real `InheritanceModeAnnotator`. Its output equals the direct in-memory engine answer on every written gene (`tests/fixtures/exomiser_recompute_from_tsv.json` against `exomiser_roundtrip_strict.json`, pinned by `tests/test_exomiser_tsv_recompute_fixture.py`). Nine input mutations were run against the recomputation; the mutated TSVs, each output or failure, and a manifest are checked in under `tests/fixtures/exomiser_recompute_mutations/`, and a test recomputes the breakdown from those files: six changed the answer as the engine logic predicts (partner REMM raised, survivor frequency lowered, genotype made homozygous, coding class changed to intronic, partner whitelisted, REMM placed exactly at 0.963), one left it unchanged by design (REMM 0.9630001, strict `>`), and two failed closed (renamed GENOTYPE column, unknown SO term). `Recompute.java` is the script the private run would execute unchanged, with the frozen TSV path and the real proband name as arguments.
-3. Confirm the frozen TSV and JSONL hashes match `lane2-run-1-receipt.json` in the frozen run directory immediately before reading.
+3. Confirm the frozen TSV and JSONL hashes match the freeze receipt in the frozen run directory immediately before reading.
 
 Steps 1 and 3 gate the private run. Step 2 is complete.
 
