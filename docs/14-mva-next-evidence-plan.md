@@ -35,6 +35,8 @@ Steps 1 to 3 were completed on 2026-09-05 at class level; see `docs/17-exomiser-
 
 Work since that pass (all public and synthetic, see `docs/18-private-sensitivity-design.md`): the recomputation was pushed through the real writers and runners, the TSV-driven two-stage recomputation reproduces the direct engine answer on synthetic genes, the partition module and CLI turn a recomputation detail file into the count-basis receipt, and a driver script implements every precondition the private run must satisfy. Each stage passed an independent exact-commit review; the guards (36) are swept in-tree as part of the declared suite.
 
+The two public sources identified in the loop-9 pass are now fetched and verified in full; verified claims, citation details and the limits of what they support are recorded in `docs/19-verified-public-sources.md`. PhEval supports only the reproducibility argument; the circularity/temporal-leakage framing is dropped for lack of a source.
+
 1. ~~Select and test an explicit way to change the pinned engine's ReMM cutoff.~~ Done at class level. A full-pipeline stricter run requires a source change and rebuilt jar, or the validated mirror applied before inheritance annotation.
 2. ~~Build a public synthetic fixture with a compound pair across the threshold boundary.~~ Done: `tests/fixtures/exomiser_probe_output.json`.
 3. ~~Run the pinned implementation at both thresholds.~~ Done for the filter and annotator classes. Not done for the full CLI with reference data.
