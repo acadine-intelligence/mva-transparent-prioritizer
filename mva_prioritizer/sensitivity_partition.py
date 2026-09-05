@@ -49,8 +49,8 @@ def _int(value: object, where: str) -> int:
 
 
 def partition_from_detail(detail: object) -> dict:
-    if not isinstance(detail, dict) or {"tsv_rows", "cutoff", "genes"} - set(detail):
-        raise PartitionError("detail requires tsv_rows, cutoff and genes")
+    if not isinstance(detail, dict) or set(detail) != {"tsv_rows", "cutoff", "genes"}:
+        raise PartitionError("detail requires exactly tsv_rows, cutoff and genes")
     cutoff = detail["cutoff"]
     if not isinstance(cutoff, (int, float)) or isinstance(cutoff, bool) or not 0 < cutoff < 1:
         raise PartitionError("cutoff must be a number strictly between 0 and 1")
@@ -63,12 +63,13 @@ def partition_from_detail(detail: object) -> dict:
     gene_counts = dict.fromkeys(CLASSES, 0)
     changed_mode_genes: list[str] = []
     strict_rows = 0
-    total_keys = 0
+    baseline_rows = 0
+    seen_keys: set[str] = set()
 
     for symbol, block in genes.items():
         where = f"gene {symbol}"
-        if not isinstance(block, dict) or {"baseline_modes", "strict_modes", "strict_survivors", "variants"} - set(block):
-            raise PartitionError(f"{where}: incomplete block")
+        if not isinstance(block, dict) or set(block) != {"baseline_modes", "strict_modes", "strict_survivors", "variants"}:
+            raise PartitionError(f"{where}: block requires exactly baseline_modes, strict_modes, strict_survivors, variants")
         gene_baseline = _modes(block["baseline_modes"], where)
         gene_strict = _modes(block["strict_modes"], where)
         declared_survivors = _int(block["strict_survivors"], where)
@@ -82,8 +83,13 @@ def partition_from_detail(detail: object) -> dict:
         union_baseline: set[str] = set()
         for key, entry in variants.items():
             vwhere = f"{where} variant {key}"
-            if not isinstance(entry, dict) or {"baseline_modes", "stage1_pass", "strict_modes"} - set(entry):
-                raise PartitionError(f"{vwhere}: incomplete entry")
+            if not isinstance(key, str) or key.count("|") != 3 or any(not part for part in key.split("|")):
+                raise PartitionError(f"{vwhere}: key must be CONTIG|START|REF|ALT")
+            if key in seen_keys:
+                raise PartitionError(f"{vwhere}: variant key listed under more than one gene")
+            seen_keys.add(key)
+            if not isinstance(entry, dict) or set(entry) != {"baseline_modes", "stage1_pass", "strict_modes"}:
+                raise PartitionError(f"{vwhere}: entry requires exactly baseline_modes, stage1_pass, strict_modes")
             baseline = _modes(entry["baseline_modes"], vwhere)
             strict = _modes(entry["strict_modes"], vwhere)
             passed = entry["stage1_pass"]
@@ -93,7 +99,9 @@ def partition_from_detail(detail: object) -> dict:
                 raise PartitionError(f"{vwhere}: a written variant had at least one baseline mode")
             if not passed and strict:
                 raise PartitionError(f"{vwhere}: strict modes on a variant that failed stage 1")
-            total_keys += 1
+            if not strict <= baseline:
+                raise PartitionError(f"{vwhere}: a stricter cutoff cannot add a mode")
+            baseline_rows += len(baseline)
             union_baseline |= baseline
             if not passed:
                 variant_counts["removed_by_cutoff"] += 1
@@ -123,9 +131,12 @@ def partition_from_detail(detail: object) -> dict:
         else:
             gene_counts["removed_by_inheritance"] += 1
 
+    if tsv_rows != baseline_rows:
+        raise PartitionError(f"tsv_rows {tsv_rows} but baseline modes sum to {baseline_rows} rows")
+
     return {
         "cutoff": cutoff,
-        "variants": {"baseline_tsv_rows": tsv_rows, "baseline_unique_keys": total_keys,
+        "variants": {"baseline_tsv_rows": tsv_rows, "baseline_unique_keys": len(seen_keys),
                      "strict_tsv_rows_equivalent": strict_rows, **variant_counts},
         "genes": {"baseline_unique_symbols": len(genes), **gene_counts},
         "retained_genes_with_changed_mode_set": sorted(changed_mode_genes),

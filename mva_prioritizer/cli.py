@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 from typing import Optional, Sequence
 
+from .bounded_input import load_strict_json
 from .environment import verify_environment
 from .manifest import validate_manifest
 from .noncoding_benchmark import run_noncoding_benchmark
@@ -92,10 +93,7 @@ def _dispatch(args: argparse.Namespace) -> int:
         output_path = Path(args.output)
         if output_path.exists():
             raise FileExistsError("output exists")
-        if detail_path.stat().st_size > 64 * 1024 * 1024:
-            raise ValueError("detail too large")
-        with detail_path.open("rb") as handle:
-            detail = json.loads(handle.read().decode("utf-8"))
+        detail = load_strict_json(detail_path, max_bytes=64 * 1024 * 1024)
         receipt = partition_receipt(partition_from_detail(detail), include_symbols=args.include_symbols)
         payload = json.dumps(receipt, indent=2, sort_keys=True) + "\n"
         with output_path.open("x", encoding="utf-8") as handle:

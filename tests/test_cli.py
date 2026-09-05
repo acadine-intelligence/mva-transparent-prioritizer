@@ -4,6 +4,7 @@ import contextlib
 import hashlib
 import io
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -711,6 +712,117 @@ class SensitivityPartitionCliTests(unittest.TestCase):
             self.assertEqual(err.count("\n"), 1)
             self.assertNotIn("SYNTHETIC_CANARY", err)
             self.assertFalse(output.exists())
+
+    def test_duplicate_json_keys_are_rejected_not_last_wins(self):
+        with tempfile.TemporaryDirectory() as directory:
+            text = self.DETAIL.read_text()
+            self.assertTrue(text.lstrip().startswith("{"))
+            dup = Path(directory) / "detail.json"
+            dup.write_text('{"cutoff": 0.5, ' + text.lstrip()[1:])
+            output = Path(directory) / "partition.json"
+            code, out, err = self.run_cli(["sensitivity-partition", "--detail", str(dup), "--output", str(output)])
+            self.assertEqual((code, out), (2, ""))
+            self.assertIn("failed_closed", err)
+            self.assertFalse(output.exists())
+
+    def test_symlink_and_non_regular_detail_are_rejected_at_open(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            link = root / "detail-link.json"
+            link.symlink_to(self.DETAIL)
+            fifo = root / "detail.fifo"
+            os.mkfifo(fifo)
+            for path in (link, fifo, root):
+                output = root / f"partition-{path.name}.json"
+                code, out, err = self.run_cli(["sensitivity-partition", "--detail", str(path), "--output", str(output)])
+                self.assertEqual((code, out), (2, ""), path)
+                self.assertIn("failed_closed", err)
+                self.assertFalse(output.exists(), path)
+
+    def test_regular_file_decision_is_made_on_the_open_descriptor(self):
+        # A FIFO opened non-blocking reads as empty and a directory read raises, so those
+        # paths are rejected even without the S_ISREG guard. The guard's own job is the
+        # descriptor that is not a regular file yet would still yield bytes: prove that
+        # fstat is consulted and a non-regular mode is refused before any read happens.
+        from mva_prioritizer import bounded_input
+        with tempfile.TemporaryDirectory() as directory:
+            regular = Path(directory) / "detail.json"
+            regular.write_bytes(b"{}")
+            real_fstat = os.fstat
+            reads = []
+
+            def fake_fstat(fd):
+                status = real_fstat(fd)
+                fields = list(status)
+                fields[0] = (status.st_mode & ~0o170000) | 0o010000  # claim S_IFIFO
+                return os.stat_result(fields)
+            real_fdopen = os.fdopen
+
+            def counting_fdopen(fd, *args, **kwargs):
+                handle = real_fdopen(fd, *args, **kwargs)
+                real_read = handle.read
+                handle.read = lambda n=-1: (reads.append(n), real_read(n))[1]
+                return handle
+            with mock.patch.object(bounded_input.os, "fstat", fake_fstat), \
+                 mock.patch.object(bounded_input.os, "fdopen", counting_fdopen):
+                with self.assertRaises(bounded_input.InputRejected):
+                    bounded_input.read_regular_file(regular, max_bytes=1024)
+            self.assertEqual(reads, [], "non-regular descriptor refused before any read")
+
+    def test_oversized_detail_is_rejected_before_parsing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            big = Path(directory) / "detail.json"
+            limit = 64 * 1024 * 1024
+            with big.open("wb") as handle:
+                handle.truncate(limit + 1)
+            output = Path(directory) / "partition.json"
+            code, out, err = self.run_cli(["sensitivity-partition", "--detail", str(big), "--output", str(output)])
+            self.assertEqual((code, out), (2, ""))
+            self.assertIn("failed_closed", err)
+            self.assertFalse(output.exists())
+
+    def test_oversized_detail_is_rejected_by_fstat_without_reading_it(self):
+        # The descriptor's size is checked before any read, so an oversized file costs
+        # no read at all. Patch the fdopen handle to prove no bytes were requested.
+        from mva_prioritizer import bounded_input
+        with tempfile.TemporaryDirectory() as directory:
+            big = Path(directory) / "detail.json"
+            with big.open("wb") as handle:
+                handle.truncate(64 * 1024 * 1024 + 1)
+            reads = []
+            real_fdopen = os.fdopen
+
+            def counting_fdopen(fd, *args, **kwargs):
+                handle = real_fdopen(fd, *args, **kwargs)
+                real_read = handle.read
+
+                def read(n=-1):
+                    reads.append(n)
+                    return real_read(n)
+                handle.read = read
+                return handle
+            with mock.patch.object(bounded_input.os, "fdopen", counting_fdopen):
+                with self.assertRaises(bounded_input.InputRejected):
+                    bounded_input.read_regular_file(big, max_bytes=64 * 1024 * 1024)
+            self.assertEqual(reads, [], "size rejected on fstat, before any read")
+
+    def test_file_that_grows_after_fstat_is_still_rejected(self):
+        # fstat sees a small file; the read then returns more than the limit. The second
+        # guard, on the bytes actually read, must reject it.
+        from mva_prioritizer import bounded_input
+        with tempfile.TemporaryDirectory() as directory:
+            small = Path(directory) / "detail.json"
+            small.write_bytes(b"{}")
+            limit = 16
+            real_fdopen = os.fdopen
+
+            def growing_fdopen(fd, *args, **kwargs):
+                handle = real_fdopen(fd, *args, **kwargs)
+                handle.read = lambda n=-1: b"{" + b" " * limit + b"}"
+                return handle
+            with mock.patch.object(bounded_input.os, "fdopen", growing_fdopen):
+                with self.assertRaises(bounded_input.InputRejected):
+                    bounded_input.read_regular_file(small, max_bytes=limit)
 
 
 if __name__ == "__main__":

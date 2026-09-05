@@ -127,10 +127,58 @@ class PartitionFailsClosedTest(unittest.TestCase):
             partition_from_detail(detail)
 
     def test_row_count_below_unique_keys_fails_the_basis_contract(self):
-        detail = load_detail()
-        detail["tsv_rows"] = 3
+        # The receipt layer re-checks the count-basis identity on its own, independent of
+        # the multiplicity guard upstream.
+        partition = partition_from_detail(load_detail())
+        partition["variants"]["baseline_tsv_rows"] = 3
         with self.assertRaises(BasisError):
-            partition_receipt(partition_from_detail(detail))
+            partition_receipt(partition)
+
+    def test_rejects_same_variant_key_in_two_genes(self):
+        # A CONTIG|START|REF|ALT key names one variant. The unique-key basis counts it once,
+        # so a detail that lists it under two genes cannot be summarized on that basis.
+        # tsv_rows is adjusted so the multiplicity guard stays satisfied and only the
+        # duplicate-key guard can reject.
+        detail = load_detail()
+        source = detail["genes"]["SYNG1"]["variants"]["1|100000|A|T"]
+        target = detail["genes"]["SYNG5"]
+        target["variants"]["1|100000|A|T"] = json.loads(json.dumps(source))
+        target["strict_survivors"] += 1
+        target["baseline_modes"] = sorted(set(target["baseline_modes"]) | set(source["baseline_modes"]))
+        target["strict_modes"] = sorted(set(target["strict_modes"]) | set(source["strict_modes"]))
+        detail["tsv_rows"] += len(source["baseline_modes"])
+        with self.assertRaises(PartitionError):
+            partition_from_detail(detail)
+
+    def test_rejects_strict_mode_absent_from_baseline(self):
+        # A stricter cutoff can only remove variants, so no variant can gain a mode.
+        # Add the mode consistently at variant and gene level so only the subset guard fires.
+        detail = load_detail()
+        gene = detail["genes"]["SYNG5"]
+        variant = gene["variants"]["1|500000|G|C"]
+        variant["strict_modes"] = sorted(set(variant["strict_modes"]) | {"AUTOSOMAL_RECESSIVE"})
+        gene["strict_modes"] = sorted(set(gene["strict_modes"]) | {"AUTOSOMAL_RECESSIVE"})
+        with self.assertRaises(PartitionError):
+            partition_from_detail(detail)
+
+    def test_rejects_tsv_rows_that_disagree_with_baseline_mode_multiplicity(self):
+        # The TSV has one row per variant per baseline mode, so tsv_rows must equal the sum
+        # of baseline mode counts over all variants. Anything else means the detail file
+        # and the TSV it claims to summarize are not the same run.
+        detail = load_detail()
+        detail["tsv_rows"] += 1
+        with self.assertRaises(PartitionError):
+            partition_from_detail(detail)
+
+    def test_rejects_unexpected_fields_at_every_level(self):
+        for path in ((), ("genes", "SYNG1"), ("genes", "SYNG1", "variants", "1|100000|A|T")):
+            detail = load_detail()
+            node = detail
+            for step in path:
+                node = node[step]
+            node["extra"] = 1
+            with self.assertRaises(PartitionError, msg=path):
+                partition_from_detail(detail)
 
 
 if __name__ == "__main__":
