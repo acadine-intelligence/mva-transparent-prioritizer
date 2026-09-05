@@ -40,16 +40,23 @@ Verified on the pinned code by `tests/test_track1_submission.py`, which runs the
 | Exact pair at rank 4 behind three decoys | 25 | 1.0 |
 | Chromosome written without the `chr` prefix | 0 | 0.0 |
 
+## Open representation risk: the mitochondrial contig
+
+Public sources name the answer key's chromosome form only by example (`chr15`, `chr1`, `chr7`, `chr2`). Nothing public says whether a mitochondrial variant would be written `chrM` (UCSC and GRCh38 no-alt analysis-set convention) or `chrMT`; the private key could plausibly use either. The validator therefore takes the spelling as a parameter (`mitochondrial_name`, CLI `--mitochondrial-name`, values `chrM` or `chrMT`, default `chrM`) and never accepts an unprefixed form. `track1-check` reports `mitochondrial_rows`. A candidate file that carries a mitochondrial row must not be uploaded until the organizers confirm the spelling in the Community tab, or the candidate set is known to be nuclear.
+
 ## Local validator and mirror
 
-`mva_prioritizer/track1_submission.py`:
+`mva_prioritizer/track1_submission.py` holds two parsers with different jobs.
 
-- `parse_submission` refuses, before upload, anything that would error at the gate or parse and then score zero: header not identical to the template, wrong column count, more than 10 rows, empty file, `proband_id` other than `PROBAND01`, chromosome not exactly one of `chr1..chr22, chrX, chrY, chrM`, non-positive-integer position, alleles empty or outside `ACGT`, `ref` equal to `alt`, a partially filled second variant, a pair naming the same variant twice, EPCR outside (0, 1] or non-numeric, `finding_type` outside the two values, line breaks in notes, a second proband group. By default it also refuses repeated variants, EPCR ties and unsorted rows; each has an explicit flag because each is legal at the gate and occasionally deliberate (alternative pairings for an uncertain partner).
-- `parse_as_official` reproduces the gate's permissive loader exactly, so a file the validator refuses can still be scored to learn what the gate would have done.
-- `score_submission` mirrors `score_proband`. `tests/test_sensitivity_partition_mutations.py` disables each of 25 guards and scoring constants in this module in turn and requires the named test to fail.
-- `validate_against_lane_representation` maps submission chromosomes to the lane's contig naming (no prefix, `MT` for the mitochondrion) and requires every submitted variant to exist among the lane keys it is given. It receives keys, never rows, and reports counts only.
+`parse_as_official` reproduces the gate's loader exactly, quirks included: default codec (so a UTF-8 BOM joins the first header name and the gate raises `KeyError('proband_id')`), whitespace stripped from chromosome text, alleles uppercased, blank alleles accepted, missing optional columns defaulted, `int()` and `float()` failures raised, grouping by proband, EPCR sort with stable ties. It is the oracle for "what would the gate compute for this file". `tests/test_track1_submission.py` runs the pinned official file and this mirror on every synthetic case, including the gate-normalized shapes and the gate-error shapes, and requires identical outcomes.
 
-CLI: `python3 -m mva_prioritizer.cli track1-check --submission <file> [--synthetic-truth '[[chrom,pos,ref,alt],...]'] [--allow-ties] [--allow-unsorted] [--allow-repeated-pairings]`. One JSON line with counts on success; exit 2 with the fixed `input_rejected` line on refusal, never echoing a row. The file is opened with `O_NOFOLLOW`, decided on the descriptor, bounded at 1 MiB.
+`parse_submission` is deliberately narrower than the gate. It accepts one canonical form and refuses everything else: header identical to the template (all twelve columns), `proband_id` exactly `PROBAND01`, chromosome exactly one of `chr1..chr22`, `chrX`, `chrY` or the configured mitochondrial spelling, positive-integer positions, non-empty upper-case `ACGT` alleles with `ref` different from `alt`, a second variant complete or entirely blank, a pair naming two distinct variants, EPCR numeric in (0, 1], `finding_type` written out, notes without line breaks, no BOM, one proband, at most 10 rows. By default it also refuses repeated variants, EPCR ties and unsorted rows; each has a flag because each is legal at the gate and occasionally deliberate (alternative pairings for an uncertain partner). Forms the gate would normalize for us, such as ` chr1 ` or lowercase alleles or a ten-column header, are refused on purpose: a file that passes the canonical check is one whose gate parse is unambiguous by inspection, and `tests/test_track1_submission.py` shows for each such shape both what the validator does and what the gate would score.
+
+`score_submission` mirrors `score_proband`. `validate_against_lane_representation` maps submission chromosomes to the lane's contig naming (no prefix, `MT` for the mitochondrion) and requires every submitted variant to exist among the lane keys it is given; it receives keys, never rows, and reports counts only.
+
+`tests/test_sensitivity_partition_mutations.py` disables each of 29 guards and scoring constants in this module and 2 in the CLI boundary in turn and requires the named test to fail.
+
+CLI: `python3 -m mva_prioritizer.cli track1-check --submission <file> [--synthetic-truth '[[chrom,pos,ref,alt],...]'] [--mitochondrial-name chrM|chrMT] [--allow-ties] [--allow-unsorted] [--allow-repeated-pairings]`. One JSON line with counts on success; the file is opened with `O_NOFOLLOW`, decided on the descriptor, bounded at 1 MiB; after the canonical parse the CLI also runs the gate mirror and refuses if the two ranked variant lists differ. Every refusal, including argument errors (argument parsing runs inside the same boundary, with usage output suppressed), exits 2 with the fixed `input_rejected` line and never echoes a row or an argument.
 
 ## What this does not do
 

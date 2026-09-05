@@ -24,8 +24,20 @@ from .synthetic import run_synthetic
 from .verify import verify_synthetic_run
 
 
+class _SilentParser(argparse.ArgumentParser):
+    """Argument errors raise instead of printing usage with the offending argv echoed."""
+
+    def error(self, message: str) -> None:  # type: ignore[override]
+        raise ValueError("argument error")
+
+    def exit(self, status: int = 0, message: Optional[str] = None) -> None:  # type: ignore[override]
+        if status != 0:
+            raise ValueError("argument error")
+        raise SystemExit(0)
+
+
 def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="mva-prioritizer")
+    parser = _SilentParser(prog="mva-prioritizer")
     subcommands = parser.add_subparsers(dest="command", required=True)
     synthetic = subcommands.add_parser("synthetic-run")
     synthetic.add_argument("--fixture", required=True)
@@ -78,12 +90,16 @@ def _parser() -> argparse.ArgumentParser:
     track1.add_argument("--allow-ties", action="store_true")
     track1.add_argument("--allow-unsorted", action="store_true")
     track1.add_argument("--allow-repeated-pairings", action="store_true")
+    track1.add_argument(
+        "--mitochondrial-name", default="chrM", choices=["chrM", "chrMT"],
+        help="answer-key spelling of the mitochondrial contig; unverified in public sources, default chrM",
+    )
     return parser
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
-    args = _parser().parse_args(argv)
     try:
+        args = _parser().parse_args(argv)
         return _dispatch(args)
     except Exception:
         print(
@@ -95,17 +111,25 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
 def _dispatch(args: argparse.Namespace) -> int:
     if args.command == "track1-check":
-        from .track1_submission import parse_submission, score_submission
+        from .track1_submission import parse_as_official, parse_submission, score_submission
 
         raw = read_regular_file(Path(args.submission), max_bytes=1024 * 1024)
+        text = raw.decode("utf-8")
         submission = parse_submission(
-            raw.decode("utf-8"),
+            text,
             allow_repeated_pairings=args.allow_repeated_pairings,
             allow_ties=args.allow_ties,
             allow_unsorted=args.allow_unsorted,
+            mitochondrial_name=args.mitochondrial_name,
         )
+        gate_view = parse_as_official(text)[submission.proband_id]
+        if [r.variants for r in gate_view.rows] != [r.variants for r in submission.rows]:
+            raise ValueError("gate mirror and validator disagree on the ranked variant sets")
         status = {
             "external_actions": 0,
+            "mitochondrial_rows": sum(
+                1 for r in submission.rows if any(v[0] == args.mitochondrial_name for v in r.variants)
+            ),
             "pair_rows": sum(1 for r in submission.rows if len(r.variants) == 2),
             "row_count": len(submission.rows),
             "secondary_rows": sum(1 for r in submission.rows if r.finding_type == "secondary"),

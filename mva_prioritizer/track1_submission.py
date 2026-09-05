@@ -5,9 +5,14 @@ Space revision 1c761cc2, retrieved 2026-09-05) is permissive: it trims chromosom
 text, uppercases alleles, accepts blank alleles, and matches on the exact
 ``(chrom, pos, ref, alt)`` tuple against a ``chr``-prefixed GRCh38 answer. A row that
 parses but does not match scores zero silently, and each upload spends one of six
-submissions. This module refuses, before upload, everything that would parse and
-then fail to match, and it reproduces the official score so a candidate file can be
-checked against synthetic truths locally.
+submissions. This module has two parsers with different jobs. ``parse_as_official`` reproduces
+the gate's loader exactly (including its quirks) and is the oracle for "what would
+the gate compute". ``parse_submission`` is deliberately narrower: it accepts one
+canonical form (exact template header, ``chr``-prefixed names, integer positions,
+upper-case ``ACGT`` alleles, distinct sorted EPCRs, notes without line breaks) and
+refuses anything else, including forms the gate would normalize for us. A file that
+passes the canonical check is one whose gate parse is unambiguous by inspection;
+that is the point of the narrowing, and the CLI cross-checks both parsers agree.
 
 ``score_submission`` mirrors ``evaluation.py`` line for line where behaviour matters:
 descending EPCR sort with stable ties, four rank tiers, half credit for a partial
@@ -46,8 +51,21 @@ MAX_ROWS = 10
 EXPECTED_PROBAND = "PROBAND01"
 RANK_POINT_TIERS = ((1, 100), (3, 50), (5, 25), (10, 10))
 FINDING_TYPES = ("primary", "secondary")
-CHROMOSOMES = frozenset([f"chr{i}" for i in range(1, 23)] + ["chrX", "chrY", "chrM"])
-LANE_TO_SUBMISSION = {**{str(i): f"chr{i}" for i in range(1, 23)}, "X": "chrX", "Y": "chrY", "MT": "chrM"}
+MITOCHONDRIAL_NAMES = ("chrM", "chrMT")  # answer-key spelling is unverified in public sources
+DEFAULT_MITOCHONDRIAL = "chrM"
+NUCLEAR_CHROMOSOMES = frozenset([f"chr{i}" for i in range(1, 23)] + ["chrX", "chrY"])
+NUCLEAR_LANE_TO_SUBMISSION = {**{str(i): f"chr{i}" for i in range(1, 23)}, "X": "chrX", "Y": "chrY"}
+
+
+def accepted_chromosomes(mitochondrial_name: str = DEFAULT_MITOCHONDRIAL) -> FrozenSet[str]:
+    if mitochondrial_name not in MITOCHONDRIAL_NAMES:
+        raise SubmissionError(f"mitochondrial name must be one of {MITOCHONDRIAL_NAMES}")
+    return NUCLEAR_CHROMOSOMES | {mitochondrial_name}
+
+
+def lane_to_submission(mitochondrial_name: str = DEFAULT_MITOCHONDRIAL) -> Dict[str, str]:
+    accepted_chromosomes(mitochondrial_name)
+    return {**NUCLEAR_LANE_TO_SUBMISSION, "MT": mitochondrial_name}
 ALLELE = re.compile(r"^[ACGT]+$")
 POSITION = re.compile(r"^[1-9][0-9]*$")
 
@@ -85,7 +103,9 @@ class ScoreResult:
     n_predictions_at_f_max: int
 
 
-def _variant(fields: Dict[str, str], suffix: str, line: int, required: bool) -> Optional[Variant]:
+def _variant(
+    fields: Dict[str, str], suffix: str, line: int, required: bool, chromosomes: FrozenSet[str]
+) -> Optional[Variant]:
     names = [f"chrom_{suffix}", f"pos_{suffix}", f"ref_{suffix}", f"alt_{suffix}"]
     values = [fields[name] for name in names]
     if not required and all(value == "" for value in values):
@@ -93,9 +113,10 @@ def _variant(fields: Dict[str, str], suffix: str, line: int, required: bool) -> 
     if not required and any(value == "" for value in values):
         raise SubmissionError(f"line {line}: second variant must be complete or entirely blank")
     chrom, pos, ref, alt = values
-    if chrom not in CHROMOSOMES:
+    if chrom not in chromosomes:
         raise SubmissionError(
-            f"line {line}: chrom_{suffix} must be one of chr1..chr22, chrX, chrY, chrM exactly (got {chrom!r})"
+            f"line {line}: chrom_{suffix} must be one of chr1..chr22, chrX, chrY or the configured "
+            f"mitochondrial name exactly (got {chrom!r})"
         )
     if not POSITION.match(pos):
         raise SubmissionError(f"line {line}: pos_{suffix} must be a positive integer (got {pos!r})")
@@ -115,10 +136,17 @@ def parse_submission(
     allow_repeated_pairings: bool = False,
     allow_ties: bool = False,
     allow_unsorted: bool = False,
+    mitochondrial_name: str = DEFAULT_MITOCHONDRIAL,
 ) -> Submission:
-    """Parse and validate a Track 1 CSV. Raises SubmissionError on anything the gate would reject or misread."""
+    """Parse a Track 1 CSV in canonical form. Raises SubmissionError on anything outside it.
+
+    A UTF-8 BOM is refused rather than stripped: the official loader opens the file
+    with the default codec, so a BOM becomes part of the first header name and the
+    gate raises ``KeyError('proband_id')``.
+    """
     if text.startswith("\ufeff"):
-        text = text[1:]
+        raise SubmissionError("file starts with a UTF-8 BOM; the gate would fail to find the proband_id column")
+    chromosomes = accepted_chromosomes(mitochondrial_name)
     reader = csv.reader(io.StringIO(text, newline=""))
     try:
         header = next(reader)
@@ -139,8 +167,8 @@ def parse_submission(
         fields = dict(zip(HEADER, record))
         if fields["proband_id"] != expected_proband:
             raise SubmissionError(f"line {line}: proband_id must be exactly {expected_proband!r}")
-        first = _variant(fields, "1", line, required=True)
-        second = _variant(fields, "2", line, required=False)
+        first = _variant(fields, "1", line, required=True, chromosomes=chromosomes)
+        second = _variant(fields, "2", line, required=False, chromosomes=chromosomes)
         variants = frozenset([first, second]) if second is not None else frozenset([first])
         if second is not None and len(variants) == 1:
             raise SubmissionError(f"line {line}: pair lists the same variant twice")
@@ -194,22 +222,28 @@ def parse_as_official(text: str) -> Dict[str, Submission]:
     Use this to learn what the gate would compute for a file, including files the
     strict validator refuses. It trims chromosome text, uppercases alleles, accepts
     blank alleles, groups by proband, sorts by EPCR descending with stable ties, and
-    raises SubmissionError where the official loader raises ValueError.
+    raises SubmissionError where the official loader raises ValueError or KeyError.
+    A leading BOM is left in place, as the gate leaves it, so the first column name
+    is not ``proband_id`` and the lookup fails exactly as it does there.
     """
-    if text.startswith("\ufeff"):
-        text = text[1:]
     reader = csv.DictReader(io.StringIO(text, newline=""))
     by_proband: Dict[str, List[Tuple[FrozenSet[Variant], float, str]]] = {}
     for record in reader:
-        pid = record["proband_id"].strip()
-        first = _official_variant(record["chrom_1"], record["pos_1"], record["ref_1"], record["alt_1"])
+        try:
+            pid = record["proband_id"].strip()
+            first = _official_variant(record["chrom_1"], record["pos_1"], record["ref_1"], record["alt_1"])
+        except KeyError as error:
+            raise SubmissionError(f"gate would raise KeyError: {error}") from error
         second = _official_variant(
             record.get("chrom_2", ""), record.get("pos_2", ""), record.get("ref_2", ""), record.get("alt_2", "")
         )
         if first is None:
             raise SubmissionError(f"Row missing primary variant for proband {pid}")
         variants = frozenset([first, second]) if second else frozenset([first])
-        epcr = float(record["epcr"])
+        try:
+            epcr = float(record["epcr"])
+        except (KeyError, TypeError, ValueError) as error:
+            raise SubmissionError("gate would raise on epcr") from error
         if not (0 < epcr <= 1):
             raise SubmissionError(f"EPCR {epcr} out of range (0,1] for proband {pid}")
         finding = (record.get("finding_type") or "primary").strip().lower()
@@ -234,7 +268,11 @@ def parse_as_official(text: str) -> Dict[str, Submission]:
 def _official_variant(chrom: Optional[str], pos: Optional[str], ref: Optional[str], alt: Optional[str]) -> Optional[Variant]:
     if not chrom or not pos:
         return None
-    return (chrom.strip(), int(pos), (ref or "").strip().upper(), (alt or "").strip().upper())
+    try:
+        position = int(pos)
+    except ValueError as error:
+        raise SubmissionError("gate would raise on a position") from error
+    return (chrom.strip(), position, (ref or "").strip().upper(), (alt or "").strip().upper())
 
 
 def _rank_to_points(rank: int) -> int:
@@ -289,16 +327,20 @@ def score_submission(submission: Submission, true_variants: FrozenSet[Variant]) 
     )
 
 
-def submission_to_lane_key(variant: Variant) -> Tuple[str, int, str, str]:
+def submission_to_lane_key(variant: Variant, mitochondrial_name: str = DEFAULT_MITOCHONDRIAL) -> Tuple[str, int, str, str]:
     """Map a submission variant to the lane's contig naming (no prefix, MT for the mitochondrion)."""
     chrom = variant[0]
-    for lane_name, submission_name in LANE_TO_SUBMISSION.items():
+    for lane_name, submission_name in lane_to_submission(mitochondrial_name).items():
         if submission_name == chrom:
             return (lane_name, variant[1], variant[2], variant[3])
     raise SubmissionError(f"no lane contig for {chrom!r}")
 
 
-def validate_against_lane_representation(submission: Submission, lane_keys: Iterable[Tuple[str, int, str, str]]) -> None:
+def validate_against_lane_representation(
+    submission: Submission,
+    lane_keys: Iterable[Tuple[str, int, str, str]],
+    mitochondrial_name: str = DEFAULT_MITOCHONDRIAL,
+) -> None:
     """Every submitted variant must exist in the lane under the lane's own naming.
 
     ``lane_keys`` are ``(contig, pos, ref, alt)`` tuples as the lane writes them. A key
@@ -312,7 +354,7 @@ def validate_against_lane_representation(submission: Submission, lane_keys: Iter
     missing = 0
     for r in submission.rows:
         for variant in r.variants:
-            if submission_to_lane_key(variant) not in keys:
+            if submission_to_lane_key(variant, mitochondrial_name) not in keys:
                 missing += 1
     if missing:
         raise SubmissionError(f"{missing} submitted variant(s) not present in the lane under lane naming")

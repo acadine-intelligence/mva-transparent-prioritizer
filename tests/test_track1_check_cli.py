@@ -47,6 +47,7 @@ class Track1CheckCliTests(unittest.TestCase):
             status,
             {
                 "external_actions": 0,
+                "mitochondrial_rows": 0,
                 "pair_rows": 1,
                 "row_count": 2,
                 "secondary_rows": 1,
@@ -56,6 +57,14 @@ class Track1CheckCliTests(unittest.TestCase):
         )
         for token in ("chr2", "chr15", "chr7", "1000", "2000", "3000"):
             self.assertNotIn(token, completed.stdout)
+
+    def test_mitochondrial_rows_are_counted_so_the_open_naming_risk_is_visible(self):
+        text = HEADER + "PROBAND01,chrM,100,A,G,,,,,0.9,primary,\nPROBAND01,chr1,1,A,C,,,,,0.3,primary,\n"
+        with tempfile.TemporaryDirectory() as scratch:
+            path = self.write(scratch, "mito.csv", text)
+            completed = run_cli("--submission", str(path))
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(json.loads(completed.stdout)["mitochondrial_rows"], 1)
 
     def test_synthetic_truth_scores_the_file_with_the_mirror(self):
         text = HEADER + "PROBAND01,chr2,1000,A,T,chr15,2000,G,C,0.9,primary,\n"
@@ -106,6 +115,38 @@ class Track1CheckCliTests(unittest.TestCase):
         text = HEADER + "PROBAND01,chr1,1,A,C,,,,,0.9,primary," + ("x" * (1024 * 1024)) + "\n"
         with tempfile.TemporaryDirectory() as scratch:
             path = self.write(scratch, "big.csv", text)
+            completed = run_cli("--submission", str(path))
+        self.assertEqual(completed.returncode, 2)
+
+    def test_argument_errors_use_the_fixed_line_and_echo_nothing(self):
+        canary = "987654321"
+        for argv in (
+            ["--submission", "/nonexistent/x.csv", f"--{canary}"],
+            ["--submission"],
+            ["--submission", "/nonexistent/x.csv", "--mitochondrial-name", f"chr{canary}"],
+            ["--submission", "/nonexistent/x.csv", "--synthetic-truth"],
+        ):
+            with self.subTest(argv=argv):
+                completed = run_cli(*argv)
+                self.assertEqual(completed.returncode, 2)
+                self.assertEqual(completed.stdout, "")
+                self.assertEqual(completed.stderr.splitlines(), ['{"error":"input_rejected","state":"failed_closed"}'])
+                self.assertNotIn(canary, completed.stderr)
+                self.assertNotIn("usage", completed.stderr)
+
+    def test_mitochondrial_name_flag(self):
+        text = HEADER + "PROBAND01,chrMT,100,A,G,,,,,0.9,primary,\n"
+        with tempfile.TemporaryDirectory() as scratch:
+            path = self.write(scratch, "mt.csv", text)
+            self.assertEqual(run_cli("--submission", str(path)).returncode, 2)
+            completed = run_cli("--submission", str(path), "--mitochondrial-name", "chrMT")
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(json.loads(completed.stdout)["mitochondrial_rows"], 1)
+
+    def test_bom_file_is_refused(self):
+        text = "\ufeff" + HEADER + "PROBAND01,chr1,1,A,C,,,,,0.9,primary,\n"
+        with tempfile.TemporaryDirectory() as scratch:
+            path = self.write(scratch, "bom.csv", text)
             completed = run_cli("--submission", str(path))
         self.assertEqual(completed.returncode, 2)
 

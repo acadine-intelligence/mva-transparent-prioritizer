@@ -294,10 +294,87 @@ class ValidatorRefusesTrapsTest(unittest.TestCase):
         parsed = parse_submission(text, allow_unsorted=True)
         self.assertEqual(parsed.rows[0].epcr, 0.9)
 
-    def test_crlf_and_utf8_bom_are_accepted(self):
-        text = "\ufeff" + rows_to_csv([row(("chr7", 3000, "C", "T"))]).replace("\n", "\r\n")
+    def test_crlf_is_accepted(self):
+        text = rows_to_csv([row(("chr7", 3000, "C", "T"))]).replace("\n", "\r\n")
         parsed = parse_submission(text)
         self.assertEqual(len(parsed.rows), 1)
+
+    def test_utf8_bom_breaks_the_gate_and_is_refused_by_both_parsers(self):
+        """The official loader opens with the default codec; the BOM joins the first header name."""
+        official = load_official()
+        text = "\ufeff" + rows_to_csv([row(("chr7", 3000, "C", "T"))])
+        with tempfile.TemporaryDirectory() as scratch:
+            path = Path(scratch) / "bom.csv"
+            path.write_bytes(text.encode("utf-8"))
+            with self.assertRaises(KeyError):
+                official.load_submission(str(path))
+        with self.assertRaises(SubmissionError):
+            parse_as_official(text)
+        self.assert_refused(text, "BOM")
+
+    def test_gate_normalized_forms_are_refused_here_but_score_at_the_gate(self):
+        """Deliberate narrowing: the gate would normalize these; the canonical validator refuses them
+        so that a passing file needs no normalization to reason about. parse_as_official shows the gate view."""
+        shapes = {
+            "padded chromosome and lowercase alleles": rows_to_csv([row((" chr7 ", 3000, "c", "t"), epcr="0.9")]),
+            "ten-column header without finding_type and notes": rows_to_csv(
+                [row(("chr7", 3000, "C", "T"), epcr="0.9")[:10]], header=list(HEADER[:10])
+            ),
+            "blank finding_type defaults to primary at the gate": rows_to_csv(
+                [row(("chr7", 3000, "C", "T"), epcr="0.9", finding="")]
+            ),
+            "quoted multiline notes": rows_to_csv([row(("chr7", 3000, "C", "T"), epcr="0.9", notes="a\nb")]),
+        }
+        official = load_official()
+        for name, text in shapes.items():
+            with self.subTest(shape=name):
+                with self.assertRaises(SubmissionError):
+                    parse_submission(text)
+                with tempfile.TemporaryDirectory() as scratch:
+                    path = Path(scratch) / "shape.csv"
+                    path.write_bytes(text.encode("utf-8"))
+                    theirs = official.score_proband(
+                        "PROBAND01", official.load_submission(str(path))["PROBAND01"], TRUTH_SINGLE
+                    )
+                ours = score_submission(parse_as_official(text)["PROBAND01"], TRUTH_SINGLE)
+                self.assertEqual((theirs.rank_points, theirs.f_max), (100.0, 1.0))
+                self.assertEqual((ours.rank_points, ours.f_max), (100.0, 1.0))
+
+    def test_official_mirror_raises_where_the_gate_raises(self):
+        official = load_official()
+        bad = {
+            "non-integer position": rows_to_csv([row(("chr7", "30a", "C", "T"))]),
+            "non-numeric epcr": rows_to_csv([row(("chr7", 3000, "C", "T"), epcr="high")]),
+            "epcr zero": rows_to_csv([row(("chr7", 3000, "C", "T"), epcr="0")]),
+            "eleven rows": rows_to_csv([row(("chr1", i, "A", "C"), epcr=f"0.{99 - i}") for i in range(1, 12)]),
+            "bad finding_type": rows_to_csv([row(("chr7", 3000, "C", "T"), finding="incidental")]),
+        }
+        for name, text in bad.items():
+            with self.subTest(shape=name):
+                with tempfile.TemporaryDirectory() as scratch:
+                    path = Path(scratch) / "bad.csv"
+                    path.write_bytes(text.encode("utf-8"))
+                    with self.assertRaises(ValueError):
+                        official.load_submission(str(path))
+                with self.assertRaises(SubmissionError):
+                    parse_as_official(text)
+
+    def test_mitochondrial_name_is_configurable_and_unverified(self):
+        chrm = rows_to_csv([row(("chrM", 10, "A", "G"))])
+        chrmt = rows_to_csv([row(("chrMT", 10, "A", "G"))])
+        self.assertEqual(len(parse_submission(chrm).rows), 1)
+        self.assert_refused(chrmt, "chrom_1")
+        self.assertEqual(len(parse_submission(chrmt, mitochondrial_name="chrMT").rows), 1)
+        self.assert_refused(chrm, "chrom_1", mitochondrial_name="chrMT")
+        # An unprefixed spelling can never be configured in: the gate matches a chr-prefixed key.
+        unprefixed = rows_to_csv([row(("MT", 10, "A", "G"))])
+        with self.assertRaises(SubmissionError) as caught:
+            parse_submission(unprefixed, mitochondrial_name="MT")
+        self.assertIn("must be one of ('chrM', 'chrMT')", str(caught.exception))
+        # The gate itself matches whichever spelling the private key uses; both score against their own.
+        for text, truth_name in ((chrm, "chrM"), (chrmt, "chrMT")):
+            ours = score_submission(parse_as_official(text)["PROBAND01"], frozenset([(truth_name, 10, "A", "G")]))
+            self.assertEqual(ours.rank_points, 100.0)
 
     def test_extra_or_missing_columns(self):
         self.assert_refused(rows_to_csv([row(("chr7", 3000, "C", "T")) + ["extra"]]), "columns")
@@ -314,6 +391,11 @@ class LaneRepresentationTest(unittest.TestCase):
         parsed = parse_submission(rows_to_csv([row(("chr7", 3000, "C", "T")), row(("chrM", 10, "A", "G"), epcr="0.1")]))
         lane_keys = {("7", 3000, "C", "T"), ("MT", 10, "A", "G")}
         validate_against_lane_representation(parsed, lane_keys)
+        alt = parse_submission(
+            rows_to_csv([row(("chr7", 3000, "C", "T")), row(("chrMT", 10, "A", "G"), epcr="0.1")]),
+            mitochondrial_name="chrMT",
+        )
+        validate_against_lane_representation(alt, lane_keys, mitochondrial_name="chrMT")
 
     def test_submission_variant_absent_from_lane_is_refused(self):
         parsed = parse_submission(rows_to_csv([row(("chr7", 3000, "C", "T"))]))

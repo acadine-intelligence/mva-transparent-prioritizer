@@ -25,6 +25,7 @@ PARTITION = "sensitivity_partition.py"
 BOUNDED = "bounded_input.py"
 DRIVER = "scripts/run_sensitivity_remm963.py"
 TRACK1 = "track1_submission.py"
+CLI = "cli.py"
 
 # (module file, exact snippet to disable, replacement, test id that must fail)
 MUTATIONS = [
@@ -122,7 +123,7 @@ MUTATIONS = [
      'tests.test_track1_submission.MirrorAgreesWithOfficialTest.test_every_case_matches_the_official_scorer'),
     (TRACK1, '(ref or "").strip().upper(), (alt or "").strip().upper()', '(ref or "").strip(), (alt or "").strip()',
      'tests.test_track1_submission.MirrorAgreesWithOfficialTest.test_every_case_matches_the_official_scorer'),
-    (TRACK1, '    return (chrom.strip(), int(pos),', '    return (chrom, int(pos),',
+    (TRACK1, '    return (chrom.strip(), position,', '    return (chrom, position,',
      'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_official_parser_trims_chromosome_text_and_uppercases_alleles'),
     (TRACK1, 'MAX_ROWS = 10', 'MAX_ROWS = 11',
      'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_more_than_ten_rows'),
@@ -130,7 +131,7 @@ MUTATIONS = [
      'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_epcr_out_of_range_and_non_numeric'),
     (TRACK1, 'ALLELE = re.compile(r"^[ACGT]+$")', 'ALLELE = re.compile(r"^[ACGT]*$")',
      'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_blank_alleles_pass_official_parsing_but_are_refused_here'),
-    (TRACK1, '+ ["chrX", "chrY", "chrM"]', '+ ["chrX", "chrY"]',
+    (TRACK1, '    return NUCLEAR_CHROMOSOMES | {mitochondrial_name}', '    return NUCLEAR_CHROMOSOMES',
      'tests.test_track1_submission.LaneRepresentationTest.test_lane_contig_maps_to_submission_chromosome'),
     (TRACK1, '            if variant in seen_variants and not allow_repeated_pairings:', '            if False:',
      'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_repeated_variant_in_different_pairings_is_allowed_when_asked'),
@@ -154,8 +155,20 @@ MUTATIONS = [
      'tests.test_track1_submission.LaneRepresentationTest.test_lane_keys_carrying_a_prefix_are_a_representation_error'),
     (TRACK1, '    if missing:', '    if False:',
      'tests.test_track1_submission.LaneRepresentationTest.test_submission_variant_absent_from_lane_is_refused'),
-    (TRACK1, '"X": "chrX", "Y": "chrY", "MT": "chrM"}', '"X": "chrX", "Y": "chrY", "MT": "chrMT"}',
+    (TRACK1, '    return {**NUCLEAR_LANE_TO_SUBMISSION, "MT": mitochondrial_name}', '    return {**NUCLEAR_LANE_TO_SUBMISSION, "MT": "chrMT"}',
      'tests.test_track1_submission.LaneRepresentationTest.test_lane_contig_maps_to_submission_chromosome'),
+    (TRACK1, '    if text.startswith("\\ufeff"):\n        raise SubmissionError', '    if False:\n        raise SubmissionError',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_utf8_bom_breaks_the_gate_and_is_refused_by_both_parsers'),
+    (TRACK1, '        except KeyError as error:\n            raise SubmissionError(f"gate would raise KeyError: {error}") from error', '        except KeyError as error:\n            continue',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_utf8_bom_breaks_the_gate_and_is_refused_by_both_parsers'),
+    (TRACK1, '    except ValueError as error:\n        raise SubmissionError("gate would raise on a position") from error', '    except ValueError as error:\n        position = 0',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_official_mirror_raises_where_the_gate_raises'),
+    (TRACK1, '    if mitochondrial_name not in MITOCHONDRIAL_NAMES:\n        raise', '    if False:\n        raise',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_mitochondrial_name_is_configurable_and_unverified'),
+    (CLI, '    try:\n        args = _parser().parse_args(argv)\n        return _dispatch(args)', '    args = _parser().parse_args(argv)\n    try:\n        return _dispatch(args)',
+     'tests.test_track1_check_cli.Track1CheckCliTests.test_argument_errors_use_the_fixed_line_and_echo_nothing'),
+    (CLI, '    parser = _SilentParser(', '    parser = argparse.ArgumentParser(',
+     'tests.test_track1_check_cli.Track1CheckCliTests.test_argument_errors_use_the_fixed_line_and_echo_nothing'),
 ]
 
 
@@ -201,7 +214,7 @@ class GuardMutationTest(unittest.TestCase):
                 finally:
                     target.write_text(original)
         self.assertEqual(survivors, [], f"guards whose removal went undetected: {survivors}")
-        self.assertEqual(len(MUTATIONS), 61)
+        self.assertEqual(len(MUTATIONS), 67)
 
     def test_repo_modules_are_untouched(self):
         for module_file in (PARTITION, BOUNDED, DRIVER):
