@@ -68,10 +68,10 @@ No truth labels exist for this genome. Retention under a stricter cutoff is not 
 ## Prerequisites before running
 
 1. Jonathan's explicit approval of this design.
-2. A synthetic dry run on the M4, extending the round-trip already done: write the six synthetic genes through both the real `JsonResultsWriter` and the real `TsvVariantResultsWriter`, run the two-stage recomputation on that TSV, and confirm it reproduces the direct engine answer recorded in `runtime/exomiser-probe-20260905/roundtrip/engine-strict-direct.json` for all six genes. This is public work and can proceed without approval.
+2. Done 2026-09-05. The six synthetic genes were written through the real `TsvVariantResultsWriter` (18 rows, 10 unique variants). `runtime/exomiser-probe-20260905/Recompute.java` read only that TSV, applied the mirror at 0.963, rebuilt survivors, and asked the real `InheritanceModeAnnotator`. Its output equals the direct in-memory engine answer for all six genes (`tests/fixtures/exomiser_recompute_from_tsv.json` vs `exomiser_roundtrip_strict.json`, pinned by `tests/test_exomiser_tsv_recompute_fixture.py`). Nine input mutations were run against the recomputation: six changed the answer as the engine logic predicts (partner REMM raised, survivor frequency lowered, genotype made homozygous, coding class changed to intronic, whitelist set, REMM placed exactly at 0.963), one left it unchanged by design (REMM 0.9630001, strict `>`), and two failed closed (renamed GENOTYPE column, unknown SO term). `Recompute.java` is the script the private run would execute unchanged, with the frozen TSV path and the real proband name as arguments.
 3. Confirm the frozen TSV and JSONL hashes match `receipt.json` in the frozen run directory immediately before reading.
 
-Steps 1 and 3 gate the private run.
+Steps 1 and 3 gate the private run. Step 2 is complete.
 
 ## Cost
 
