@@ -51,12 +51,21 @@ The frozen run directory and the sensitivity output directory are named in the p
 
 Nothing is written under the frozen run directory. The run script asserts that its output root does not have the frozen run directory as an ancestor before creating anything.
 
+## Commands the private run executes
+
+Two commands, both already exercised on the synthetic fixtures in this tree:
+
+1. `java -cp <exomiser-core jars> Recompute <frozen variants TSV> <proband> <sibling>/recompute-summary.json <sibling>/recompute-detail.json`, using `runtime/exomiser-probe-20260905/Recompute.java` unchanged, compiled against the installed and hash-verified `exomiser-core-15.1.0.jar` on the encrypted volume. It reads the TSV once, writes the two JSON files, and prints one line of counts.
+2. `python3 -m mva_prioritizer.cli sensitivity-partition --detail <sibling>/recompute-detail.json --output <sibling>/partition-receipt.json`. This turns the detail file into the count-basis receipt from `docs/13-count-basis.md` plus the three-way partitions below, fails closed on any internal inconsistency (survivor counts, mode unions, unknown mode names, an existing output file), and omits gene symbols unless `--include-symbols` is passed. The symbol list stays on the encrypted volume.
+
+`mva_prioritizer/sensitivity_partition.py` and `tests/test_sensitivity_partition.py` pin the arithmetic on the synthetic detail file (`tests/fixtures/exomiser_recompute_detail.json`): 9 baseline keys partition into 5 retained, 3 removed by cutoff, 1 removed by inheritance; 5 genes into 4 retained, 0 removed by cutoff, 1 removed by inheritance; 2 retained genes change mode set. Nine implementation mutations each fail the tests.
+
 ## Outputs
 
 - A receipt binding the frozen TSV and JSONL hashes (input), the run script hash, the annotator jar hash, the JDK version, and the output hashes.
 - Counts on both bases, using the count-basis receipt shape from `docs/13-count-basis.md`: variants retained by stage 1, genes retained by stage 2, unique keys and TSV-row equivalents kept separate.
-- A partition of the 365 baseline variants: retained, removed by cutoff, removed by inheritance recomputation. Same for the 243 genes.
-- A list of genes whose mode set changed without the gene being removed.
+- A partition of the 365 baseline variants: retained, removed by cutoff, removed by inheritance recomputation. Same for the 243 genes. Produced by `sensitivity-partition`, with the strict lane's row-basis count being one row per retained variant per strict mode, the same multiplicity the frozen TSV uses.
+- A count of retained genes whose mode set changed; the symbols themselves only with `--include-symbols`, and only on the encrypted volume.
 - The detailed per-variant and per-gene tables stay on the encrypted volume. Only the counts and the partition sizes are candidates for any later public-safe write-up, and only after Jonathan's separate approval of the exact figures.
 
 ## What it would not establish

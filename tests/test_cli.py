@@ -648,5 +648,70 @@ class CliTests(unittest.TestCase):
         self.assertNotIn(canary, completed.stdout + completed.stderr)
 
 
+class SensitivityPartitionCliTests(unittest.TestCase):
+    DETAIL = Path(__file__).resolve().parent / "fixtures" / "exomiser_recompute_detail.json"
+
+    def run_cli(self, argv):
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+            code = main(argv)
+        return code, stdout.getvalue(), stderr.getvalue()
+
+    def test_writes_count_only_receipt_by_default(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "partition.json"
+            code, out, err = self.run_cli(["sensitivity-partition", "--detail", str(self.DETAIL), "--output", str(output)])
+            self.assertEqual((code, err), (0, ""))
+            status = json.loads(out)
+            self.assertEqual(status["state"], "written")
+            self.assertEqual(status["variant_partition"], {"retained": 5, "removed_by_cutoff": 3, "removed_by_inheritance": 1})
+            self.assertEqual(status["gene_partition"], {"retained": 4, "removed_by_cutoff": 0, "removed_by_inheritance": 1})
+            self.assertFalse(status["symbols_included"])
+            written = json.loads(output.read_text())
+            self.assertEqual(written["retained_genes_with_changed_mode_set_count"], 2)
+            self.assertNotIn("retained_genes_with_changed_mode_set", written)
+            self.assertNotIn("SYNG", output.read_text(), "no symbols unless asked")
+
+    def test_include_symbols_is_explicit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "partition.json"
+            code, out, _ = self.run_cli(["sensitivity-partition", "--detail", str(self.DETAIL), "--output", str(output), "--include-symbols"])
+            self.assertEqual(code, 0)
+            self.assertTrue(json.loads(out)["symbols_included"])
+            self.assertEqual(json.loads(output.read_text())["retained_genes_with_changed_mode_set"], ["SYNG2", "SYNG6"])
+
+    def test_refuses_to_overwrite_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "partition.json"
+            output.write_text("{}")
+            code, out, err = self.run_cli(["sensitivity-partition", "--detail", str(self.DETAIL), "--output", str(output)])
+            self.assertEqual((code, out), (2, ""))
+            self.assertEqual(json.loads(err), {"error": "input_rejected", "state": "failed_closed"})
+            self.assertEqual(output.read_text(), "{}", "existing output untouched")
+
+    def test_inconsistent_detail_fails_closed_without_writing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            detail = json.loads(self.DETAIL.read_text())
+            detail["genes"]["SYNG1"]["strict_survivors"] = 0
+            bad = Path(directory) / "detail.json"
+            bad.write_text(json.dumps(detail))
+            output = Path(directory) / "partition.json"
+            code, out, err = self.run_cli(["sensitivity-partition", "--detail", str(bad), "--output", str(output)])
+            self.assertEqual((code, out), (2, ""))
+            self.assertIn("failed_closed", err)
+            self.assertFalse(output.exists())
+
+    def test_malformed_json_fails_closed_with_one_bounded_line(self):
+        with tempfile.TemporaryDirectory() as directory:
+            bad = Path(directory) / "detail.json"
+            bad.write_text("{" + '"SYNTHETIC_CANARY"' * 50)
+            output = Path(directory) / "partition.json"
+            code, out, err = self.run_cli(["sensitivity-partition", "--detail", str(bad), "--output", str(output)])
+            self.assertEqual((code, out), (2, ""))
+            self.assertEqual(err.count("\n"), 1)
+            self.assertNotIn("SYNTHETIC_CANARY", err)
+            self.assertFalse(output.exists())
+
+
 if __name__ == "__main__":
     unittest.main()

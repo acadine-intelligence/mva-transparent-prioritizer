@@ -18,6 +18,7 @@ from .reference_bundle import (
 )
 from .reference_install import install_reference_artifact
 from .safe_projection import project_safe_learning, read_forbidden_values
+from .sensitivity_partition import partition_from_detail, partition_receipt
 from .synthetic import run_synthetic
 from .verify import verify_synthetic_run
 
@@ -66,6 +67,10 @@ def _parser() -> argparse.ArgumentParser:
     verify_environment_command = subcommands.add_parser("verify-environment")
     verify_environment_command.add_argument("--public-root", required=True)
     verify_environment_command.add_argument("--private-root", required=True)
+    sensitivity = subcommands.add_parser("sensitivity-partition")
+    sensitivity.add_argument("--detail", required=True)
+    sensitivity.add_argument("--output", required=True)
+    sensitivity.add_argument("--include-symbols", action="store_true")
     return parser
 
 
@@ -82,6 +87,28 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
 
 def _dispatch(args: argparse.Namespace) -> int:
+    if args.command == "sensitivity-partition":
+        detail_path = Path(args.detail)
+        output_path = Path(args.output)
+        if output_path.exists():
+            raise FileExistsError("output exists")
+        if detail_path.stat().st_size > 64 * 1024 * 1024:
+            raise ValueError("detail too large")
+        with detail_path.open("rb") as handle:
+            detail = json.loads(handle.read().decode("utf-8"))
+        receipt = partition_receipt(partition_from_detail(detail), include_symbols=args.include_symbols)
+        payload = json.dumps(receipt, indent=2, sort_keys=True) + "\n"
+        with output_path.open("x", encoding="utf-8") as handle:
+            handle.write(payload)
+        status = {
+            "external_actions": 0,
+            "gene_partition": receipt["gene_partition"],
+            "state": "written",
+            "symbols_included": args.include_symbols,
+            "variant_partition": receipt["variant_partition"],
+        }
+        print(json.dumps(status, separators=(",", ":"), sort_keys=True))
+        return 0
     if args.command == "synthetic-run":
         summary = run_synthetic(
             fixture_path=Path(args.fixture),
