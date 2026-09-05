@@ -67,30 +67,41 @@ MUTATIONS = [
      "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_refuses_output_inside_frozen_run"),
     (DRIVER, '    if resolved_out.parent != resolved_run.parent:\n        raise', '    if False:\n        raise',
      "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_refuses_output_that_is_not_a_sibling"),
-    (DRIVER, '    if not output_root.name.endswith(OUTPUT_SUFFIX):\n        raise', '    if False:\n        raise',
-     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_refuses_output_without_the_sensitivity_suffix"),
+    (DRIVER, '    if output_root.name != frozen_run.name + OUTPUT_SUFFIX:\n        raise', '    if False:\n        raise',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_output_name_is_derived_from_the_frozen_run_name"),
     (DRIVER, '    if output_root.exists() or output_root.is_symlink():\n        raise', '    if False:\n        raise',
      "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_refuses_existing_output_root"),
-    (DRIVER, '        if actual != entry["sha256"]:\n            raise', '        if False:\n            raise',
+    (DRIVER, '            if actual != entry["sha256"]:\n                raise', '            if False:\n                raise',
      "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_refuses_when_tsv_hash_disagrees_with_freeze_receipt"),
     (DRIVER, 'receipt.get("state") != "completed"', 'False',
      "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_refuses_when_freeze_receipt_missing_or_not_completed"),
-    (DRIVER, 'return hashlib.sha256(read_regular_file(path, max_bytes)).hexdigest()', 'return hashlib.sha256(path.read_bytes()).hexdigest()',
+    (DRIVER, '        if exc.errno in (errno.ELOOP, errno.EMLINK):\n            raise Refused("frozen run components must not be symlinks") from None\n        if exc.errno == errno.ENOENT:', '        if exc.errno == errno.ENOENT:',
      "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_refuses_symlinked_frozen_input"),
+    (DRIVER, 'os.O_RDONLY | os.O_DIRECTORY | NOFOLLOW | CLOEXEC, dir_fd=parent_fd', 'os.O_RDONLY | os.O_DIRECTORY | CLOEXEC, dir_fd=parent_fd',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_refuses_symlinked_results_directory"),
+    (DRIVER, '        if tsv_keys != set(jsonl_modes):\n            raise', '        if False:\n            raise',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_tsv_jsonl_consistency_check_stops_the_run"),
+    (DRIVER, '            if mode is None or mode not in jsonl_modes[', '            if False and mode not in jsonl_modes[',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_tsv_jsonl_consistency_check_stops_the_run"),
+    (DRIVER, '        if inputs.reread_hashes() != (inputs.tsv_sha, inputs.jsonl_sha):\n            raise', '        if False:\n            raise',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_tsv_changed_during_the_engine_run_is_refused"),
     (DRIVER, '        if result.returncode != 0 or not summary.is_file() or not detail.is_file():\n            raise', '        if not summary.is_file() or not detail.is_file():\n            raise',
      "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_java_nonzero_exit_is_refused_even_when_it_wrote_outputs"),
     (DRIVER, '        if not completed:\n            os.chmod(output_root, 0o700)', '        if False:\n            os.chmod(output_root, 0o700)',
      "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_failed_run_removes_its_partial_output_root"),
     (DRIVER, '    if not java.is_file() or not os.access(java, os.X_OK):\n        raise', '    if False:\n        raise',
      "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_missing_java_or_jar_fails_before_touching_anything"),
-    (DRIVER, '    if not lib.is_dir() or not jar.is_file():\n        raise', '    if False:\n        raise',
-     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_missing_java_or_jar_fails_before_touching_anything"),
+    # The jar and Recompute.class existence checks are backed a second time by _hash_regular,
+    # which opens each tool with O_NOFOLLOW through the same descriptor reader the frozen
+    # inputs use; removing the explicit check changes no observable behaviour, so those two
+    # are deliberately not listed. Their behaviour is tested directly in
+    # test_missing_java_or_jar_fails_before_touching_anything and test_requires_compiled_recompute_class.
     (DRIVER, '    os.chmod(path, 0o400)\n    return', '    return',
      "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_happy_path_writes_sibling_and_leaves_frozen_run_byte_identical"),
     (DRIVER, '        if partition["cutoff"] != CUTOFF:\n            raise', '        if False:\n            raise',
      "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_failed_run_removes_its_partial_output_root"),
     (DRIVER, 'receipt = partition_receipt(partition, include_symbols=False)', 'receipt = partition_receipt(partition, include_symbols=True)',
-     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_happy_path_writes_sibling_and_leaves_frozen_run_byte_identical"),
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_receipts_carry_no_symbols_even_when_run_name_matches_proband"),
 ]
 
 
@@ -102,6 +113,7 @@ def _copy_tree(directory: Path) -> Path:
     shutil.copytree(TESTS, scratch / "tests", ignore=shutil.ignore_patterns("__pycache__"))
     shutil.copytree(ROOT / "schemas", scratch / "schemas")
     shutil.copytree(ROOT / "scripts", scratch / "scripts", ignore=shutil.ignore_patterns("__pycache__"))
+    shutil.copytree(ROOT / "tools", scratch / "tools")
     return scratch
 
 
@@ -135,7 +147,7 @@ class GuardMutationTest(unittest.TestCase):
                 finally:
                     target.write_text(original)
         self.assertEqual(survivors, [], f"guards whose removal went undetected: {survivors}")
-        self.assertEqual(len(MUTATIONS), 32)
+        self.assertEqual(len(MUTATIONS), 35)
 
     def test_repo_modules_are_untouched(self):
         for module_file in (PARTITION, BOUNDED, DRIVER):

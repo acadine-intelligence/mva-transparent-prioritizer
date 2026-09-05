@@ -18,6 +18,7 @@ asserted exactly.
 import hashlib
 import json
 import os
+import shutil
 import stat
 import subprocess
 import sys
@@ -62,18 +63,27 @@ class SyntheticPrivateTree:
         self.lib = base / "references" / "installed" / "exomiser-cli" / "exomiser-cli-15.1.0" / "lib"
         self.lib.mkdir(parents=True)
         (self.lib / "exomiser-core-15.1.0.jar").write_bytes(b"not a real jar, hashed only")
+        self.class_dir = base / "classes"
+        self.class_dir.mkdir()
+        (self.class_dir / "Recompute.class").write_bytes(b"not real bytecode, hashed only")
+        (self.class_dir / "Recompute.java").write_bytes((ROOT / "tools" / "exomiser-probe" / "Recompute.java").read_bytes())
         self.write_java_stub(ok=True)
 
-    def write_java_stub(self, ok: bool):
-        # Records its argv, then writes canned Recompute outputs where the driver asked.
-        detail = FIXTURES / "exomiser_recompute_detail.json"
+    def write_java_stub(self, ok: bool, tamper_tsv: bool = False, detail_override: Path = None):
+        # Answers -version, records its argv, then writes canned Recompute outputs where the driver asked.
+        detail = detail_override or FIXTURES / "exomiser_recompute_detail.json"
         summary = FIXTURES / "exomiser_recompute_from_tsv.json"
+        tamper = ""
+        if tamper_tsv:
+            tamper = 'chmod 700 "$(dirname "$4")"; chmod 600 "$4"; printf "\\n" >> "$4"; chmod 400 "$4"; chmod 500 "$(dirname "$4")"'
         body = f"""#!/bin/sh
+if [ "$1" = "-version" ]; then echo 'openjdk version "21.0.12.1" 2024-07-16 LTS' >&2; exit 0; fi
 printf '%s\\n' "$@" > "$(dirname "$0")/java-argv.txt"
 {'' if ok else 'exit 7'}
 # args: -cp <cp> Recompute <tsv> <proband> <summary> <detail>
 cp {summary} "$6"
 cp {detail} "$7"
+{tamper}
 echo '{{"tsv_rows":16}}'
 """
         self.java.write_text(body)
@@ -100,12 +110,16 @@ class SensitivityDriverTest(unittest.TestCase):
         self.out = self.tree.run.parent / "lane2-run-1-sensitivity-remm963"
 
     def tearDown(self):
-        self.tree.unfreeze_all()
+        for p in Path(self._tmp.name).rglob("*"):
+            try:
+                p.chmod(0o700 if p.is_dir() and not p.is_symlink() else 0o600)
+            except OSError:
+                pass
         self._tmp.cleanup()
 
     def base_args(self, out=None):
         return ["--frozen-run", str(self.tree.run), "--output-root", str(out or self.out), "--proband", self.proband,
-                "--java", str(self.tree.java), "--exomiser-lib", str(self.tree.lib), "--recompute-class-dir", str(FIXTURES)]
+                "--java", str(self.tree.java), "--exomiser-lib", str(self.tree.lib), "--recompute-class-dir", str(self.tree.class_dir)]
 
     def test_happy_path_writes_sibling_and_leaves_frozen_run_byte_identical(self):
         completed = run_driver(self.base_args())
@@ -120,6 +134,11 @@ class SensitivityDriverTest(unittest.TestCase):
         self.assertEqual(receipt["inputs"]["jsonl_sha256"], self.before["results/lane2-genome.jsonl"][0])
         self.assertEqual(receipt["inputs"]["freeze_receipt_sha256"], self.before["lane2-run-1-receipt.json"][0])
         self.assertEqual(receipt["tools"]["exomiser_core_jar_sha256"], sha256(self.tree.lib / "exomiser-core-15.1.0.jar"))
+        self.assertEqual(receipt["tools"]["recompute_class_sha256"], sha256(self.tree.class_dir / "Recompute.class"))
+        self.assertEqual(receipt["tools"]["recompute_java_sha256"], sha256(self.tree.class_dir / "Recompute.java"))
+        self.assertEqual(receipt["tools"]["driver_script_sha256"], sha256(DRIVER))
+        self.assertEqual(receipt["tools"]["java_version"], 'openjdk version "21.0.12.1" 2024-07-16 LTS')
+        self.assertNotIn("frozen_run_name", receipt["inputs"], "no directory name in the receipt")
         self.assertEqual(receipt["cutoff"], 0.963)
         self.assertEqual(receipt["partition"]["variant_partition"], {"retained": 5, "removed_by_cutoff": 3, "removed_by_inheritance": 1})
         for name in ("recompute-summary.json", "recompute-detail.json", "partition-receipt.json"):
@@ -141,7 +160,7 @@ class SensitivityDriverTest(unittest.TestCase):
         run_driver(self.base_args())
         argv = (self.tree.java.parent / "java-argv.txt").read_text().splitlines()
         self.assertEqual(argv[0], "-cp")
-        self.assertIn(str(FIXTURES), argv[1])
+        self.assertIn(str(self.tree.class_dir), argv[1])
         self.assertIn(str(self.tree.lib), argv[1])
         self.assertEqual(argv[2], "Recompute")
         self.assertEqual(argv[3], str(self.tree.run / "results" / "lane2-genome.variants.tsv"))
@@ -169,7 +188,7 @@ class SensitivityDriverTest(unittest.TestCase):
     def test_refuses_output_without_the_sensitivity_suffix(self):
         completed = run_driver(self.base_args(out=self.tree.run.parent / "lane2-run-1-other"))
         self.assertEqual(completed.returncode, 2)
-        self.assertEqual(json.loads(completed.stderr)["error"], "output root name must carry the sensitivity suffix")
+        self.assertEqual(json.loads(completed.stderr)["error"], "output root name must be the frozen run name plus the sensitivity suffix")
 
     def test_refuses_existing_output_root(self):
         self.out.mkdir()
@@ -208,6 +227,7 @@ class SensitivityDriverTest(unittest.TestCase):
         tsv.unlink(); tsv.symlink_to(real)
         completed = run_driver(self.base_args())
         self.assertEqual(completed.returncode, 2)
+        self.assertEqual(json.loads(completed.stderr)["error"], "frozen run components must not be symlinks")
         self.assertFalse(self.out.exists())
 
     def test_java_failure_leaves_no_partial_output_claiming_completion(self):
@@ -234,14 +254,14 @@ class SensitivityDriverTest(unittest.TestCase):
         detail["cutoff"] = 0.914
         bad = self.tree.base / "bad-detail.json"
         bad.write_text(json.dumps(detail))
-        self.tree.java.write_text(self.tree.java.read_text().replace(str(FIXTURES / "exomiser_recompute_detail.json"), str(bad)))
+        self.tree.write_java_stub(ok=True, detail_override=bad)
         completed = run_driver(self.base_args())
         self.assertEqual(completed.returncode, 2)
         self.assertEqual(json.loads(completed.stderr)["error"], "recomputation cutoff is not the designed cutoff")
         self.assertFalse(self.out.exists(), "partial output root removed on failure")
 
     def test_missing_java_or_jar_fails_before_touching_anything(self):
-        completed = run_driver(self.base_args()[:-6] + ["--java", str(self.tree.base / "nope"), "--exomiser-lib", str(self.tree.lib), "--recompute-class-dir", str(FIXTURES)])
+        completed = run_driver(self.base_args()[:-6] + ["--java", str(self.tree.base / "nope"), "--exomiser-lib", str(self.tree.lib), "--recompute-class-dir", str(self.tree.class_dir)])
         self.assertEqual(completed.returncode, 2)
         self.assertEqual(json.loads(completed.stderr)["error"], "java executable not found")
         self.assertFalse(self.out.exists())
@@ -250,6 +270,97 @@ class SensitivityDriverTest(unittest.TestCase):
         self.assertEqual(completed.returncode, 2)
         self.assertEqual(json.loads(completed.stderr)["error"], "exomiser core jar not found")
         self.assertFalse(self.out.exists())
+
+    def test_refuses_symlinked_results_directory(self):
+        # O_NOFOLLOW guards only the final component; every component under the frozen run
+        # must be opened without following links.
+        self.tree.unfreeze_all()
+        outside = self.tree.base / "outside-results"
+        outside.mkdir()
+        for f in (self.tree.run / "results").iterdir():
+            (outside / f.name).write_bytes(f.read_bytes())
+        shutil.rmtree(self.tree.run / "results")
+        (self.tree.run / "results").symlink_to(outside)
+        completed = run_driver(self.base_args())
+        self.assertEqual(completed.returncode, 2)
+        self.assertEqual(json.loads(completed.stderr)["error"], "frozen run components must not be symlinks")
+        self.assertFalse(self.out.exists())
+
+    def test_refuses_symlinked_frozen_run_directory(self):
+        link = self.tree.run.parent / "lane2-run-1-link"
+        link.symlink_to(self.tree.run)
+        completed = run_driver(["--frozen-run", str(link), "--output-root", str(link.parent / "lane2-run-1-link-sensitivity-remm963"),
+                                "--proband", self.proband, "--java", str(self.tree.java), "--exomiser-lib", str(self.tree.lib),
+                                "--recompute-class-dir", str(self.tree.class_dir)])
+        self.assertEqual(completed.returncode, 2)
+        self.assertEqual(json.loads(completed.stderr)["error"], "frozen run components must not be symlinks")
+
+    def test_output_name_is_derived_from_the_frozen_run_name(self):
+        completed = run_driver(self.base_args(out=self.tree.run.parent / "other-sensitivity-remm963"))
+        self.assertEqual(completed.returncode, 2)
+        self.assertEqual(json.loads(completed.stderr)["error"], "output root name must be the frozen run name plus the sensitivity suffix")
+
+    def test_requires_compiled_recompute_class(self):
+        class_file = self.tree.class_dir / "Recompute.class"
+        class_file.unlink()
+        completed = run_driver(self.base_args())
+        self.assertEqual(completed.returncode, 2)
+        self.assertEqual(json.loads(completed.stderr)["error"], "compiled Recompute class not found")
+        self.assertFalse(self.out.exists())
+        # A symlinked class file is refused too: the engine must load the bytes that were hashed.
+        real = self.tree.base / "elsewhere.class"
+        real.write_bytes(b"bytecode elsewhere")
+        class_file.symlink_to(real)
+        completed = run_driver(self.base_args())
+        self.assertEqual(completed.returncode, 2)
+        self.assertEqual(json.loads(completed.stderr)["error"], "compiled Recompute class not found")
+        self.assertFalse(self.out.exists())
+
+    def test_tsv_jsonl_consistency_check_stops_the_run(self):
+        self.tree.unfreeze_all()
+        jsonl = self.tree.run / "results" / "lane2-genome.jsonl"
+        receipt = self.tree.run / "lane2-run-1-receipt.json"
+        cases = {
+            "drop a variant": lambda g: g[0]["variantEvaluations"].pop(),
+            "drop a mode": lambda g: g[0]["variantEvaluations"][0]["compatibleInheritanceModes"].remove("AUTOSOMAL_RECESSIVE"),
+            "change a contig": lambda g: g[0]["variantEvaluations"][0].__setitem__("contigName", "2"),
+        }
+        original = jsonl.read_bytes()
+        for name, mutate in cases.items():
+            genes = [json.loads(line) for line in original.decode().splitlines() if line.strip()]
+            mutate(genes)
+            jsonl.write_text("\n".join(json.dumps(g) for g in genes) + "\n")
+            data = json.loads(receipt.read_text())
+            data["outputs"]["lane2-genome.jsonl"]["sha256"] = sha256(jsonl)
+            receipt.write_text(json.dumps(data, sort_keys=True))
+            completed = run_driver(self.base_args())
+            self.assertEqual(completed.returncode, 2, name)
+            self.assertEqual(json.loads(completed.stderr)["error"], "frozen TSV and JSONL disagree", name)
+            self.assertFalse(self.out.exists(), name)
+
+    def test_tsv_changed_during_the_engine_run_is_refused(self):
+        self.tree.write_java_stub(ok=True, tamper_tsv=True)
+        completed = run_driver(self.base_args())
+        self.assertEqual(completed.returncode, 2)
+        self.assertEqual(json.loads(completed.stderr)["error"], "frozen input changed during the run")
+        self.assertFalse(self.out.exists())
+
+    def test_receipts_carry_no_symbols_even_when_run_name_matches_proband(self):
+        # Rename the frozen run to the proband name: no receipt may contain it.
+        self.tree.unfreeze_all()
+        renamed = self.tree.run.parent / self.proband
+        self.tree.run.rename(renamed)
+        (renamed / "lane2-run-1-receipt.json").rename(renamed / f"{self.proband}-receipt.json")
+        out = renamed.parent / f"{self.proband}-sensitivity-remm963"
+        completed = run_driver(["--frozen-run", str(renamed), "--output-root", str(out), "--proband", self.proband,
+                                "--java", str(self.tree.java), "--exomiser-lib", str(self.tree.lib), "--recompute-class-dir", str(self.tree.class_dir)])
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        for name in ("partition-receipt.json", "sensitivity-receipt.json"):
+            text = (out / name).read_text()
+            self.assertNotIn(self.proband, text, name)
+            self.assertNotIn("SYNG", text, name)
+        self.tree.run = renamed
+        self.assertNotIn(self.proband, completed.stdout)
 
     def test_stderr_is_one_bounded_line_without_paths(self):
         completed = run_driver(self.base_args(out=self.tree.run / "inside"))
