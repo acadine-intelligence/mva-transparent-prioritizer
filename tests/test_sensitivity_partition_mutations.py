@@ -1,7 +1,7 @@
-"""Prove the partition guards are live by removing each one and watching a test fail.
+"""Prove the partition and driver guards are live by removing each one and watching a test fail.
 
-Each entry names one guard in ``mva_prioritizer/sensitivity_partition.py`` or
-``mva_prioritizer/bounded_input.py`` by an exact source snippet, the replacement
+Each entry names one guard in ``mva_prioritizer/sensitivity_partition.py``,
+``mva_prioritizer/bounded_input.py`` or ``scripts/run_sensitivity_remm963.py`` by an exact source snippet, the replacement
 that disables it, and the test that must fail once it is disabled. Each mutant
 runs in a fresh subprocess against a temporary copy of the package, so the files
 on disk are never touched and no import caching can mask the change.
@@ -22,6 +22,7 @@ PACKAGE = ROOT / "mva_prioritizer"
 TESTS = ROOT / "tests"
 PARTITION = "sensitivity_partition.py"
 BOUNDED = "bounded_input.py"
+DRIVER = "scripts/run_sensitivity_remm963.py"
 
 # (module file, exact snippet to disable, replacement, test id that must fail)
 MUTATIONS = [
@@ -61,6 +62,35 @@ MUTATIONS = [
      "tests.test_cli.SensitivityPartitionCliTests.test_oversized_detail_is_rejected_by_fstat_without_reading_it"),
     (BOUNDED, '    if len(raw) > max_bytes:\n        raise', '    if False:\n        raise',
      "tests.test_cli.SensitivityPartitionCliTests.test_file_that_grows_after_fstat_is_still_rejected"),
+    # Private-run driver preconditions (scripts/run_sensitivity_remm963.py).
+    (DRIVER, '    if resolved_out == resolved_run or resolved_run in resolved_out.parents:\n        raise', '    if False:\n        raise',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_refuses_output_inside_frozen_run"),
+    (DRIVER, '    if resolved_out.parent != resolved_run.parent:\n        raise', '    if False:\n        raise',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_refuses_output_that_is_not_a_sibling"),
+    (DRIVER, '    if not output_root.name.endswith(OUTPUT_SUFFIX):\n        raise', '    if False:\n        raise',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_refuses_output_without_the_sensitivity_suffix"),
+    (DRIVER, '    if output_root.exists() or output_root.is_symlink():\n        raise', '    if False:\n        raise',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_refuses_existing_output_root"),
+    (DRIVER, '        if actual != entry["sha256"]:\n            raise', '        if False:\n            raise',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_refuses_when_tsv_hash_disagrees_with_freeze_receipt"),
+    (DRIVER, 'receipt.get("state") != "completed"', 'False',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_refuses_when_freeze_receipt_missing_or_not_completed"),
+    (DRIVER, 'return hashlib.sha256(read_regular_file(path, max_bytes)).hexdigest()', 'return hashlib.sha256(path.read_bytes()).hexdigest()',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_refuses_symlinked_frozen_input"),
+    (DRIVER, '        if result.returncode != 0 or not summary.is_file() or not detail.is_file():\n            raise', '        if not summary.is_file() or not detail.is_file():\n            raise',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_java_nonzero_exit_is_refused_even_when_it_wrote_outputs"),
+    (DRIVER, '        if not completed:\n            os.chmod(output_root, 0o700)', '        if False:\n            os.chmod(output_root, 0o700)',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_failed_run_removes_its_partial_output_root"),
+    (DRIVER, '    if not java.is_file() or not os.access(java, os.X_OK):\n        raise', '    if False:\n        raise',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_missing_java_or_jar_fails_before_touching_anything"),
+    (DRIVER, '    if not lib.is_dir() or not jar.is_file():\n        raise', '    if False:\n        raise',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_missing_java_or_jar_fails_before_touching_anything"),
+    (DRIVER, '    os.chmod(path, 0o400)\n    return', '    return',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_happy_path_writes_sibling_and_leaves_frozen_run_byte_identical"),
+    (DRIVER, '        if partition["cutoff"] != CUTOFF:\n            raise', '        if False:\n            raise',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_failed_run_removes_its_partial_output_root"),
+    (DRIVER, 'receipt = partition_receipt(partition, include_symbols=False)', 'receipt = partition_receipt(partition, include_symbols=True)',
+     "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_happy_path_writes_sibling_and_leaves_frozen_run_byte_identical"),
 ]
 
 
@@ -71,7 +101,12 @@ def _copy_tree(directory: Path) -> Path:
     shutil.copytree(PACKAGE, scratch / "mva_prioritizer", ignore=shutil.ignore_patterns("__pycache__"))
     shutil.copytree(TESTS, scratch / "tests", ignore=shutil.ignore_patterns("__pycache__"))
     shutil.copytree(ROOT / "schemas", scratch / "schemas")
+    shutil.copytree(ROOT / "scripts", scratch / "scripts", ignore=shutil.ignore_patterns("__pycache__"))
     return scratch
+
+
+def _target(scratch: Path, module_file: str) -> Path:
+    return scratch / module_file if "/" in module_file else scratch / "mva_prioritizer" / module_file
 
 
 def _run_test_in(scratch: Path, test_id: str) -> bool:
@@ -89,7 +124,7 @@ class GuardMutationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             scratch = _copy_tree(Path(directory))
             for module_file, old, new, test_id in MUTATIONS:
-                target = scratch / "mva_prioritizer" / module_file
+                target = _target(scratch, module_file)
                 original = target.read_text()
                 self.assertEqual(original.count(old), 1, f"snippet must occur exactly once in {module_file}: {old!r}")
                 self.assertTrue(_run_test_in(scratch, test_id), f"baseline must be green before mutating: {test_id}")
@@ -100,11 +135,11 @@ class GuardMutationTest(unittest.TestCase):
                 finally:
                     target.write_text(original)
         self.assertEqual(survivors, [], f"guards whose removal went undetected: {survivors}")
-        self.assertEqual(len(MUTATIONS), 18)
+        self.assertEqual(len(MUTATIONS), 32)
 
     def test_repo_modules_are_untouched(self):
-        for module_file in (PARTITION, BOUNDED):
-            source = (PACKAGE / module_file).read_text()
+        for module_file in (PARTITION, BOUNDED, DRIVER):
+            source = _target(ROOT, module_file).read_text() if "/" in module_file else (PACKAGE / module_file).read_text()
             for entry in MUTATIONS:
                 if entry[0] == module_file:
                     self.assertIn(entry[1], source, f"guard missing from {module_file}: {entry[1]!r}")
