@@ -73,6 +73,10 @@ class ExomiserProbeFixtureTest(unittest.TestCase):
         self.assertEqual(pair["ad_max_freq_percent"], 0.1)
         self.assertEqual(pair["ar_max_freq_percent"], 2.0)
         self.assertEqual(pair["survivor_frequency_percent"], 1.0)
+        self.assertEqual(pair["partner_frequency_percent"], 0.01)
+        self.assertEqual(pair["survivor_remm"], 0.97)
+        self.assertEqual(pair["partner_remm"], 0.95)
+        self.assertEqual(pair["baseline_survivors"], 2)
         # The 0.01% partner is dominant-compatible on its own; the 1% survivor is recessive-only.
         self.assertEqual(pair["modes_after_baseline"], {"AUTOSOMAL_DOMINANT": 1, "AUTOSOMAL_RECESSIVE": 2})
         self.assertEqual(pair["modes_after_strict_rerun"], {})
