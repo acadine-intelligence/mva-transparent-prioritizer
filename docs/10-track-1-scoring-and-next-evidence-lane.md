@@ -35,7 +35,7 @@ These rules create practical effects:
 3. Treat EPCR as an ordering field until a calibration study proves more. The submission interface says relative ranking drives scoring, and F-max sweeps the submitted thresholds.[1][2]
 4. Break EPCR ties deliberately. Stable tie handling means source order becomes the final ordering rule.[1]
 5. Keep secondary findings separate for human review. The label leaves automated scoring unchanged. Every row still consumes capacity.[1]
-6. Normalize the final submission representation explicitly. The evaluator trims chromosome text and uppercases alleles. It leaves chromosome names and variant representation unchanged.[1]
+6. Normalize the final submission representation explicitly. The evaluator strips surrounding whitespace from chromosome text and uppercases alleles; it does not add or remove a `chr` prefix or otherwise change chromosome names or variant representation, so a name in the lane's own form scores zero silently.[1] The pinned code, the local validator that refuses such files before upload, and a scorer mirror verified against the official file are in `docs/20-track1-submission-gate.md`.
 7. Reject malformed rows before upload. Missing required fields, more than 10 rows, EPCR outside `(0, 1]`, invalid `finding_type`, and non-integer positions fail evaluation. Blank reference or alternate alleles can pass parsing and then fail to match.[1]
 
 The official interface expects the single challenge proband, and the scoring path evaluates one proband group from an uploaded file.[2] A local synthetic scorer should reject any extra proband group rather than relying on that behavior.

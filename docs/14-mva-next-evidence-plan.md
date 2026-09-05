@@ -37,6 +37,8 @@ Work since that pass (all public and synthetic, see `docs/18-private-sensitivity
 
 The two public sources identified in the loop-9 pass are now fetched and verified in full; verified claims, citation details and the limits of what they support are recorded in `docs/19-verified-public-sources.md`. PhEval supports only the reproducibility argument; the circularity/temporal-leakage framing is dropped for lack of a source.
 
+The Track 1 gate is pinned at Space revision `1c761cc2` with a local validator and a scorer mirror verified against the official file (`docs/20-track1-submission-gate.md`); no candidate file exists and none is authorized.
+
 1. ~~Select and test an explicit way to change the pinned engine's ReMM cutoff.~~ Done at class level. A full-pipeline stricter run requires a source change and rebuilt jar, or the validated mirror applied before inheritance annotation.
 2. ~~Build a public synthetic fixture with a compound pair across the threshold boundary.~~ Done: `tests/fixtures/exomiser_probe_output.json`.
 3. ~~Run the pinned implementation at both thresholds.~~ Done for the filter and annotator classes. Not done for the full CLI with reference data.

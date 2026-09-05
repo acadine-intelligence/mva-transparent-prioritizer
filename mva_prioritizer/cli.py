@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 from typing import Optional, Sequence
 
-from .bounded_input import load_strict_json
+from .bounded_input import load_strict_json, read_regular_file
 from .environment import verify_environment
 from .manifest import validate_manifest
 from .noncoding_benchmark import run_noncoding_benchmark
@@ -72,6 +72,12 @@ def _parser() -> argparse.ArgumentParser:
     sensitivity.add_argument("--detail", required=True)
     sensitivity.add_argument("--output", required=True)
     sensitivity.add_argument("--include-symbols", action="store_true")
+    track1 = subcommands.add_parser("track1-check")
+    track1.add_argument("--submission", required=True)
+    track1.add_argument("--synthetic-truth", help="JSON list of [chrom,pos,ref,alt]; scores the file against it")
+    track1.add_argument("--allow-ties", action="store_true")
+    track1.add_argument("--allow-unsorted", action="store_true")
+    track1.add_argument("--allow-repeated-pairings", action="store_true")
     return parser
 
 
@@ -88,6 +94,39 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
 
 def _dispatch(args: argparse.Namespace) -> int:
+    if args.command == "track1-check":
+        from .track1_submission import parse_submission, score_submission
+
+        raw = read_regular_file(Path(args.submission), max_bytes=1024 * 1024)
+        submission = parse_submission(
+            raw.decode("utf-8"),
+            allow_repeated_pairings=args.allow_repeated_pairings,
+            allow_ties=args.allow_ties,
+            allow_unsorted=args.allow_unsorted,
+        )
+        status = {
+            "external_actions": 0,
+            "pair_rows": sum(1 for r in submission.rows if len(r.variants) == 2),
+            "row_count": len(submission.rows),
+            "secondary_rows": sum(1 for r in submission.rows if r.finding_type == "secondary"),
+            "state": "valid",
+            "unique_variants": len({v for r in submission.rows for v in r.variants}),
+        }
+        if args.synthetic_truth:
+            truth = json.loads(args.synthetic_truth)
+            if not isinstance(truth, list) or not 1 <= len(truth) <= 2:
+                raise ValueError("synthetic truth must list one or two variants")
+            truth_set = frozenset((str(c), int(p), str(r).upper(), str(a).upper()) for c, p, r, a in truth)
+            result = score_submission(submission, truth_set)
+            status["synthetic_score"] = {
+                "f_max": result.f_max,
+                "f_max_threshold": result.f_max_threshold,
+                "full_match_rank": result.full_match_rank,
+                "partial_match_rank": result.partial_match_rank,
+                "rank_points": result.rank_points,
+            }
+        print(json.dumps(status, separators=(",", ":"), sort_keys=True))
+        return 0
     if args.command == "sensitivity-partition":
         detail_path = Path(args.detail)
         output_path = Path(args.output)

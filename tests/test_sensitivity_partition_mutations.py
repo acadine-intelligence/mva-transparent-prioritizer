@@ -1,7 +1,8 @@
 """Prove the partition and driver guards are live by removing each one and watching a test fail.
 
 Each entry names one guard in ``mva_prioritizer/sensitivity_partition.py``,
-``mva_prioritizer/bounded_input.py`` or ``scripts/run_sensitivity_remm963.py`` by an exact source snippet, the replacement
+``mva_prioritizer/bounded_input.py``, ``mva_prioritizer/track1_submission.py`` or
+``scripts/run_sensitivity_remm963.py`` by an exact source snippet, the replacement
 that disables it, and the test that must fail once it is disabled. Each mutant
 runs in a fresh subprocess against a temporary copy of the package, so the files
 on disk are never touched and no import caching can mask the change.
@@ -23,6 +24,7 @@ TESTS = ROOT / "tests"
 PARTITION = "sensitivity_partition.py"
 BOUNDED = "bounded_input.py"
 DRIVER = "scripts/run_sensitivity_remm963.py"
+TRACK1 = "track1_submission.py"
 
 # (module file, exact snippet to disable, replacement, test id that must fail)
 MUTATIONS = [
@@ -104,6 +106,56 @@ MUTATIONS = [
      "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_failed_run_removes_its_partial_output_root"),
     (DRIVER, 'receipt = partition_receipt(partition, include_symbols=False)', 'receipt = partition_receipt(partition, include_symbols=True)',
      "tests.test_run_sensitivity_driver.SensitivityDriverTest.test_receipts_carry_no_symbols_even_when_run_name_matches_proband"),
+    (TRACK1, '((1, 100), (3, 50)', '((1, 90), (3, 50)',
+     'tests.test_track1_submission.MirrorAgreesWithOfficialTest.test_every_case_matches_the_official_scorer'),
+    (TRACK1, 'rank_points = 0.5 * _rank_to_points(partial_match_rank)', 'rank_points = 1.0 * _rank_to_points(partial_match_rank)',
+     'tests.test_track1_submission.MirrorAgreesWithOfficialTest.test_every_case_matches_the_official_scorer'),
+    (TRACK1, '        if f > best_f:', '        if f >= best_f:',
+     'tests.test_track1_submission.MirrorAgreesWithOfficialTest.test_every_case_matches_the_official_scorer'),
+    (TRACK1, '            if r.epcr >= threshold:', '            if r.epcr > threshold:',
+     'tests.test_track1_submission.MirrorAgreesWithOfficialTest.test_every_case_matches_the_official_scorer'),
+    (TRACK1, 'key=lambda r: (-r.epcr, r.file_order)', 'key=lambda r: (-r.epcr, -r.file_order)',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_epcr_ties_are_refused_by_default'),
+    (TRACK1, 'key=lambda item: (-item[1][1], item[0])', 'key=lambda item: (-item[1][1], -item[0])',
+     'tests.test_track1_submission.MirrorAgreesWithOfficialTest.test_every_case_matches_the_official_scorer'),
+    (TRACK1, '    if is_compound_het and full_match_rank is None:', '    if full_match_rank is None:',
+     'tests.test_track1_submission.MirrorAgreesWithOfficialTest.test_every_case_matches_the_official_scorer'),
+    (TRACK1, '(ref or "").strip().upper(), (alt or "").strip().upper()', '(ref or "").strip(), (alt or "").strip()',
+     'tests.test_track1_submission.MirrorAgreesWithOfficialTest.test_every_case_matches_the_official_scorer'),
+    (TRACK1, '    return (chrom.strip(), int(pos),', '    return (chrom, int(pos),',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_official_parser_trims_chromosome_text_and_uppercases_alleles'),
+    (TRACK1, 'MAX_ROWS = 10', 'MAX_ROWS = 11',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_more_than_ten_rows'),
+    (TRACK1, 'if math.isnan(epcr) or not (0 < epcr <= 1):', 'if math.isnan(epcr) or not (0 <= epcr <= 1):',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_epcr_out_of_range_and_non_numeric'),
+    (TRACK1, 'ALLELE = re.compile(r"^[ACGT]+$")', 'ALLELE = re.compile(r"^[ACGT]*$")',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_blank_alleles_pass_official_parsing_but_are_refused_here'),
+    (TRACK1, '+ ["chrX", "chrY", "chrM"]', '+ ["chrX", "chrY"]',
+     'tests.test_track1_submission.LaneRepresentationTest.test_lane_contig_maps_to_submission_chromosome'),
+    (TRACK1, '            if variant in seen_variants and not allow_repeated_pairings:', '            if False:',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_repeated_variant_in_different_pairings_is_allowed_when_asked'),
+    (TRACK1, '    if len(set(epcrs)) != len(epcrs) and not allow_ties:', '    if False:',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_epcr_ties_are_refused_by_default'),
+    (TRACK1, '    if epcrs != sorted(epcrs, reverse=True) and not allow_unsorted:', '    if False:',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_unsorted_rows_are_refused_by_default'),
+    (TRACK1, '        if fields["proband_id"] != expected_proband:', '        if False:',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_proband_id_must_be_the_expected_one'),
+    (TRACK1, '    if not required and any(value == "" for value in values):', '    if False:',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_partial_second_variant_is_refused'),
+    (TRACK1, '    if tuple(header) != HEADER:', '    if False:',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_header_must_match_template_exactly'),
+    (TRACK1, '    if ref == alt:', '    if False:',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_ref_equal_to_alt'),
+    (TRACK1, '        if "\\n" in notes or "\\r" in notes:', '        if False:',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_notes_must_not_smuggle_line_breaks'),
+    (TRACK1, '        if len(record) != len(HEADER):', '        if False:',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_extra_or_missing_columns'),
+    (TRACK1, '    if prefixed:', '    if False:',
+     'tests.test_track1_submission.LaneRepresentationTest.test_lane_keys_carrying_a_prefix_are_a_representation_error'),
+    (TRACK1, '    if missing:', '    if False:',
+     'tests.test_track1_submission.LaneRepresentationTest.test_submission_variant_absent_from_lane_is_refused'),
+    (TRACK1, '"X": "chrX", "Y": "chrY", "MT": "chrM"}', '"X": "chrX", "Y": "chrY", "MT": "chrMT"}',
+     'tests.test_track1_submission.LaneRepresentationTest.test_lane_contig_maps_to_submission_chromosome'),
 ]
 
 
@@ -149,7 +201,7 @@ class GuardMutationTest(unittest.TestCase):
                 finally:
                     target.write_text(original)
         self.assertEqual(survivors, [], f"guards whose removal went undetected: {survivors}")
-        self.assertEqual(len(MUTATIONS), 36)
+        self.assertEqual(len(MUTATIONS), 61)
 
     def test_repo_modules_are_untouched(self):
         for module_file in (PARTITION, BOUNDED, DRIVER):
