@@ -15,6 +15,13 @@ else
   printf '%s\n' 'unit_tests=pass'
 fi
 
+python3 scripts/validate_receipt_basis.py tests/fixtures/count_basis_receipt.json
+printf '%s\n' 'count_basis=pass'
+COUNTEREXAMPLE="$(python3 scripts/check_threshold_equivalence.py)"
+printf '%s\n' "$COUNTEREXAMPLE"
+python3 -c 'import json, sys; r = json.loads(sys.argv[1]); assert r["scope"] == "synthetic_counterexample_only"; assert r["posthoc_equals_full_rerun"] is False; assert r["posthoc_record_count"] == 1; assert r["full_rerun_record_count"] == 0' "$COUNTEREXAMPLE"
+printf '%s\n' 'threshold_counterexample=pass'
+
 python3 scripts/known_bad_tests.py
 printf '%s\n' 'known_bad=pass'
 

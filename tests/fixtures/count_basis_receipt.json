@@ -1,0 +1,31 @@
+{
+  "lanes": {
+    "l1": {
+      "rows": {
+        "basis": "tsv_rows_variant_x_gene_association",
+        "count": 8
+      },
+      "unique_keys": {
+        "basis": "unique_contig_pos_ref_alt_keys",
+        "count": 5
+      }
+    },
+    "l2": {
+      "rows": {
+        "basis": "tsv_rows_variant_x_gene_association",
+        "count": 6
+      },
+      "unique_keys": {
+        "basis": "unique_contig_pos_ref_alt_keys",
+        "count": 4
+      }
+    }
+  },
+  "partition": {
+    "basis": "unique_contig_pos_ref_alt_keys",
+    "shared": 2,
+    "only_l1": 3,
+    "only_l2": 2,
+    "total": 7
+  }
+}

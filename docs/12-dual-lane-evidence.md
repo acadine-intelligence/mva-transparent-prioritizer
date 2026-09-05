@@ -1,83 +1,57 @@
-# 12 — Dual-lane evidence: coding and genome-wide noncoding prioritisation
+# Dual-lane prioritisation methods
 
-Status: private draft, awaiting approval gate. Date anchor: 2026-09-04.
-This document contains no protected rows. All counts are content-free and match frozen receipts.
+Private working note, revised 2026-09-05. This checkout is not approved for sharing.
 
-## 1. Question
+## Research question
 
-Does whole-genome noncoding prioritisation, run on the same protected genome as the coding
-(uff exome-style) lane, surface candidate evidence the exome lane structurally cannot see, and
-can that be demonstrated with a fully reconciled, content-free evidence chain?
+How do separate coding and genome-wide prioritisation lanes change the candidate set on the same input? Which differences persist when configuration and reference versions are controlled?
 
-## 2. Method
+Candidate-set expansion describes the output of a search. It does not establish diagnostic improvement. A high phenotype score is a prioritisation signal whose clinical relevance needs specialist review and additional evidence.
 
-- Reference: Exomiser 15.1.0 (source commit `98f4e0b6f2f3f5bf790a9f955808c98968559996`),
-  JDK `jdk-21.0.12.1+1`, data `2602_hg38` + ReMM v0.4 GRCh38 (acquisition run 1, closure
-  receipt `7313f5d8…`).
-- Lane 1 (coding): lane1-run-4, receipt `87904b1b…` (Exomiser exome preset).
-- Lane 2 (noncoding): lane2-run-1, Genomiser whole-genome preset, PASS_ONLY, noncoding
-  pathogenicity = ReMM > 0.914 OR SpliceAI > 0.1, HPO-driven priority, inheritance filter,
-  `clinical_probability: false`, `hidden_top_n: null`. Run receipt `691454eb…`.
-- Input: 5,035,176 normalized records (SHA `ad232416…`), identical for both lanes.
-- Execution: encrypted volume only, no network during runs, coding lane untouched.
+## Existing method
 
-## 3. Results (content-free)
+The project has a coding lane and a complementary Genomiser lane. The noncoding configuration uses ReMM > 0.914 OR SpliceAI > 0.1. The recorded tool is Exomiser 15.1.0, with hg38 data release 2602 and ReMM v0.4. Public acquisition provenance is documented separately.
 
-| Quantity | Lane 1 coding | Lane 2 noncoding |
-| --- | --- | --- |
-| Genes (unique symbols) | 364 (421 rows, 57 multi-MOI) | 243 (290 rows, 47 multi-MOI) |
-| Variants (unique keys) | 589 (794 association rows) | 365 (454 association rows) |
-| Shared | 107 genes | 165 variant keys |
-| Lane-unique | 257 genes | 136 genes (noncoding-only), 424 variant keys (coding-only) |
+The original private runs and their comparisons remain frozen on the encrypted analysis host. A read-only check on 2026-09-05 matched the noncoding run receipt to its recorded SHA-256. That check establishes receipt identity; it does not revalidate every referenced output or the whole analysis.
 
-- 161 of 165 shared variant keys change rank between lanes; delta −77 … +87.
-- Top noncoding-only genes by lane-2 rank: KCNJ1 (4, pheno 0.76, var 0.98), WWTR1 (7, 0.70,
-  0.93), NOS3 (14, 0.56, 0.98), COL5A1 (15), NAGPA (21), SOS1 (22), GRIA2 (26), HNRNPA2B1 (27),
-  THRB (27), MEIS2 (32). 93 of 136 noncoding-only genes carry phenotype score ≥ 0.5.
-- Largest shared-variant gain: rank 89 → 12 in the gene improving 41 → 8 (RBMX, disclosed with
-  approval of aggregate-only framing).
+`clinical_probability: false` and `hidden_top_n: null` remain required. Detailed candidate review belongs inside the private workspace.
 
-Interpretation: the lanes are complementary, not redundant. The noncoding lane adds ~37% more
-candidate genes than coding alone, and the additions are phenotype-supported, not noise.
+## Count interpretation
 
-## 4. Evidence custody and review protocol (methods contribution)
+Report TSV rows separately from unique entities. A gene table can repeat a gene for different inheritance modes. A variant table can repeat a variant across associations.
 
-1. Every artifact frozen read-only, SHA-256 lineage, exact hashes not timestamps.
-2. Comparison receipts state the counting basis explicitly (row-basis vs unique-key-basis);
-   a reconciliation receipt (`d6c463b4…`) documents the mapping.
-3. Detached review: a redacted bundle (sample redacted, coordinates and gene symbols
-   pseudonymized) was reviewed by two independent reviewers with no host, network, or data
-   access. Both PASS, zero blocking findings. Verdicts frozen (`2a78f34f…`, `33dd2b28…`).
-4. Failed runs are preserved as failure receipts, never overwritten.
+The difference between gene rows and unique genes is the number of extra rows. It does not identify how many genes have multiple inheritance modes. For example, one synthetic gene with four rows and another with one row produce three extra rows, although only one gene repeats.
 
-## 5. Limitations
+The count-basis utility now checks a specific receipt shape. It checks arithmetic and field meaning. It does not read original TSVs or automatically validate frozen run receipts. See [the count-basis contract](13-count-basis.md).
 
-- One protected genome; no cohort claims.
-- Single threshold pair (ReMM 0.914, SpliceAI 0.1); a 0.963 sensitivity comparison is staged
-  (post-hoc re-threshold of the frozen JSONL) and pending approval.
-- Exomiser gene-level funnel granularity switches between stages; documented, chainability
-  verified from stage 2 onward.
-- No clinical interpretation, treatment claim, or diagnostic use. Research evidence only.
+## Review limits
 
-## 6. AI-method disclosure
+Two earlier detached reviews checked the derivative bundle they received. Their conclusions apply to that bundle. They do not establish clinical validity or the privacy of the entire workflow.
 
-Per the 2026-08-28 requirement: all analysis was executed by deterministic open-source tools
-(Exomiser, bcftools, VEP); Claude/GLM agents were used for orchestration, verification authoring,
-and review coordination; every substantive claim in this document traces to a frozen receipt.
+Earlier revisions of this note included case-derived candidate details and unsupported claims about clinical signal. This revision removes those details and withdraws those claims. Git history and prior chat still contain the earlier material. A pattern scan of the current tree cannot establish that the repository or previous interactions are safe to publish. Sharing requires a reviewed clean export and a separate disclosure assessment.
 
-## 7. Relation to the public synthetic benchmark
+## Threshold sensitivity
 
-The public repository carries a deterministic synthetic benchmark of the same method contract
-(`benchmark-4df1927aced6a317`, 14 cases, run against staged fixtures: missing scores, strict
-thresholds, low-VAF retention, coding-lane preservation, compound-pair preservation). The
-private lane execution is the same contract applied to the protected genome: identical
-thresholds (ReMM > 0.914, SpliceAI > 0.1), identical step order, identical fail-closed
-receipts. The benchmark proves the method behaves correctly on known inputs; the private run
-demonstrates its evidence yield on real data without exposing that data. This separation is
-deliberate: public artifacts are fully publishable, private artifacts are fully custody-bound.
+ReMM 0.963 is a candidate research threshold discussed in the cited literature in [the Track 1 research](10-track-1-scoring-and-next-evidence-lane.md). It is not a universal clinical threshold.
 
-## 8. Next
+The previously staged post-hoc script is superseded and must not run. A read-only schema probe found that its assumed `variant.scores` structure is absent from the first frozen JSONL record. The script also changes permissions on the frozen run directory before reading. Its error path can leave that directory writable.
 
-- Approval gate: public claims list (iteration-6 packet), write-up, ReMM 0.963 sensitivity
-  (staged as a post-hoc re-threshold of frozen JSONL: `e13da6c2…`, no second run needed).
-- If approved: sensitivity table joins section 3; submission package prep remains Jonathan's gate.
+Even a corrected reader would answer only a survivor-retention question. Filtering final records can leave gene scores or compound-pair evidence inconsistent with the new candidate set. It cannot be called equivalent to a full rerun without demonstrating that equivalence for the actual pipeline.
+
+The executable synthetic counterexample in `scripts/check_threshold_equivalence.py` illustrates the problem. Filtering final records retains one record after its partner fails the stricter cutoff. Recomputing the pair requirement retains zero records. This is a toy counterexample, not an Exomiser result or patient analysis.
+
+## Public synthetic benchmark
+
+The existing 14-case benchmark tests selected behaviors in the project's Python implementation. Its run identifier is `benchmark-4df1927aced6a317`. Passing those fixtures establishes those checks only. It does not prove that the full Exomiser workflow implements the same semantics or that it improves diagnosis.
+
+The next test should exercise the pinned Exomiser implementation directly with public synthetic input. The same configuration and references should run at both thresholds. Comparison must include compound pairs and reranked output.
+
+## AI disclosure
+
+On 2026-09-05, a GLM-5.3 request received a fixed generic methods question with no patient values. The response raised the pair-dependency counterexample. The parent implemented and executed a synthetic test rather than accepting the model's advice as proof. The model's suggested minimum number of test cases has no established statistical justification here.
+
+The complete methods disclosure still needs a verified record of every provider used, account plan, and applicable data-handling settings. It must distinguish public research from any private-derived material that entered earlier model context. A blanket claim of zero exposure is unsupported.
+
+## Next work
+
+The implementation sequence and submission checklist are in [the next evidence plan](14-mva-next-evidence-plan.md). Publication and challenge submission require Jonathan's separate approval.

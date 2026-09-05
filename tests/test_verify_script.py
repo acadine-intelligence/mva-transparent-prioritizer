@@ -27,6 +27,8 @@ class VerifyScriptTests(unittest.TestCase):
         self.assertIn("public_source_scan=pass", completed.stdout)
         self.assertIn("synthetic_journey=pass", completed.stdout)
         self.assertIn("noncoding_benchmark=pass", completed.stdout)
+        self.assertIn("count_basis=pass", completed.stdout)
+        self.assertIn("threshold_counterexample=pass", completed.stdout)
         self.assertNotIn("Traceback", completed.stdout + completed.stderr)
 
 
