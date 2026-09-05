@@ -105,6 +105,35 @@ class ValidatorCliTest(unittest.TestCase):
             self.assertTrue(link.is_symlink())
             self.assertEqual(target.read_bytes(), raw)
 
+    def test_open_itself_refuses_symlink_and_non_regular_descriptor(self):
+        """The rejection must hold at open time, not only at a prior stat.
+
+        Call the descriptor-level opener directly, so a path that becomes a
+        symlink or FIFO between check and open is still rejected without any
+        reliance on the earlier path check.
+        """
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("validate_receipt_basis", SCRIPT)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            raw = json.dumps(synthetic_receipt()).encode("utf-8")
+            target = root / "target.json"
+            target.write_bytes(raw)
+            link = root / "swapped.json"
+            link.symlink_to(target.name)
+            with self.assertRaises(module.BasisError):
+                module.read_regular_file(link)
+            if hasattr(os, "mkfifo"):
+                fifo = root / "swapped.pipe"
+                os.mkfifo(fifo)
+                with self.assertRaises(module.BasisError):
+                    module.read_regular_file(fifo)
+            with self.assertRaises(module.BasisError):
+                module.read_regular_file(root)
+            self.assertEqual(module.read_regular_file(target), raw)
+
     @unittest.skipUnless(hasattr(os, "mkfifo"), "requires FIFO support")
     def test_fifo_is_rejected_without_waiting_for_a_writer(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -128,10 +157,13 @@ class ValidatorCliTest(unittest.TestCase):
             self.assertEqual(path.read_bytes(), raw)
 
     def test_deep_json_has_bounded_error(self):
+        # Whether the parser raises RecursionError at this depth varies by
+        # interpreter (3.9 does, 3.14 does not). The contract is the same either
+        # way: exit 1, one bounded VIOLATION line, no traceback, no input echo.
         raw = "[" * 2000 + '"SYNTHETIC_CANARY"' + "]" * 2000
         result = self.run_text(raw)
         self.assertEqual(result.returncode, 1)
-        self.assertIn("input unreadable or invalid JSON", result.stdout)
+        self.assertRegex(result.stdout, r"^VIOLATION: input 1: (input unreadable or invalid JSON|unsupported receipt shape)\n$")
         self.assertEqual(result.stderr, "")
         self.assertNotIn("SYNTHETIC_CANARY", result.stdout)
 

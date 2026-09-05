@@ -26,6 +26,8 @@ The inheritance result is the part that matters for the earlier sensitivity plan
 
 It establishes, against the real engine classes, that final-record threshold filtering is not equivalent to a rerun when a compound pair straddles the cutoff. This was previously shown only with a toy Python counterexample. It also fixes the exact boundary semantics and confirms the cutoff cannot be changed by configuration in 15.1.0.
 
+It confirms the reading of the source that the public noncoding benchmark (`config/noncoding-benchmark-v1.json`, 2026-08-31) was built on. That benchmark models both cutoffs as strict greater-than using Decimal arithmetic, with boundary cases at 0.913999, 0.914, and 0.914001. The engine's float behaviour (0.914f fails, 0.9140001f passes) agrees. The benchmark had been checked against the source text; it is now checked against the executed engine.
+
 It does not measure how often this happens in the private genome. It does not exercise phenotype scoring, gene ranking, the frequency filter, regulatory feature filtering, or the full CLI. Single-proband unphased data cannot distinguish cis from trans; the engine's recessive annotation reflects that ambiguity and so does this probe.
 
 ## Consequence for the sensitivity plan
