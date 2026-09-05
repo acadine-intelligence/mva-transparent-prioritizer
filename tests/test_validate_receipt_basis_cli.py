@@ -1,5 +1,6 @@
 """Exercise the count-basis CLI with synthetic input files."""
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -12,7 +13,7 @@ SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "validate_receipt_bas
 
 def run_validator(*paths):
     return subprocess.run([sys.executable, str(SCRIPT), *map(str, paths)],
-                          capture_output=True, text=True, cwd=tempfile.gettempdir())
+                          capture_output=True, text=True, cwd=tempfile.gettempdir(), timeout=5)
 
 
 class ValidatorCliTest(unittest.TestCase):
@@ -71,6 +72,68 @@ class ValidatorCliTest(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("input 1", result.stdout)
         self.assertEqual(result.stderr, "")
+
+    def test_size_limit_includes_exact_boundary(self):
+        limit = 1024 * 1024  # Documented 1 MiB contract, independent of CLI constant.
+        encoded = json.dumps(synthetic_receipt()).encode("utf-8")
+        for size, expected in ((limit, 0), (limit + 1, 1)):
+            with self.subTest(size=size), tempfile.TemporaryDirectory() as directory:
+                raw = encoded + b" " * (size - len(encoded))
+                path = Path(directory) / "receipt.json"
+                path.write_bytes(raw)
+                result = run_validator(path)
+                self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+                self.assertEqual(result.stderr, "")
+                if expected:
+                    self.assertIn("input exceeds size limit", result.stdout)
+                self.assertEqual(path.read_bytes(), raw)
+
+    def test_directory_and_symlink_are_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            raw = json.dumps(synthetic_receipt()).encode("utf-8")
+            target = root / "target.json"
+            target.write_bytes(raw)
+            link = root / "receipt.json"
+            link.symlink_to(target.name)
+            for candidate in (root, link):
+                with self.subTest(kind="directory" if candidate == root else "symlink"):
+                    result = run_validator(candidate)
+                    self.assertEqual(result.returncode, 1)
+                    self.assertIn("input must be a regular file", result.stdout)
+                    self.assertEqual(result.stderr, "")
+            self.assertTrue(link.is_symlink())
+            self.assertEqual(target.read_bytes(), raw)
+
+    @unittest.skipUnless(hasattr(os, "mkfifo"), "requires FIFO support")
+    def test_fifo_is_rejected_without_waiting_for_a_writer(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "receipt.pipe"
+            os.mkfifo(path)
+            result = run_validator(path)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("input must be a regular file", result.stdout)
+            self.assertEqual(result.stderr, "")
+
+    def test_invalid_utf8_has_bounded_error(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "SYNTHETIC_CANARY.json"
+            raw = b"\xffSYNTHETIC_CANARY"
+            path.write_bytes(raw)
+            result = run_validator(path)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("input unreadable or invalid JSON", result.stdout)
+            self.assertEqual(result.stderr, "")
+            self.assertNotIn("SYNTHETIC_CANARY", result.stdout)
+            self.assertEqual(path.read_bytes(), raw)
+
+    def test_deep_json_has_bounded_error(self):
+        raw = "[" * 2000 + '"SYNTHETIC_CANARY"' + "]" * 2000
+        result = self.run_text(raw)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("input unreadable or invalid JSON", result.stdout)
+        self.assertEqual(result.stderr, "")
+        self.assertNotIn("SYNTHETIC_CANARY", result.stdout)
 
     def test_no_arguments_fail(self):
         self.assertEqual(run_validator().returncode, 1)
