@@ -73,7 +73,13 @@ Variant = Tuple[str, int, str, str]
 
 
 class SubmissionError(ValueError):
-    """The file would upload and then error or score zero; do not upload it."""
+    """Raised by both parsers, for different reasons.
+
+    From ``parse_as_official``: the gate itself would raise on this file.
+    From ``parse_submission``: the file is outside the canonical form. That
+    includes files the gate would accept and even score fully; the message says
+    which rule was broken. Neither parser uploads anything.
+    """
 
 
 @dataclass(frozen=True)
@@ -236,7 +242,7 @@ def parse_as_official(text: str) -> Dict[str, Submission]:
             raise SubmissionError(f"gate would raise KeyError: {error}") from error
         second = _official_variant(
             record.get("chrom_2", ""), record.get("pos_2", ""), record.get("ref_2", ""), record.get("alt_2", "")
-        )
+        )  # .get defaults exactly as the gate; a short row still yields None under a present column
         if first is None:
             raise SubmissionError(f"Row missing primary variant for proband {pid}")
         variants = frozenset([first, second]) if second else frozenset([first])
@@ -266,13 +272,23 @@ def parse_as_official(text: str) -> Dict[str, Submission]:
 
 
 def _official_variant(chrom: Optional[str], pos: Optional[str], ref: Optional[str], alt: Optional[str]) -> Optional[Variant]:
+    """Mirror of ``evaluation._parse_variant`` including its crash on short rows.
+
+    ``csv.DictReader`` yields ``None`` for cells a short row does not supply. The
+    gate calls ``.strip()`` on ``ref``/``alt`` unconditionally once ``chrom`` and
+    ``pos`` are present, so a short row raises ``AttributeError`` there. The
+    ``.get(..., "")`` defaults in the loader apply only to absent second-variant
+    columns, not to short rows under present columns.
+    """
     if not chrom or not pos:
         return None
     try:
         position = int(pos)
     except ValueError as error:
         raise SubmissionError("gate would raise on a position") from error
-    return (chrom.strip(), position, (ref or "").strip().upper(), (alt or "").strip().upper())
+    if ref is None or alt is None:
+        raise SubmissionError("gate would raise AttributeError on a short row")
+    return (chrom.strip(), position, ref.strip().upper(), alt.strip().upper())
 
 
 def _rank_to_points(rank: int) -> int:

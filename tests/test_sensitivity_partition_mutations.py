@@ -121,7 +121,7 @@ MUTATIONS = [
      'tests.test_track1_submission.MirrorAgreesWithOfficialTest.test_every_case_matches_the_official_scorer'),
     (TRACK1, '    if is_compound_het and full_match_rank is None:', '    if full_match_rank is None:',
      'tests.test_track1_submission.MirrorAgreesWithOfficialTest.test_every_case_matches_the_official_scorer'),
-    (TRACK1, '(ref or "").strip().upper(), (alt or "").strip().upper()', '(ref or "").strip(), (alt or "").strip()',
+    (TRACK1, 'ref.strip().upper(), alt.strip().upper()', 'ref.strip(), alt.strip()',
      'tests.test_track1_submission.MirrorAgreesWithOfficialTest.test_every_case_matches_the_official_scorer'),
     (TRACK1, '    return (chrom.strip(), position,', '    return (chrom, position,',
      'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_official_parser_trims_chromosome_text_and_uppercases_alleles'),
@@ -169,6 +169,8 @@ MUTATIONS = [
      'tests.test_track1_check_cli.Track1CheckCliTests.test_argument_errors_use_the_fixed_line_and_echo_nothing'),
     (CLI, '    parser = _SilentParser(', '    parser = argparse.ArgumentParser(',
      'tests.test_track1_check_cli.Track1CheckCliTests.test_argument_errors_use_the_fixed_line_and_echo_nothing'),
+    (TRACK1, '    if ref is None or alt is None:\n        raise', '    if False:\n        raise',
+     'tests.test_track1_submission.ValidatorRefusesTrapsTest.test_short_row_crashes_the_gate_and_the_mirror_says_so'),
 ]
 
 
@@ -214,7 +216,7 @@ class GuardMutationTest(unittest.TestCase):
                 finally:
                     target.write_text(original)
         self.assertEqual(survivors, [], f"guards whose removal went undetected: {survivors}")
-        self.assertEqual(len(MUTATIONS), 67)
+        self.assertEqual(len(MUTATIONS), 68)
 
     def test_repo_modules_are_untouched(self):
         for module_file in (PARTITION, BOUNDED, DRIVER):

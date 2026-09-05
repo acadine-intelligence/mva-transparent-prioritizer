@@ -181,7 +181,13 @@ class MirrorAgreesWithOfficialTest(unittest.TestCase):
 
 
 class ValidatorRefusesTrapsTest(unittest.TestCase):
-    """Everything here would upload, score zero or error at the official gate, and burn one of six submissions."""
+    """Canonical-form refusals.
+
+    Most shapes here would upload and then error or score zero at the gate, burning
+    one of six submissions. A few (marked in their test names) are shapes the gate
+    would normalize and score fully; the canonical validator refuses them anyway and
+    the test shows the gate view alongside.
+    """
 
     def assert_refused(self, text, fragment, **kwargs):
         with self.assertRaises(SubmissionError) as caught:
@@ -339,6 +345,20 @@ class ValidatorRefusesTrapsTest(unittest.TestCase):
                 ours = score_submission(parse_as_official(text)["PROBAND01"], TRUTH_SINGLE)
                 self.assertEqual((theirs.rank_points, theirs.f_max), (100.0, 1.0))
                 self.assertEqual((ours.rank_points, ours.f_max), (100.0, 1.0))
+
+    def test_short_row_crashes_the_gate_and_the_mirror_says_so(self):
+        """DictReader fills missing cells with None; the gate strips None and raises AttributeError."""
+        official = load_official()
+        text = "proband_id,chrom_1,pos_1,epcr,ref_1,alt_1\nPROBAND01,chr1,100,0.5\n"
+        with tempfile.TemporaryDirectory() as scratch:
+            path = Path(scratch) / "short.csv"
+            path.write_bytes(text.encode("utf-8"))
+            with self.assertRaises(AttributeError):
+                official.load_submission(str(path))
+        with self.assertRaises(SubmissionError) as caught:
+            parse_as_official(text)
+        self.assertIn("short row", str(caught.exception))
+        self.assert_refused(text, "header")
 
     def test_official_mirror_raises_where_the_gate_raises(self):
         official = load_official()
