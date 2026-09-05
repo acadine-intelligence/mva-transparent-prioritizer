@@ -38,6 +38,8 @@ Stage 2, inheritance. For each gene, rebuild each stage-1 survivor as a `Variant
 
 Stage 2 runs the engine's own class on the M1 with the installed JDK and the installed `exomiser-core-15.1.0.jar`, both already hash-verified in the reference bundle. No source is modified. No reference database is opened. `runtime/exomiser-probe-20260905/RoundTrip.java` is the template for object construction.
 
+Row model. `TsvVariantResultsWriter` walks `GeneScoreRanker.rankedVariants()`: one gene score per compatible mode, and under each, every variant compatible with that mode. A variant compatible with both dominant and recessive therefore appears twice, once per `MOI`. Collapsing rows to `CONTIG|START|REF|ALT` within a gene recovers the unique variant; the set of `MOI` values across its rows recovers its baseline mode set. The lane's 454 rows over 365 unique keys are this multiplicity.
+
 Consistency check before either stage: the set of unique keys in the TSV must equal the set of variant `start`/`ref`/`alt` triples across the JSONL gene objects, and each TSV row's `MOI` must appear in the matching JSONL variant's `compatibleInheritanceModes`. Any mismatch stops the run.
 
 ## Paths

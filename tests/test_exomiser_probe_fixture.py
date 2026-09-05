@@ -23,7 +23,7 @@ class ExomiserProbeFixtureTest(unittest.TestCase):
                          "PathogenicityFilter{keepNonPathogenic=false, target=NON_CODING}")
 
     def test_mirror_agreed_with_engine_on_every_comparison(self):
-        self.assertGreaterEqual(self.probe["mirror_engine_comparisons"], 15)
+        self.assertEqual(self.probe["mirror_engine_comparisons"], 17)
         self.assertEqual(self.probe["mirror_mismatches_at_baseline_cutoff"], 0)
 
     def test_cutoffs_are_strict_greater_than_at_float_boundaries(self):
