@@ -16,11 +16,13 @@ The ReMM cutoff is a compiled constant. `RemmScore.LIKELY_PATHOGENIC_THRESHOLD` 
 
 Both cutoffs are strict greater-than. A score of exactly `0.914f` fails the baseline filter; `0.9140001f` passes. The same holds at `0.963`. The float `0.914f` widens to `0.9139999747...` as a double, below the constant, so the strict comparison is stable at the boundary rather than an accident of representation.
 
-A parent-written mirror of `filterNonCoding` with the cutoff as a parameter agreed with the engine on all 15 comparisons at the baseline constant. The probe fails closed if a mismatch is ever recorded. This gives the mirror at `0.963` a defensible claim to represent the engine's behaviour at that cutoff, within the class-level scope.
+A parent-written mirror of `filterNonCoding` with the cutoff as a parameter agreed with the engine on all 17 comparisons at the baseline constant. The probe fails closed if a mismatch is ever recorded. This gives the mirror at `0.963` a defensible claim to represent the engine's behaviour at that cutoff, within the class-level scope.
 
 Controls behaved as the source reads. A missense variant with REVEL 0.1 passes under `Target.NON_CODING` at both cutoffs because the filter preserves coding variants. A noncoding variant with no score fails both. A whitelisted variant with no score passes both.
 
 The inheritance result is the part that matters for the earlier sensitivity plan. Two unphased heterozygous noncoding variants in one gene, REMM 0.97 and 0.95, both survive the baseline filter. The engine annotates the pair as compatible with autosomal dominant (2 variants) and autosomal recessive (2 variants). Under the stricter cutoff only the 0.97 variant survives. Rerunning the annotator on the survivor yields autosomal dominant only. Autosomal recessive disappears. A post-hoc filter of the baseline records would have kept the 0.97 variant with its baseline-computed recessive compatibility attached.
+
+A second pair adds population frequency, which the annotator gates per mode. The engine's default cutoffs are 0.1% for dominant and 2% for recessive compound-heterozygous. The survivor (REMM 0.97) carries a synthetic 1% frequency; its partner (REMM 0.95) carries 0.01%. At baseline the engine reports dominant for the rare partner only and recessive for both. After the stricter cutoff removes the partner, a rerun on the 1% survivor returns no compatible mode at all. That variant would drop out of the results entirely. Post-hoc filtering of the baseline records would carry its recessive label forward as if nothing had changed. This is the sharper version of the finding: not a mode downgrade but a candidate that a rerun removes and a post-hoc filter keeps.
 
 ## What this does and does not establish
 
@@ -36,4 +38,4 @@ The old staged post-hoc script is confirmed invalid on engine grounds, not only 
 
 ## Verification
 
-`python3 -m unittest tests.test_exomiser_probe_fixture` passes 6 tests. The test file was observed failing before the fixture existed. Four deliberate fixture corruptions (recessive mode retained after rerun, a recorded mirror mismatch, an inclusive boundary, a dropped coding control) each caused test failure; the fixture hash was restored afterwards.
+`python3 -m unittest tests.test_exomiser_probe_fixture` passes 7 tests. The test file was observed failing before the fixture existed. Five deliberate fixture corruptions (recessive mode retained after rerun, a recorded mirror mismatch, an inclusive boundary, a dropped coding control, a recessive label surviving the frequency-gated rerun) each caused test failure; the fixture hash was restored afterwards.

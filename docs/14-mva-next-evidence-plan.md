@@ -31,7 +31,7 @@ Pinned source: [preset](https://github.com/exomiser/Exomiser/blob/98f4e0b6f2f3f5
 
 ## Execution sequence
 
-Steps 1 to 3 were completed on 2026-09-05 at class level; see `docs/17-exomiser-probe.md`. The ReMM cutoff is a compiled constant with no configuration path in 15.1.0. A validated mirror of the filter logic reproduces the engine at the baseline constant on all 15 comparisons. The compound-pair probe against the real annotator confirms that a rerun drops the recessive mode that post-hoc filtering would retain. A full reference-backed CLI comparison at both cutoffs remains undone.
+Steps 1 to 3 were completed on 2026-09-05 at class level; see `docs/17-exomiser-probe.md`. The ReMM cutoff is a compiled constant with no configuration path in 15.1.0. A validated mirror of the filter logic reproduces the engine at the baseline constant on all 17 comparisons. The compound-pair probe against the real annotator confirms that a rerun drops the recessive mode that post-hoc filtering would retain. A full reference-backed CLI comparison at both cutoffs remains undone.
 
 1. ~~Select and test an explicit way to change the pinned engine's ReMM cutoff.~~ Done at class level. A full-pipeline stricter run requires a source change and rebuilt jar, or the validated mirror applied before inheritance annotation.
 2. ~~Build a public synthetic fixture with a compound pair across the threshold boundary.~~ Done: `tests/fixtures/exomiser_probe_output.json`.

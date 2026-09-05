@@ -60,6 +60,24 @@ class ExomiserProbeFixtureTest(unittest.TestCase):
         self.assertEqual(pair["modes_after_strict_rerun"], {"AUTOSOMAL_DOMINANT": 1})
         self.assertNotIn("AUTOSOMAL_RECESSIVE", pair["modes_after_strict_rerun"])
 
+    def test_frequency_gated_pair_loses_all_modes_on_rerun(self):
+        """A 1% variant is above the 0.1% dominant cutoff and below the 2% comp-het cutoff.
+
+        With its partner present it is recessive-compatible only. Once the
+        partner falls below the stricter pathogenicity cutoff, a rerun leaves
+        the survivor with no compatible mode at all. Post-hoc filtering of the
+        baseline records would carry the recessive label forward.
+        """
+        pair = self.probe["frequency_gated_pair"]
+        self.assertEqual(pair["inheritance_options"], "InheritanceModeOptions.defaults()")
+        self.assertEqual(pair["ad_max_freq_percent"], 0.1)
+        self.assertEqual(pair["ar_max_freq_percent"], 2.0)
+        self.assertEqual(pair["survivor_frequency_percent"], 1.0)
+        # The 0.01% partner is dominant-compatible on its own; the 1% survivor is recessive-only.
+        self.assertEqual(pair["modes_after_baseline"], {"AUTOSOMAL_DOMINANT": 1, "AUTOSOMAL_RECESSIVE": 2})
+        self.assertEqual(pair["modes_after_strict_rerun"], {})
+        self.assertEqual(pair["strict_survivors"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()
