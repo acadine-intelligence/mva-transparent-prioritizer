@@ -1,0 +1,161 @@
+[
+  {
+    "name": "raise_SYNG2_partner_remm",
+    "input": "raise_SYNG2_partner_remm.tsv",
+    "expected": "partner passes strict cutoff, recessive pair returns",
+    "status": "changed",
+    "output": "raise_SYNG2_partner_remm.json",
+    "diff": {
+      "SYNG2": {
+        "baseline_strict": {
+          "strict_survivors": 1,
+          "modes": {
+            "AUTOSOMAL_DOMINANT": 1
+          }
+        },
+        "mutated": {
+          "strict_survivors": 2,
+          "modes": {
+            "AUTOSOMAL_DOMINANT": 2,
+            "AUTOSOMAL_RECESSIVE": 2
+          }
+        }
+      }
+    }
+  },
+  {
+    "name": "lower_SYNG3_survivor_freq",
+    "input": "lower_SYNG3_survivor_freq.tsv",
+    "expected": "survivor now under 0.1% dominant cutoff, dominant mode returns",
+    "status": "changed",
+    "output": "lower_SYNG3_survivor_freq.json",
+    "diff": {
+      "SYNG3": {
+        "baseline_strict": {
+          "strict_survivors": 1,
+          "modes": {}
+        },
+        "mutated": {
+          "strict_survivors": 1,
+          "modes": {
+            "AUTOSOMAL_DOMINANT": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "name": "SYNG1_homalt",
+    "input": "SYNG1_homalt.tsv",
+    "expected": "homozygous genotype changes compatible modes",
+    "status": "changed",
+    "output": "SYNG1_homalt.json",
+    "diff": {
+      "SYNG1": {
+        "baseline_strict": {
+          "strict_survivors": 2,
+          "modes": {
+            "AUTOSOMAL_DOMINANT": 2,
+            "AUTOSOMAL_RECESSIVE": 2
+          }
+        },
+        "mutated": {
+          "strict_survivors": 2,
+          "modes": {
+            "AUTOSOMAL_RECESSIVE": 2
+          }
+        }
+      }
+    }
+  },
+  {
+    "name": "SYNG5_becomes_noncoding",
+    "input": "SYNG5_becomes_noncoding.tsv",
+    "expected": "noncoding with REVEL only fails stage 1",
+    "status": "changed",
+    "output": "SYNG5_becomes_noncoding.json",
+    "diff": {
+      "SYNG5": {
+        "baseline_strict": {
+          "strict_survivors": 1,
+          "modes": {
+            "AUTOSOMAL_DOMINANT": 1
+          }
+        },
+        "mutated": {
+          "strict_survivors": 0,
+          "modes": {}
+        }
+      }
+    }
+  },
+  {
+    "name": "SYNG6_survivor_at_exact_cutoff",
+    "input": "SYNG6_survivor_at_exact_cutoff.tsv",
+    "expected": "strict > rejects exactly 0.963",
+    "status": "changed",
+    "output": "SYNG6_survivor_at_exact_cutoff.json",
+    "diff": {
+      "SYNG6": {
+        "baseline_strict": {
+          "strict_survivors": 1,
+          "modes": {
+            "AUTOSOMAL_DOMINANT": 1
+          }
+        },
+        "mutated": {
+          "strict_survivors": 0,
+          "modes": {}
+        }
+      }
+    }
+  },
+  {
+    "name": "SYNG6_survivor_just_above",
+    "input": "SYNG6_survivor_just_above.tsv",
+    "expected": "unchanged by design: just above strict cutoff",
+    "status": "unchanged",
+    "output": "SYNG6_survivor_just_above.json",
+    "diff": {}
+  },
+  {
+    "name": "whitelist_SYNG2_partner",
+    "input": "whitelist_SYNG2_partner.tsv",
+    "expected": "whitelisted partner bypasses the cutoff, recessive pair returns",
+    "status": "changed",
+    "output": "whitelist_SYNG2_partner.json",
+    "diff": {
+      "SYNG2": {
+        "baseline_strict": {
+          "strict_survivors": 1,
+          "modes": {
+            "AUTOSOMAL_DOMINANT": 1
+          }
+        },
+        "mutated": {
+          "strict_survivors": 2,
+          "modes": {
+            "AUTOSOMAL_DOMINANT": 2,
+            "AUTOSOMAL_RECESSIVE": 2
+          }
+        }
+      }
+    }
+  },
+  {
+    "name": "drop_GENOTYPE_column",
+    "input": "drop_GENOTYPE_column.tsv",
+    "expected": "fail closed: required column missing",
+    "status": "failed_closed",
+    "output": null,
+    "diff": {}
+  },
+  {
+    "name": "unknown_SO_term",
+    "input": "unknown_SO_term.tsv",
+    "expected": "fail closed: unmappable functional class",
+    "status": "failed_closed",
+    "output": null,
+    "diff": {}
+  }
+]

@@ -1,0 +1,3 @@
+Exception in thread "main" java.lang.IllegalStateException: unknown SO term made_up_term
+	at Recompute.rebuild(Recompute.java:120)
+	at Recompute.main(Recompute.java:160)

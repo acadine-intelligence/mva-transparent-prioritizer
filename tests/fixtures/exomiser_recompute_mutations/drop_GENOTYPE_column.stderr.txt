@@ -1,0 +1,3 @@
+Exception in thread "main" java.lang.IllegalStateException: missing TSV column
+	at Recompute.readRows(Recompute.java:85)
+	at Recompute.main(Recompute.java:140)

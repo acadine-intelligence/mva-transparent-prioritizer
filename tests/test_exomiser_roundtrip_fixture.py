@@ -2,9 +2,12 @@
 
 The fixture was produced by ``runtime/exomiser-probe-20260905/RoundTrip.java``
 on 2026-09-05: six synthetic genes, built in memory, run through the real
-baseline ``PathogenicityFilter`` and ``InheritanceModeAnalyser``, then written
-by the real ``JsonResultsWriter`` from the hash-verified
-``exomiser-core-15.1.0.jar``. No private data, no reference database.
+baseline ``PathogenicityFilter`` and ``InheritanceModeAnalyser``, reduced with
+PASS_ONLY semantics (failed variants removed, empty genes dropped, as
+``PassOnlyAnalysisRunner`` does and as the frozen lane ran), then written by
+the real ``JsonResultsWriter`` from the hash-verified ``exomiser-core-15.1.0.jar``.
+Five genes reach the writer; SYNG4's only variant fails at 0.914 so it is
+never written. No private data, no reference database.
 
 These tests exist because the private sensitivity design (docs/18) depends on
 which fields the frozen JSONL does and does not carry. If a later Exomiser
@@ -20,10 +23,11 @@ FIXTURES = Path(__file__).resolve().parent / "fixtures"
 ROUNDTRIP = FIXTURES / "exomiser_roundtrip_output.jsonl"
 STRICT = FIXTURES / "exomiser_roundtrip_strict.json"
 
-# Fields the writer emits for a variant that carries frequency and pathogenicity data.
+# Fields the writer emits for a passed variant that carries frequency and pathogenicity data.
+# failedFilterTypes is an empty set for every PASS_ONLY variant, and NON_DEFAULT drops empties.
 EMITTED = {
     "contigName", "start", "end", "ref", "alt", "type", "length",
-    "filterStatus", "passedFilterTypes", "failedFilterTypes",
+    "filterStatus", "passedFilterTypes",
     "frequencyData", "pathogenicityData", "compatibleInheritanceModes",
     "variantScore", "frequencyScore", "pathogenicityScore", "predictedPathogenic",
 }
@@ -45,7 +49,8 @@ class ExomiserRoundTripFixtureTest(unittest.TestCase):
                 yield gene["geneSymbol"], variant
 
     def test_one_gene_object_per_line_with_nested_variants(self):
-        self.assertEqual(len(self.genes), 6)
+        self.assertEqual(len(self.genes), 5, "PASS_ONLY drops SYNG4 before writing")
+        self.assertEqual({g["geneSymbol"] for g in self.genes}, {"SYNG1", "SYNG2", "SYNG3", "SYNG5", "SYNG6"})
         for gene in self.genes:
             self.assertIn("geneSymbol", gene)
             self.assertIsInstance(gene["variantEvaluations"], list)
@@ -59,12 +64,16 @@ class ExomiserRoundTripFixtureTest(unittest.TestCase):
         self.assertTrue(EMITTED <= seen, f"missing emitted fields: {sorted(EMITTED - seen)}")
 
     def test_pass_only_semantics_are_visible_in_filter_status(self):
-        # SYNG4 has a single variant at REMM 0.90, below the baseline cutoff.
+        # SYNG4 has a single variant at REMM 0.90, below the baseline cutoff. Under PASS_ONLY it is
+        # removed, so no written variant can carry FAILED and no written variant lists failed filters.
         statuses = {symbol: {v["filterStatus"] for v in gene["variantEvaluations"]}
                     for symbol, gene in ((g["geneSymbol"], g) for g in self.genes)}
-        self.assertEqual(statuses["SYNG4"], {"FAILED"})
+        self.assertNotIn("SYNG4", statuses)
         for symbol in ("SYNG1", "SYNG2", "SYNG3", "SYNG5", "SYNG6"):
             self.assertEqual(statuses[symbol], {"PASSED"}, symbol)
+        for _, variant in self.variants():
+            self.assertNotIn("failedFilterTypes", variant)
+            self.assertIn("PATHOGENICITY_FILTER", variant["passedFilterTypes"])
 
     def test_remm_scores_survive_serialization_exactly(self):
         remm = {}
@@ -74,7 +83,8 @@ class ExomiserRoundTripFixtureTest(unittest.TestCase):
                     remm[(symbol, variant["start"])] = score["score"]
         self.assertAlmostEqual(remm[("SYNG2", 200000)], 0.97, places=6)
         self.assertAlmostEqual(remm[("SYNG2", 210000)], 0.95, places=6)
-        self.assertAlmostEqual(remm[("SYNG4", 400000)], 0.90, places=6)
+        self.assertAlmostEqual(remm[("SYNG3", 300000)], 0.97, places=6)
+        self.assertNotIn(("SYNG4", 400000), remm, "failed gene is not written under PASS_ONLY")
         self.assertNotIn(("SYNG5", 500000), remm, "coding gene carries REVEL, not REMM")
 
     def test_direct_engine_answer_at_strict_cutoff(self):
@@ -99,7 +109,7 @@ class ExomiserRoundTripFixtureTest(unittest.TestCase):
         self.assertEqual(set(self.strict["SYNG3"]["modes"]), set(), "and has no mode once the partner is gone")
         self.assertIn("AUTOSOMAL_RECESSIVE", per_variant[("SYNG2", 200000)])
         self.assertNotIn("AUTOSOMAL_RECESSIVE", self.strict["SYNG2"]["modes"])
-        self.assertEqual(per_variant[("SYNG4", 400000)], set(), "failed variant carries no modes")
+        self.assertNotIn(("SYNG4", 400000), per_variant, "failed gene never reaches the writer")
 
 
 if __name__ == "__main__":
