@@ -44,7 +44,7 @@ Consistency check before either stage: the set of unique keys in the TSV must eq
 
 ## Paths
 
-Frozen input, read-only, hash checked against `receipt.json` in the frozen run directory immediately before reading:
+Frozen input, read-only, hash checked against `lane2-run-1-receipt.json` in the frozen run directory (its `outputs` block keys each results file by name with `bytes`, `mode` and `sha256`; TSV entries also carry `rows_excluding_header`) immediately before reading:
 `analysis/noncoding/2026-09-02/lane2-run-1/results/lane2-genome.variants.tsv`
 `analysis/noncoding/2026-09-02/lane2-run-1/results/lane2-genome.jsonl` (consistency check only)
 
@@ -69,7 +69,7 @@ No truth labels exist for this genome. Retention under a stricter cutoff is not 
 
 1. Jonathan's explicit approval of this design.
 2. Done 2026-09-05. The six synthetic genes were written through the real `TsvVariantResultsWriter` (18 rows, 10 unique variants). `runtime/exomiser-probe-20260905/Recompute.java` read only that TSV, applied the mirror at 0.963, rebuilt survivors, and asked the real `InheritanceModeAnnotator`. Its output equals the direct in-memory engine answer for all six genes (`tests/fixtures/exomiser_recompute_from_tsv.json` vs `exomiser_roundtrip_strict.json`, pinned by `tests/test_exomiser_tsv_recompute_fixture.py`). Nine input mutations were run against the recomputation: six changed the answer as the engine logic predicts (partner REMM raised, survivor frequency lowered, genotype made homozygous, coding class changed to intronic, whitelist set, REMM placed exactly at 0.963), one left it unchanged by design (REMM 0.9630001, strict `>`), and two failed closed (renamed GENOTYPE column, unknown SO term). `Recompute.java` is the script the private run would execute unchanged, with the frozen TSV path and the real proband name as arguments.
-3. Confirm the frozen TSV and JSONL hashes match `receipt.json` in the frozen run directory immediately before reading.
+3. Confirm the frozen TSV and JSONL hashes match `lane2-run-1-receipt.json` in the frozen run directory immediately before reading.
 
 Steps 1 and 3 gate the private run. Step 2 is complete.
 
