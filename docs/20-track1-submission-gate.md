@@ -2,6 +2,8 @@
 
 Date: 2026-09-05. Public and synthetic only. This note authorizes no upload. Every example variant below is invented.
 
+Correction, 2026-09-07: the original source check omitted the About page. Its timeline supplies the submission deadline. The Space revision and the vendored evaluator and CSV template are unchanged.
+
 ## Pinned official sources
 
 Retrieved from the challenge Space at Git revision `1c761cc23d90aebe6a011fd5b0b99517df42408c` (last modified 2026-08-29T01:08:57Z per the Hub API), by `resolve/<revision>/<path>`, and compared byte for byte with `main` on the retrieval date (identical). SHA-256 prefixes:
@@ -14,16 +16,19 @@ Retrieved from the challenge Space at Git revision `1c761cc23d90aebe6a011fd5b0b9
 | `tabs/submit_track1.py` (instructions, 28 Aug AI disclosure) | `685a3b6d57ef3a1c` | not copied |
 | `tabs/rules.py` | `dccb3740f6301b86` | not copied |
 | `tabs/faq.py` | `36c3e51e9735a6d2` | not copied |
+| `tabs/about.py` (timeline, checked 2026-09-07) | `1867b07f24d987fb` | not copied |
 | Discussion #2 (LLM clarification, Sage CPO answer, 2026-08-26) | `0029a039fde5486e` (Hub API JSON) | not copied |
 
 The Space is licensed CC-BY-4.0 (README front matter). `tests/test_track1_submission.py` pins the two copied files by full SHA-256; a drift in the pinned bytes fails the suite. The official `groundtruth.py` contains only a local development fallback pair of placeholder coordinates; the real answer key is loaded from a private dataset at run time and is not in the public code.
 
 What the pinned rules say that our 2026-08-31 note (`docs/10`) did not yet carry:
 
-- No submission deadline is stated in the pinned code or rules; the FAQ says results follow a 2 to 3 month judging window and the date will be posted in the Community tab. The 2026-10-24 date in our planning comes from elsewhere and must be re-verified against the Community tab before any submission planning depends on it.
+- The [About-page timeline](https://huggingface.co/spaces/SageBio/rare-disease-real-kid-mva-hackathon-2026/resolve/1c761cc23d90aebe6a011fd5b0b99517df42408c/tabs/about.py) states that submissions close on 24 October 2026 at 23:59 UTC (25 October at 01:59 SAST). The earlier claim that no deadline was stated was incorrect: the source check had omitted this page. The timeline says dates may change, so recheck it and Community announcements before submission. The timeline and the FAQ give different descriptions of the judging period; do not treat the judging schedule as settled.
 - Data deletion within 30 days of Hackathon close, with an email attestation, applies to the VCF and any subset, slice or reformat, per-variant genotype tables at genotype scale, caches and notebook state holding them, and stored prompts or logs with pasted variant blocks. Ranked candidate list, HPO terms, gene and pathway rankings, code, report and pitch are kept. Our frozen lanes on the encrypted volume fall in the delete class at close; the receipts that carry only counts and hashes do not.
 - Third-party LLM use is allowed only as a processor: no training on inputs or outputs, no rights taken, retention limited in time and purpose. Provider, plan or tier and the setting must appear in the methods description. Our private work sends nothing to any hosted model; the public research assistance disclosure still has to be written from the provider's account page, not inferred.
 - Submissions are released CC-BY with the participant's name; the repository must become public after the Hackathon ends; an embargo on peer-reviewed manuscripts runs from close until the organizers' summary report.
+
+The 3-minute pitch video is a Track 2 requirement in `tabs/submit_track2.py`. Track 1 requires a prediction CSV and a methods report. Its form also requires a repository link. The Track 1 instructions do not state a pitch-video requirement. The official workbook still says one final Track 2 submission, while the submission interface and organizer update allow three attempts with only the latest reviewed. Treat those as three attempts toward one reviewed final entry.
 
 ## What the gate does with a file
 
