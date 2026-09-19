@@ -45,14 +45,22 @@ A brute-force check over 1,843,650 scored combinations against the pinned offici
 | Rows appended strictly below every existing row lowered F-max | 0 |
 | A row added at an EPCR equal to an existing row lowered F-max | 44,090 |
 
-Every one of the 48,608 rank-point drops was the same inversion: the exact true pair added below an existing single allele of that pair. None had another cause.
+Every one of the 48,608 rank-point drops is the same inversion: the exact true pair added below a higher-ranked row that already earned partial credit. A second classifier (`classify_drops.py`) asked what that higher row actually was, and the answer is not what a first reading suggests:
+
+| The higher-ranked partial match was | Share of the 48,608 drops |
+|---|---:|
+| A row pairing one true allele with a **wrong partner** | 36,456 (75.0%) |
+| A **single allele** of the true pair | 12,152 (25.0%) |
+
+Three quarters of the damage comes from the case that looks least like a hedge. The scorer's partial-match test is `row.variants & true_variants`, an intersection, so a two-variant row naming one correct allele and one incorrect one earns the same partial credit as that allele alone. A speculative pair is therefore not a safe way to express an uncertain partner: it blocks the correct pair placed beneath it exactly as a single allele would.
 
 The rules that follow from the measurement:
 
-1. **A compound-heterozygous pair occupies row 1.** Full-match tiers are 100 at rank 1, 50 at ranks 2 to 3, 25 at ranks 4 to 5, 10 at ranks 6 to 10. A pair below rank 3 scores worse than the partial credit its own single allele would have earned at rank 1.
-2. **Never place a single allele above the pair it belongs to.**
-3. **Every EPCR is distinct.** Ties cost F-max in 44,090 measured cases and the gate breaks ties by file order, which is not a ranking anyone should rely on.
-4. **Singles below the pair are free and are worth including.** Measured on the recommended shape: if the pair is correct, 100 points and F-max 1.000; if only one of the two alleles is truly causal, 50 points, where a pair-only file scores 0. No tested case scored worse.
+1. **A compound-heterozygous pair occupies row 1.** Full-match tiers are 100 at rank 1, 50 at ranks 2 to 3, 25 at ranks 4 to 5, 10 at ranks 6 to 10. A pair below rank 3 scores worse than the partial credit its own allele would have earned at rank 1.
+2. **Never place a single allele row above a pair row that shares an allele with it.** This covers both a bare single allele and, by the measurement above, is the constraint whose violation produced all 48,608 drops. It applies to single rows only: the relative order of two pair rows is decided by tier evidence in Step 4, never by this rule, because no ordering rule can know which of two competing pairs is true.
+3. **Alternative pairings for an uncertain partner rank below the primary pair, never above it.** The canonical validator's `--allow-repeated-pairings` flag exists for this shape, and the ordering constraint in rule 2 governs its use.
+4. **Every EPCR is distinct.** Ties cost F-max in 44,090 measured cases and the gate breaks ties by file order, which is not a ranking anyone should rely on.
+5. **Rows strictly below the top pair are free and are worth including.** Measured on the recommended shape: if the pair is correct, 100 points and F-max 1.000; if only one of the two alleles is truly causal, 50 points, where a pair-only file scores 0. No tested case scored worse.
 
 ## Selection procedure
 
@@ -69,7 +77,23 @@ Executed once, read-only, against the frozen verified outputs on the encrypted h
 - **Tier C.** Alleles in recurrent genes, or surviving the 0.963 sensitivity run with changed inheritance compatibility.
 - **Tier D.** Everything else in the pool.
 
-**Step 4. Form the rows.** Within Tier A and Tier B, any two alleles in the same gene with a mode of inheritance compatible with compound heterozygosity form a pair row. Pair rows rank above single rows. Within a tier, order by lane agreement (both lanes above one), then by the stricter lane's native rank, then by the pinned contig order and position. This ordering is fully determined by the evidence; no discretionary reordering is permitted after the pool is read.
+**Step 4. Form the rows.** Within Tier A and Tier B, any two alleles in the same gene with a mode of inheritance compatible with compound heterozygosity form a pair row. Within a tier, order by lane agreement (both lanes above one), then by the stricter lane's native rank, then by the pinned contig order and position.
+
+Then apply the allele-sharing constraint, which overrides the tier order: a pair row is promoted above every **single** row that shares an allele with it. The relative order of two pair rows is never changed by this step.
+
+That restriction is not a detail; it is the boundary of what the measurement supports. Three wider formulations were written and falsified in turn against the pinned scorer (`verify_rule.py` records each):
+
+| Formulation | Result |
+|---|---|
+| Every pair above every single row | Lowered the score in 1,020 cases: an unrelated pair displaces a true single |
+| Every pair above any row sharing an allele | Lowered it in 420 cases: reorders two allele-sharing pairs, demoting the true one half the time |
+| A pair above every **single** sharing an allele | Never lowered the score in 29,400 comparisons; raised it on 480 row sets |
+
+Two pair rows sharing an allele are competing hypotheses, and no ordering rule can know which is true. That precedence is an evidence question, decided by the tier order in Step 3, never by this step.
+
+When two candidate pairs share an allele, **both are kept**. Measured across 600 comparisons, keeping the weaker one below never scored lower than dropping it and scored higher in 120. An earlier draft of this rule dropped it, which was wrong and is recorded here because the corrected file depends on the difference.
+
+This ordering is fully determined by the evidence; no discretionary reordering is permitted after the pool is read.
 
 **Step 5. Assign EPCR.** Descending, distinct, from a fixed ladder assigned by row position, not chosen per candidate: 0.90, 0.75, 0.60, 0.50, 0.40, 0.30, 0.20, 0.15, 0.10, 0.05. EPCR expresses this file's internal ranking. It is not a probability of causation and the report says so.
 
@@ -91,4 +115,17 @@ Program-generated ordering is the default and the report distinguishes it from a
 
 ## Verification of this rule
 
-The row-ordering claims are reproducible from the artifacts in `runtime/scorer-hedging-20260919/`: `brute_force_hedging.py` scores the full combination space, `hedging_modes.py` separates the failure modes, and `result.txt` holds the output. Both scripts import the vendored official evaluator at `tools/official-track1/evaluation.py`, whose bytes are pinned by SHA-256 in `tests/test_track1_submission.py`.
+Every ordering claim above rests on one stated assumption: **the answer key is a compound-heterozygous pair.** The official evaluator says so in its own docstring, "simplified for a single proband (N-of-1) with a clinically validated compound-heterozygous answer key", and it gates partial credit on `is_compound_het = len(true_variants) == 2`. If the organizers ever contradict this, `verify_rule.py` must be re-run before the file is built, because under a single-variant key the pair-promotion rule loses points instead of gaining them.
+
+The claims are reproducible from `runtime/scorer-hedging-20260919/`:
+
+| Script | What it establishes |
+|---|---|
+| `brute_force_hedging.py` | Scores the full combination space and finds the 48,608 rank-point drops |
+| `hedging_modes.py` | Separates the three failure modes and measures the recommended shape |
+| `classify_drops.py` | Classifies what the blocking higher-ranked row actually was (75% wrong-partner pairs) |
+| `verify_rule.py` | Executes the final rule and confirms it never lowers the score, after falsifying three wider formulations |
+
+All four import the vendored official evaluator at `tools/official-track1/evaluation.py`, whose bytes are pinned by SHA-256 in `tests/test_track1_submission.py`.
+
+This section has been wrong three times. Each wrong version was caught by executing the rule against the pinned scorer rather than by reading it, and each is recorded above with the count that falsified it. The rule that survived is narrower than every version that preceded it.
