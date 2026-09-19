@@ -6,15 +6,17 @@ This document fixes how a Track 1 candidate file is built from the frozen eviden
 
 ## What is already known, stated so the reader can discount it
 
-This is a partial pre-registration, not a blind one. Work since 5 September has already produced results that constrain the plausible shortlist. Naming them here is the honest alternative to implying a clean slate.
+This is a partial pre-registration, not a blind one. Work since 5 September has already produced results that constrain the plausible shortlist. Naming them here is the honest alternative to implying a clean slate. An independent review of the first draft found this list incomplete, and the two missing items are marked below.
 
 - Nine gene regions were declared from public MVA literature on 7 September, before any case inspection. The frozen map is `runtime/nine-gene-audit-20260909/gene-interval-map.json` on the encrypted host.
 - The nine-gene audit (9 September) established that all nine regions carry recorded alternate genotypes in both the stored original and the prepared analysis VCF, and that two regional records per input matched saved filtered rows.
 - The diagnostic replay (`replay-2`, verified) produced full-evaluation output for both lanes over those regions plus the frozen passing controls.
 - The recurrent-gene run (11 September, verified) flagged eleven genes appearing in the top thirty of both lanes, of which one lies inside a predeclared region.
 - The specialist packet (10 September, verified) covers the alleles that passed every filter in each lane and nineteen inheritance-sensitive entries.
+- **Added after review.** The ReMM 0.963 sensitivity run was executed on 6 September, not merely designed. It retained 263 of 365 unique variants and 175 of 243 genes; 90 variants fell to the cutoff and 12 more lost inheritance compatibility; 7 retained genes changed inheritance mode. Receipt `d5ba10df94dcf684…` in `runtime/candidate-review-20260906/completion.json`. Tier C consumes this output, so omitting it from the first draft was a real gap.
+- **Added after review.** The candidate review dossier (6 September, verified) is a separate artifact from the specialist packet. It preserved 421 coding gene rows with 794 variant associations and 290 noncoding gene rows with 454 associations over a 500-gene union, and it is the source of the nineteen inheritance-review entries. Step 1 consumes it.
 
-What remains genuinely undecided, and what this rule governs: which specific alleles enter the file, in which rows, at which EPCR values, and how many rows are used.
+What remains genuinely undecided, and what this rule governs: the final cut, the row ordering, the EPCR values, and the row count. Tier A membership is a narrower claim than it may appear. The alleles passing every filter in both lanes were already determinable from the disclosed `replay-2` and specialist-packet outputs before this rule was written, so which alleles sit in the top tier was knowable at writing time. What was not fixed, and what this document fixes, is how they are turned into rows.
 
 ## Stop conditions that outrank the rule
 
@@ -44,6 +46,9 @@ A brute-force check over 1,843,650 scored combinations against the pinned offici
 | Rows appended strictly below every existing row lowered rank points | 48,608 |
 | Rows appended strictly below every existing row lowered F-max | 0 |
 | A row added at an EPCR equal to an existing row lowered F-max | 44,090 |
+| A row added at an EPCR equal to an existing row lowered rank points | 7,216 |
+
+The equal-EPCR row costs points two ways. Losing F-max is the larger count, and the rank-point loss happens because the gate breaks a tie by file order, which can push a partial match down a scoring tier. A reader running `brute_force_hedging.py` will see `48,252` for the equal-EPCR arm rather than `44,090`: that script counts a case when either metric drops, while the table separates them. The arms are 1,735,200 strictly-below comparisons plus 108,450 equal-EPCR comparisons, totalling the 1,843,650 above. The prescribed ladder makes every EPCR distinct, so the submitted file avoids both failures.
 
 Every one of the 48,608 rank-point drops is the same inversion: the exact true pair added below a higher-ranked row that already earned partial credit. A second classifier (`classify_drops.py`) asked what that higher row actually was, and the answer is not what a first reading suggests:
 
@@ -66,9 +71,17 @@ The rules that follow from the measurement:
 
 Executed once, read-only, against the frozen verified outputs on the encrypted host. No new variant calling, no re-ranking, no threshold change.
 
-**Step 1. Assemble the pool.** Take the union of: alleles passing every filter in either lane of `replay-2`; alleles inside the nine predeclared regions carrying a recorded alternate genotype; alleles belonging to the flagged recurrent genes; and the inheritance-sensitive entries from the candidate dossier. Record the pool size before any exclusion.
+**Step 1. Assemble the pool.** Take the union of: alleles passing every filter in either lane of `replay-2`; alleles inside the nine predeclared regions carrying a recorded alternate genotype; alleles belonging to the flagged recurrent genes; and the inheritance-sensitive entries from the candidate review dossier (the 6 September artifact disclosed above, distinct from the specialist packet). Record the pool size before any exclusion.
 
-**Step 2. Apply the exclusions, deterministically.** Drop an allele when the recorded quality evidence fails the lane's own criteria, when its representation cannot be resolved to an exact GRCh38 `(chrom, pos, ref, alt)` tuple, or when it appears only outside a transcript span with no annotation evidence supporting the gene assignment. Every drop is counted with its reason. A drop for any other reason invalidates this run.
+**Step 2. Apply the exclusions, deterministically.** An allele is dropped only for one of these three reasons, each pinned to a named source so two operators reach the same set:
+
+1. **Quality.** The allele's recorded quality evidence fails its lane's own criteria, as recorded by the already-reviewed audit module in `runtime/nine-gene-audit-20260909/`. The criteria are the lane's, not new ones; this step applies no threshold of its own.
+2. **Representation.** The allele cannot be resolved to an exact GRCh38 `(chrom, pos, ref, alt)` tuple by the normalization already applied to the analysis VCF, using the pinned reference in `config/reference-bundle.json`. Resolution means the tuple is read from the frozen record, never reconstructed by hand. If a multiallelic record leaves the alternate ambiguous, the allele is dropped and counted; it is not guessed.
+3. **Gene assignment.** The allele falls outside every transcript span in the pinned Ensembl database for its gene, and no annotation record in the frozen lane output assigns it to that gene. Both conditions must hold. An allele inside a span is never dropped by this rule, and an allele outside a span with a lane annotation is never dropped by it either.
+
+Every drop is counted with its reason. A drop for any other reason, or a judgment call inside these three, invalidates this run.
+
+The same pinning applies to Tier B below. "An inheritance mode compatible with a recessive mechanism" means the frozen Exomiser output records `AUTOSOMAL_RECESSIVE` for that allele's gene, in the lane being read. It is the recorded annotation vocabulary, not an assessment. The sensitivity run showed this distinction has teeth: twelve variants kept their numerical scores and lost recessive compatibility, so "compatible" must name the annotation and the run it came from.
 
 **Step 3. Tier what remains.**
 
@@ -77,9 +90,21 @@ Executed once, read-only, against the frozen verified outputs on the encrypted h
 - **Tier C.** Alleles in recurrent genes, or surviving the 0.963 sensitivity run with changed inheritance compatibility.
 - **Tier D.** Everything else in the pool.
 
-**Step 4. Form the rows.** Within Tier A and Tier B, any two alleles in the same gene with a mode of inheritance compatible with compound heterozygosity form a pair row. Within a tier, order by lane agreement (both lanes above one), then by the stricter lane's native rank, then by the pinned contig order and position.
+**Step 4. Form the rows.** Pairing operates across the union of Tier A and Tier B, not within each tier separately: any two alleles in the same gene, both in Tier A or Tier B, with the recorded recessive annotation, form a pair row. A pair row formed from alleles in different tiers takes the weaker of the two tiers.
 
-Then apply the allele-sharing constraint, which overrides the tier order: a pair row is promoted above every **single** row that shares an allele with it. The relative order of two pair rows is never changed by this step.
+Rows are then placed in one total order, applied in sequence so no step leaves a choice open:
+
+1. **Class.** All pair rows before all single rows.
+2. **Tier.** Within a class, A before B before C before D.
+3. **Lane agreement.** Within a tier, rows appearing in both lanes before rows appearing in one.
+4. **Native rank.** Then by the stricter lane's native output rank. For a pair row this is the **better (numerically lower) rank of its two alleles**, since the pair is at least as strong as its stronger member.
+5. **Coordinate.** Then by the pinned contig order, then position, then reference allele, then alternate allele, lexicographically. For a pair row, by its **first allele under this same ordering**, then its second.
+
+Every comparison resolves at one of these five steps: two distinct rows cannot tie at step 5, because two rows with identical allele coordinates are the same row. The order is therefore total.
+
+**Multiple pairs in one gene.** With three or more qualifying alleles in a gene, `C(k,2)` pair rows form. Steps 2 to 5 rank them, and no further choice is made. When the row cap forces a cut, the cut follows this same order.
+
+Then apply the allele-sharing constraint, which overrides the order above: a pair row is promoted above every **single** row that shares an allele with it. The relative order of two pair rows is never changed by this step.
 
 That restriction is not a detail; it is the boundary of what the measurement supports. Three wider formulations were written and falsified in turn against the pinned scorer (`verify_rule.py` records each):
 
@@ -89,7 +114,7 @@ That restriction is not a detail; it is the boundary of what the measurement sup
 | Every pair above any row sharing an allele | Lowered it in 420 cases: reorders two allele-sharing pairs, demoting the true one half the time |
 | A pair above every **single** sharing an allele | Never lowered the score in 29,400 comparisons; raised it on 480 row sets |
 
-Two pair rows sharing an allele are competing hypotheses, and no ordering rule can know which is true. That precedence is an evidence question, decided by the tier order in Step 3, never by this step.
+Two pair rows sharing an allele are competing hypotheses, and no ordering rule can know which is true. That precedence is an evidence question, decided by steps 2 to 5, never by the allele-sharing constraint.
 
 When two candidate pairs share an allele, **both are kept**. Measured across 600 comparisons, keeping the weaker one below never scored lower than dropping it and scored higher in 120. An earlier draft of this rule dropped it, which was wrong and is recorded here because the corrected file depends on the difference.
 
@@ -97,7 +122,7 @@ This ordering is fully determined by the evidence; no discretionary reordering i
 
 **Step 5. Assign EPCR.** Descending, distinct, from a fixed ladder assigned by row position, not chosen per candidate: 0.90, 0.75, 0.60, 0.50, 0.40, 0.30, 0.20, 0.15, 0.10, 0.05. EPCR expresses this file's internal ranking. It is not a probability of causation and the report says so.
 
-**Step 6. Cap at ten rows.** The gate refuses eleven. If more rows qualify, the lowest tier is truncated and the count of truncated candidates is recorded.
+**Step 6. Cap at ten rows.** The gate refuses eleven. If more than ten rows qualify, remove rows from the bottom of the Step 4 order, one at a time, until ten remain. Truncation therefore climbs through tiers when the lowest tier is exhausted, and it cuts from the tail of each tier's own ordering. The count of truncated candidates is recorded, by tier.
 
 **Step 7. Validate.** Run `track1-check` with the canonical parser and the gate mirror, and `validate_against_lane_representation` against the lane keys on the encrypted host. Any refusal stops the run. A mitochondrial row blocks the file until the organizers confirm the contig spelling.
 
@@ -124,8 +149,23 @@ The claims are reproducible from `runtime/scorer-hedging-20260919/`:
 | `brute_force_hedging.py` | Scores the full combination space and finds the 48,608 rank-point drops |
 | `hedging_modes.py` | Separates the three failure modes and measures the recommended shape |
 | `classify_drops.py` | Classifies what the blocking higher-ranked row actually was (75% wrong-partner pairs) |
-| `verify_rule.py` | Executes the final rule and confirms it never lowers the score, after falsifying three wider formulations |
+| `verify_rule.py` | Executes the final ordering rule and confirms it never lowers the score, after falsifying three wider formulations |
+| `verify_determinism.py` | Executes Step 4 as code and confirms the order is total and operator-independent |
 
-All four import the vendored official evaluator at `tools/official-track1/evaluation.py`, whose bytes are pinned by SHA-256 in `tests/test_track1_submission.py`.
+The first four import the vendored official evaluator at `tools/official-track1/evaluation.py`, whose bytes are pinned by SHA-256 in `tests/test_track1_submission.py`.
 
-This section has been wrong three times. Each wrong version was caught by executing the rule against the pinned scorer rather than by reading it, and each is recorded above with the count that falsified it. The rule that survived is narrower than every version that preceded it.
+The determinism claim is the one this document exists to make, so it is measured rather than asserted. Across 19,779 sort-key comparisons no two distinct rows tied, so no comparison falls to a human. Across 32,612 runs the same candidate pool shuffled into every input order produced the identical file. Truncation climbed out of an exhausted tier in every case, and the allele-sharing constraint held without ever reordering two pair rows.
+
+## Review history
+
+This document has been independently reviewed once, against the exact bytes of its first draft, by a reviewer with no part in writing it. The verdict was FAIL with five blocking findings. All five are fixed above, and the corrections are visible rather than silent:
+
+| Finding | Resolution |
+|---|---|
+| "All 48,608 drops came from a single allele above the pair" was false | Reclassified: 75% were wrong-partner pairs. The claim and the rule both changed. |
+| Rule 2 guarded only single rows, while Step 4 creates the wrong-partner pair shape | Ordering rewritten; pair-versus-pair precedence moved to the evidence keys |
+| Four unconstrained choices survived the ordering wording | Replaced with a five-key total order, then verified by execution |
+| The 0.963 sensitivity run was consumed by Tier C but never disclosed | Added to the disclosure with its executed counts and receipt |
+| Two drop conditions were unpinned human judgments | Each pinned to a named source and vocabulary |
+
+Three of the five were errors the author could not see by reading. They were found by a reviewer asking what the scorer did rather than what the document said. That is the reason this project commissions reviews against exact bytes, and the reason this section exists.
