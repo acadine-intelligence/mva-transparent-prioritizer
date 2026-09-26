@@ -1,0 +1,238 @@
+{
+ "state": {
+  "claims": [
+   {
+    "claim_id": "c49",
+    "claim": "A mitochondrial row blocks the file until the organizers confirm the contig spelling.",
+    "excerpt": "` (UCSC and GRCh38 no-alt analysis-set convention) or `chrMT`; the private key could plausibly use either. The validator therefore takes the spelling as a parameter (`mitochondrial_name`, CLI `--mitochondrial-name`, values `chrM` or `chrMT`, default `chrM`) and never accepts an unprefixed form. `track1-check` reports `mitochondrial_rows`. A candidate file that carries a mitochondrial row must not be uploaded until the organizers confirm the spelling in the Community tab, or the candidate set is known to be nuclear.",
+    "source_path": "docs/20-track1-submission-gate.md"
+   },
+   {
+    "claim_id": "c50",
+    "claim": "The supplied data is a singleton VCF with no read-backed phase linking distant loci and no parental data, so two heterozygous alleles in one gene cannot be shown to be in trans from this input alone.",
+    "excerpt": "It does not measure how often this happens in the private genome. It does not exercise phenotype scoring, gene ranking, the frequency filter, regulatory feature filtering, or the full CLI. Single-proband unphased data cannot distinguish cis from trans; the engine's recessive annotation reflects that ambiguity and so does this probe.",
+    "source_path": "docs/17-exomiser-probe.md"
+   },
+   {
+    "claim_id": "c51",
+    "claim": "Another team raised the phasing limitation publicly on 18 September in discussion 24 of the hackathon Space (huggingface.co/spaces/SageBio/rare-disease-real-kid-mva-hackathon-2026/discussions/24).",
+    "excerpt": "NO SOURCE FOUND in the tracked tree. docs/20 records only Discussion #2 (2026-08-26); no tracked file mentions discussion 24 or 18 September. The document cites an external URL that was not fetched for this check.",
+    "source_path": "NO SOURCE FOUND"
+   },
+   {
+    "claim_id": "c52",
+    "claim": "The organizers declined on 25 September, in writing, for every team: confirming trans-phase would be equivalent to confirming the answer, and any such information would go to all participants at once after the challenge closes.",
+    "excerpt": "NO SOURCE FOUND in the tracked tree. No tracked file mentions 25 September or an organizer answer on phase.",
+    "source_path": "NO SOURCE FOUND"
+   },
+   {
+    "claim_id": "c53",
+    "claim": "The methods report distinguishes program-generated ordering from later human changes and records the reason for each, as the official workbook requires.",
+    "excerpt": "## Manual review and curation status\n\nNo final submission CSV exists. The current packet supports a first specialist review. Independent software reviews checked joins, evidence preservation and replay mechanics; they do not substitute for biological assessment. A final methods report will distinguish program-generated ordering from any later human changes and give the reason for each manual change to a submitted row.",
+    "source_path": "docs/21-public-methods-packet.md"
+   },
+   {
+    "claim_id": "c54",
+    "claim": "The official evaluator's docstring says 'simplified for a single proband (N-of-1) with a clinically validated compound-heterozygous answer key', and it gates partial credit on `is_compound_het = len(true_variants) == 2`.",
+    "excerpt": "(Stenton et al., 2024), simplified for a single proband (\"N-of-1\") with a\nclinically validated compound-heterozygous answer key.\n\nSubmission format (CSV):\n...\n    partial_match_rank = None\n...\n        # Look for a row containing exactly one of the two true variants -\n        # either proposed alone, or paired with an incorrect second variant.\n        for row in submission_rows:",
+    "source_path": "tools/official-track1/evaluation.py"
+   },
+   {
+    "claim_id": "c55",
+    "claim": "brute_force_hedging.py and hedging_modes.py both exit non-zero by design, because they report a falsified claim.",
+    "excerpt": "brute_force_hedging.py lines 121-128:\n\n    return 1 if strict_violations else 0\n\n\nif __name__ == \"__main__\":\n    raise SystemExit(main())\n\n\nhedging_modes.py lines 136-143 (main's only return statement):\n        print(f\"  truth={truth!s:<60} rank_points={pts:>6} f_max={f:.3f}\")\n\n    return 0\n\n\nif __name__ == \"__main__\":\n    raise SystemExit(main())\n",
+    "source_path": "verification/scorer-hedging/brute_force_hedging.py + hedging_modes.py"
+   },
+   {
+    "claim_id": "c56",
+    "claim": "verify_rule.py is superseded; it measured the promotion only at two and three rows, where a shift cannot cross a tier boundary, and it records three formulations it falsified.",
+    "excerpt": "\"\"\"Verify the corrected docs/22 ordering rule under the challenge's stated answer-key shape.\n\nTwo earlier drafts of this check were wrong, and both errors are recorded here\nbecause they change what the rule may claim:\n\n  Draft 1 compared the rule against the BEST possible ordering. That is an\n  oracle that already knows the answer key, so no rule can match it and the\n  comparison proves nothing. The meaningful claim is domination: the rule must\n  never LOWER the score relative to not applying it.\n\n  Draft 2 ran over every truth shape, including a single-variant answer key.\n  Under a single-variant truth, moving a pair above a single that exactly\n  matches it costs 50 points. But the official scorer states its own answer-key\n  shape in its docstring:\n\n      \"simplified for a single proband (\"N-of-1\") with a clinically validated\n...\nwith it. Relative order of two pairs is NEVER changed. /  /     Two earlier formulations were falsified by this script: /  /    \n\nreview 741aaad: verify_rule.py R1 coverage gap: it enumerates permutations only for n in (2,3) while the gate accepts up to 10 rows (docs/22 Step 6) and the ladder has 10 rungs. At n=4 the same rule lowers the score in 5,220 of 327,600 comparisons. Mechanism: promote_allele_s",
+    "source_path": "verification/scorer-hedging/verify_rule.py + verification/reviews/741aaad.json"
+   },
+   {
+    "claim_id": "c57",
+    "claim": "verify_rule_v3.py measures position-preserving promotion at every row count the gate allows: 2 to 4 enumerated in full, 5 to 10 sampled, 5,880,600 comparisons, 0 rank-point drops, and it moves only the block in all 230,332 orderings where it fired.",
+    "excerpt": "Universe 6 alleles, 21 row shapes, 15 truths.\nSizes 2..4 enumerated in full; sizes 5..10 sampled 40,000 orderings each, seed 20260926.\n\nC1  position-preserving promotion, against leaving the order alone\n    size   kind    comparisons   rank-pts lowered   F-max lowered   F-max raised\n    n= 2  full          6,300               0             120              0\n    n= 3  full        119,700               0           5,700          1,500\n    n= 4  full      2,154,600               0         164,640         61,500\n    n= 5  sample      600,000               0          61,255         26,033\n    n= 6  sample      600,000               0          72,481         33,474\n    n= 7  sample      600,000               0          80,003         38,912\n    n= 8  sample      600,000               0          87,074         43,790\n    n= 9  sample      600,000               0          91,090         47,576\n    n=10  sample      600,000               0          93,611         49,954\n\nC2  the promotion moves only the pair and its own singles\n    orderings where it fired                    230,332",
+    "source_path": "verification/scorer-hedging/verify-rule-v3-result.txt"
+   },
+   {
+    "claim_id": "c58",
+    "claim": "verify_module.py imports the shipped module, checks determinism, the Stage 2 and Stage 3 invariants, that both stages fired, and that the resolved file never scores below the plain evidence sort: 3,000 pools, 20,245 truth comparisons, 0 lowered; promotion fired in 2,042 pools and demotion or removal in 500.",
+    "excerpt": "Module under test: mva_prioritizer.candidate_selection (imported, not copied)\nPools: 3,000  seed 20260926  universe 6 alleles, tiers A/B, ranks 1-9\n\nD1  determinism: pools with a permutation-dependent result   0\nD2  single above a sharing pair                              0\nD2  kept sharing pair below the rank where it pays           0\nD2  EPCR not the ladder prefix                               0\nD2  more than ten rows                                       0\nD3  pools where promotion fired                              2,042\nD3  pools where demotion or removal fired                    500\nD3  pools where the final order differs from the plain sort  2,062\nD4  truth comparisons, resolved vs plain evidence sort       20,245\nD4  rank points LOWER than the plain sort                    0\nD4  rank points higher than the plain sort                   7,989\nD4  F-max lower / higher than the plain sort                 5,991 / 2,948\n\nRESULT: the shipped module is deterministic, satisfies the docs/22 invariants,",
+    "source_path": "verification/scorer-hedging/verify-module-result.txt"
+   },
+   {
+    "claim_id": "c59",
+    "claim": "verify_determinism.py is superseded by verify_module.py: it re-implemented the sort inside the script and, because that sort placed every pair above every single, its promotion check could never fire; the review of 741aaad found both faults.",
+    "excerpt": "Pair-order preservation claim is false for the committed implementation and vacuously tested in-pipeline. (a) False in general: verify_rule.promote_allele_sharing([(chr2:3000,), (chr1:1000+chr1:2000), (chr2:3000+chr2:4000)]) returns [(chr2:3000+chr2:4000), (chr2:3000,), (chr1:1000+chr1:2000)] - the two pair rows swapped relative order, contradicting 'The relative order of two pair rows is never changed by this step'. (b) Vacuous in-pipeline: after the five-key sort, key 1 already places every pair above every single, so the promotion can never fire (0 of 3,000 random pools had a single above a pair post-sort; promotion changed the sorted order in 0 of 3,000). verify_determinism.py T4 therefore tests the constraint only in the regime where it is inert and proves nothing about the regime where it acts.\n\nverify_module.py lines 1-6:\n\"\"\"Verify the SHIPPED selection module, not a copy of it.\n\nThe review of commit 741aaad (runtime/review-741aaad/verdict.json) found that\nverify_determinism.py re-implemented the rule inside the script, so it could\npass while the module diverged, and that its allele-sharing check was vacuous\nbecause the sort it tested had already placed every pair above every single.",
+    "source_path": "verification/reviews/741aaad.json + verify_module.py"
+   },
+   {
+    "claim_id": "c60",
+    "claim": "ALL of the listed scripts (brute_force_hedging, hedging_modes, classify_drops, verify_rule, verify_rule_v3, policy_probe, verify_module, verify_determinism) import the vendored official evaluator at tools/official-track1/evaluation.py.",
+    "excerpt": "brute_force_hedging.py 18-21: sys.path.insert(0, str(ROOT / \"tools/official-track1\")) |  | import evaluation as off  # the pinned official scorer | \nhedging_modes.py 18-21: sys.path.insert(0, str(ROOT / \"tools/official-track1\")) |  | import evaluation as off | \nclassify_drops.py 22-24: sys.path.insert(0, str(ROOT / \"tools/official-track1\")) |  | import evaluation as off\nverify_rule.py 35-38: ROOT = pathlib.Path(__file__).resolve().parents[2] | sys.path.insert(0, str(ROOT / \"tools/official-track1\")) |  | import evaluation as off\nverify_rule_v3.py 36-39: ROOT = pathlib.Path(__file__).resolve().parents[2] | sys.path.insert(0, str(ROOT / \"tools/official-track1\")) |  | import evaluation as off  # the pinned official scorer\npolicy_probe.py 4-7: ROOT = pathlib.Path(__file__).resolve().parents[2] | sys.path.insert(0, str(ROOT)); sys.path.insert(0, str(ROOT / \"tools/official-track1\")) | import evaluation as off | from dataclasses import replace\nverify_module.py 34-38: ROOT = pathlib.Path(__file__).resolve().parents[2] | sys.path.insert(0, str(ROOT)) | sys.path.insert(0, str(ROOT / \"tools/official-track1\")) |  | import evaluation as off  # noqa: E402  the pinned official scorer\nverify_determinism.py, complete import section (lines 21-24), and the whole file contains no 'evaluation', 'off.' or 'ROOT': from __future__ import annotations |  | import itertools | import random",
+    "source_path": "verification/scorer-hedging/*.py import lines"
+   },
+   {
+    "claim_id": "c61",
+    "claim": "The evaluator's bytes are pinned by SHA-256 in tests/test_track1_submission.py.",
+    "excerpt": "OFFICIAL = ROOT / \"tools\" / \"official-track1\" / \"evaluation.py\"\nOFFICIAL_SHA256 = \"6d18b581e65a45e1ccc120071d588e740c2e42e983ff50704c60a40232b19180\"\nTEMPLATE = ROOT / \"tools\" / \"official-track1\" / \"track1_submission_template.csv\"\nTEMPLATE_SHA256 = \"7b3ed41c091d34fb6c5622d049c7a3f46124211fc7ec02947e69daef8752755a\"\n        import hashlib\n\n        self.assertEqual(hashlib.sha256(OFFICIAL.read_bytes()).hexdigest(), OFFICIAL_SHA256)\n        self.assertEqual(hashlib.sha256(TEMPLATE.read_bytes()).hexdigest(), TEMPLATE_SHA256)\n",
+    "source_path": "tests/test_track1_submission.py"
+   },
+   {
+    "claim_id": "c62",
+    "claim": "The scripts locate the worktree relative to their own path, not to a home directory.",
+    "excerpt": "Seven scripts: ROOT = pathlib.Path(__file__).resolve().parents[2] (brute_force_hedging.py 18, hedging_modes.py 18, classify_drops.py 22, verify_rule.py 35, verify_rule_v3.py 36, policy_probe.py 5, verify_module.py 34). verify_determinism.py defines no ROOT and imports nothing from the tree. No script contains 'Path.home' or a home-directory path.",
+    "source_path": "verification/scorer-hedging/*.py"
+   },
+   {
+    "claim_id": "c63",
+    "claim": "The document has been independently reviewed twice, each time against the exact bytes of a commit, by a reviewer with no part in writing it, and both verdicts were FAIL.",
+    "excerpt": "{\n \"reviewed\": \"working-tree bytes of docs/22-candidate-selection-rule.md on 2026-09-19, later committed unchanged as ea68d94\",\n \"reviewer\": \"independent adversarial subagent (delegation deleg_74bbf689, model glm-5.3), no part in authoring\",\n \"verdict\": \"FAIL\"\n}\n{\n \"passed\": false,\n \"reviewed_commit\": \"741aaad927cbe156bf6b4778f1dc98507d3ac726\",\n \"reviewer\": \"independent-exact-commit-subagent (2026-09-22)\"\n}",
+    "source_path": "verification/reviews/ea68d94.json + verification/reviews/741aaad.json"
+   },
+   {
+    "claim_id": "c64",
+    "claim": "The first-draft review (verification/reviews/ea68d94.json) recorded five blocking findings: the 'single allele' characterization of the 48,608 drops was false (75% wrong-partner pairs); rule 2 guarded only singles while Step 4 creates the wrong-partner pair shape; four unconstrained ordering choices survived; the 0.963 sensitivity run was consumed by Tier C but never disclosed; two drop conditions were unpinned human judgments.",
+    "excerpt": "blocking_findings count: 5\n1. claim: \"Every one of the 48,608 rank-point drops was the same inversion: the exact true pair added below an existing single allele of that pair. None had another cause | why_wrong: False as a characterization of the measured space. In 36,456 cases (74.9%) the base file's scoring partial match was a wrong-partner PAIR row, not a single-allele row; only 12,152 had a single-allele partial. hedging_mod\n2. claim: Rule 2 'Never place a single allele above the pair it belongs to' combined with Step 4 pair formation | why_wrong: Rule 2 guards only single rows, but 75% of measured drops come from a wrong-partner PAIR above the true pair, a shape Step 4 explicitly creates with three or more qualifying alleles in one gene. Nothing selects which pai\n3. claim: Step 4 ordering 'fully determined by the evidence; no discretionary reordering is permitted' | why_wrong: Four unconstrained choices survive: cross-tier order among singles and among pairs is unstated; whether pairing operates within each tier or across the A-B union is unstated; with three or more alleles in a gene no rule \n4. claim: Tier C: 'surviving the 0.963 sensitivity run with changed inheritance compatibility' | why_wrong: The disclosure section lists five prior workstreams and no 0.963 sensitivity run, yet Tier C consumes its output. 'Changed inheritance compatibility' is also undefined.\n5. claim: Step 2 drop conditions 'cannot be resolved' and 'no annotation evidence supporting the gene assignment' | why_wrong: Unpinned human judgments: no resolution procedure, tool, evidence source or threshold is named. Two operators can drop different alleles and both claim compliance. Tier B's 'compatible with a recessive mechanism' is like",
+    "source_path": "verification/reviews/ea68d94.json"
+   },
+   {
+    "claim_id": "c65",
+    "claim": "The review of commit 741aaad (verification/reviews/741aaad.json) found four logic errors, two blocking.",
+    "excerpt": "logic_errors count: 4; blocking_contract_issues count: 2; passed: False\n1. Step 4 sort key 1 ('Class. All pair rows before all single rows') enacts formulation 1 from the document's own falsification table ('Every pair above \n2. verify_rule.py R1 coverage gap: it enumerates permutations only for n in (2,3) while the gate accepts up to 10 rows (docs/22 Step 6) and the ladder ha\n3. Pair-order preservation claim is false for the committed implementation and vacuously tested in-pipeline. (a) False in general: verify_rule.promote_al\n4. R2 overgeneralization: 'keeping the weaker one below never scored lower than dropping it' was measured only on 2-row files (ranks 1,2). With bystander",
+    "source_path": "verification/reviews/741aaad.json"
+   },
+   {
+    "claim_id": "c66",
+    "claim": "The tests pin the reviewer's scored counterexample for the class-key finding: the old order scored 25 and the tier-first order scores 50.",
+    "excerpt": "    def test_tier_outranks_class_scores_as_the_review_said(self):\n        # The same counterexample, scored: truth is the Tier A single plus a\n        # partner excluded at Step 2. The old order scored 25 (partial at rank\n        # 4 after three Tier B rows); tier-first scores 50 (partial at rank 1).\n        from mva_prioritizer.track1_submission import parse_submission, score_submission\n        pool = [cand(allele(\"chr2\", 3000, \"G\", \"A\"), \"G2\", \"B\"), cand(allele(\"chr2\", 4000, \"T\", \"C\"), \"G2\", \"B\"),\n                cand(allele(\"chr1\", 1000), \"G1\", \"A\")]\n        parsed = parse_submission(build_submission_csv(select_rows(pool)), allow_repeated_pairings=True)\n        scored = score_submission(parsed, frozenset({allele(\"chr1\", 1000), allele(\"chr1\", 2000)}))\n        self.assertEqual(scored.rank_points, 50.0)\n\nreview:  true-allele single is unrepaired. Concrete synthetic counterexample: pool = Tier-B pair (chr2:3000 G>A + chr2:4000 T>C, both lanes) and Tier-A single (chr1:1000 A>G); truth = (chr1:1000 A>G, chr1:2000 C>T) with the partner allele excluded at Step 2 (representation). Step 4 order puts the Tier-B pair first: 25.0 rank points. Tier-first order: 50.0. The class key costs 25 points in a shape the rule itself can produce, contradicting the document's claim that its ordering claims were verified never to lower the score.",
+    "source_path": "tests/test_candidate_selection.py + verification/reviews/741aaad.json"
+   },
+   {
+    "claim_id": "c67",
+    "claim": "The claim 'two pair rows are never reordered' was false for the committed code and vacuous in the pipeline because the sort had already placed every pair first; it is withdrawn.",
+    "excerpt": "Pair-order preservation claim is false for the committed implementation and vacuously tested in-pipeline. (a) False in general: verify_rule.promote_allele_sharing([(chr2:3000,), (chr1:1000+chr1:2000), (chr2:3000+chr2:4000)]) returns [(chr2:3000+chr2:4000), (chr2:3000,), (chr1:1000+chr1:2000)] - the two pair rows swapped relative order, contradicting 'The relative order of two pair rows is never changed by this step'. (b) Vacuous in-pipeline: after the five-key sort, key 1 already places every pair above every single, so the promotion can never fire (0 of 3,000 random pools had a single above a pair post-sort; promotion changed the sorted order in 0 of 3,000). verify_determinism.py T4 therefore tests the constraint only in the regime where it is inert and proves nothing about the regime where it acts.",
+    "source_path": "verification/reviews/741aaad.json"
+   },
+   {
+    "claim_id": "c68",
+    "claim": "The earlier claim-provenance pass put 40 claims to the Jev decision model in 4 model calls and found eight claims with no supporting artifact in its read set.",
+    "excerpt": "Run 26 September 2026. Jev calibrated decision model (TypeSafe System One, Noul questions),\n4 decide calls over 3 request files (32 claims, one question per claim, each instruction\naddressing its claim by claim_id). Buckets: supported >= 0.70, unsupported <= 0.30, uncertain between.\nDeterministic grep ran first over all allowed artifacts for every number, with and without separators.\n\n## Totals\n\n- Total checkable claims extracted: 40 (32 paired with an artifact, 8 with no source in the allowed set)\n- Supported: 18\n- Unsupported: 1\n- Uncertain: 13\n- No source: 8",
+    "source_path": "verification/jev/claim-provenance/report.md"
+   },
+   {
+    "claim_id": "c69",
+    "claim": "Of the eight earlier gaps, FIVE were read-set gaps (listed as: the gene-interval map, the sensitivity token, the specialist packet date, the review verdicts) and THREE were real (listed as: the 48,252 and arm-size figures, the 7 September declaration, the Space discussion).",
+    "excerpt": "- **n01** Nine gene regions were declared from public MVA literature on 7 September, before any case inspection. (No allowed artifact states this date or the declaration event; '7 September' appears nowhere.)\n- **n02** The frozen map is runtime/nine-gene-audit-20260909/gene-interval-map.json on the encrypted host. (No file of that name exists in that directory, and the string appears in no allowed artifact.)\n- **n03** The specialist packet (10 September, verified) covers the alleles that passed every filter in each lane and nineteen inheritance-sensitive entries. (No allowed artifact names or dates a specialist packet; '10 September' appears nowhere.)\n- **n04** Another team raised the phasing limitation publicly on 18 September in Space discussion 24. (No allowed artifact mentions this discussion or date.)\n- **n05** A reader running brute_force_hedging.py will see 48,252 for the equal-EPCR arm. (The number 48,252 appears in no allowed artifact; result.txt reports no such count.)\n- **n06** The comparison arms are 1,735,200 strictly-below comparisons plus 108,450 equal-EPCR comparisons. (Neither number appears in any allowed artifact; only the 1,843,650 total is recorded.)\n- **n07** The frozen Exomiser output records the annotation string AUTOSOMAL_RECESSIVE for a gene's recessive compatibility. (The token appears in no allowed artifact; docs/17 describes modes in prose only.)\n- **n08** The document's first draft received an independent review verdict of FAIL with five blocking findings. (The review artifacts are outside the allowed read set; no allowed artifact records this verdict.)",
+    "source_path": "verification/jev/claim-provenance/report.md"
+   },
+   {
+    "claim_id": "c70",
+    "claim": "Seven of the nine findings across both reviews were errors the author could not see by reading.",
+    "excerpt": "ea68d94.json: 5 blocking_findings. 741aaad.json: 4 logic_errors. Total 9. Neither file classifies findings by whether the author could have seen them by reading.",
+    "source_path": "verification/reviews/ea68d94.json + verification/reviews/741aaad.json (counts only)"
+   },
+   {
+    "claim_id": "c71",
+    "claim": "The document lists the prior work that constrains the shortlist; the review of the first draft is the source of the two 'Added after review' items and both are now stated with counts.",
+    "excerpt": "\"Tier C: 'surviving the 0.963 sensitivity run with changed inheritance compatibility'\"\n\"Step 1 consumes 'the candidate dossier'; the disclosure names only the specialist packet\"",
+    "source_path": "verification/reviews/ea68d94.json"
+   }
+  ]
+ },
+ "questions": {
+  "c49": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c49. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c50": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c50. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c51": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c51. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c52": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c52. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c53": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c53. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c54": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c54. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c55": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c55. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c56": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c56. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c57": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c57. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c58": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c58. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c59": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c59. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c60": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c60. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c61": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c61. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c62": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c62. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c63": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c63. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c64": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c64. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c65": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c65. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c66": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c66. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c67": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c67. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c68": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c68. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c69": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c69. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c70": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c70. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c71": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c71. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  }
+ }
+}

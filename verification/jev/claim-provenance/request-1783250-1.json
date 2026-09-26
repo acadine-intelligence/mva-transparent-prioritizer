@@ -1,0 +1,248 @@
+{
+ "state": {
+  "claims": [
+   {
+    "claim_id": "c01",
+    "claim": "The document was written on 19 September 2026, before the protected shortlist run.",
+    "excerpt": "{\n \"reviewed\": \"working-tree bytes of docs/22-candidate-selection-rule.md on 2026-09-19, later committed unchanged as ea68d94\",\n \"reviewed_at\": \"2026-09-19\"\n}",
+    "source_path": "verification/reviews/ea68d94.json"
+   },
+   {
+    "claim_id": "c02",
+    "claim": "Work since 5 September has already produced results that constrain the plausible shortlist.",
+    "excerpt": "Date: 2026-09-05. Public and synthetic only. This note authorizes no upload. Every example variant below is invented.\n...\nStatus: design for approval, revision 2. Nothing here has run against private data. Written 2026-09-05 after the engine probe in `docs/17-exomiser-probe.md`. Revision 2 corrects the output path and th",
+    "source_path": "docs/20-track1-submission-gate.md + docs/18-private-sensitivity-design.md"
+   },
+   {
+    "claim_id": "c03",
+    "claim": "An independent review of the first draft found the disclosure list of prior work incomplete, and two items were missing (the 0.963 sensitivity run and the candidate review dossier).",
+    "excerpt": "{\n \"claim\": \"Tier C: 'surviving the 0.963 sensitivity run with changed inheritance compatibility'\",\n \"why_wrong\": \"The disclosure section lists five prior workstreams and no 0.963 sensitivity run, yet Tier C consumes its output. 'Changed inheritance compatibility' is also undefined.\",\n \"evidence\": \"Doc lines 11-15 vs line 69; docs/17-exomiser-probe.md line 37 describes the comparison as conditional.\"\n}\n...\n{\n \"claim\": \"Step 1 consumes 'the candidate dossier'; the disclosure names only the specialist packet\",\n \"why_wrong\": \"Artifact naming drift, or a source outside the disclosed list.\",\n \"evidence\": \"Lines 15 and 61.\"\n}",
+    "source_path": "verification/reviews/ea68d94.json"
+   },
+   {
+    "claim_id": "c04",
+    "claim": "Nine gene regions were declared from public MVA literature on 7 September, before any case inspection; the dated literature-overlay artifacts in runtime/internal-review-20260907/ (literature-catalog.json, public-gene-identities.json, research-review.md) are the first work that named them.",
+    "excerpt": "NO SOURCE FOUND in the tracked tree. The cited path runtime/internal-review-20260907/ and the three named files exists locally on this machine; it is untracked (gitignored under runtime/) and its content was not read and is not sent.",
+    "source_path": "runtime/internal-review-20260907/ (exists locally, content not sent)"
+   },
+   {
+    "claim_id": "c05",
+    "claim": "The frozen interval map is TRACKED IN THIS REPOSITORY at runtime/nine-gene-audit-20260909/gene-interval-map.json (nine genes, GRCh38, with the reference and identity-source hashes it was built from).",
+    "excerpt": ".gitignore lines 10-19:\n.env.*\n!.env.example\n*.db\n*.sqlite\n*.sqlite3\n*.db-wal\n*.db-shm\nruntime/\nprivate/\nuploads/\n\n`git ls-files runtime/` at commit 1783250 prints nothing: no path under runtime/ is tracked. The file runtime/nine-gene-audit-20260909/gene-interval-map.json exists locally (untracked, gitignored); its content was not read.",
+    "source_path": ".gitignore + git ls-files"
+   },
+   {
+    "claim_id": "c06",
+    "claim": "The nine-gene audit (9 September) established that all nine regions carry recorded alternate genotypes in both the stored original and the prepared analysis VCF, and that two regional records per input matched saved filtered rows.",
+    "excerpt": "NO SOURCE FOUND in the tracked tree. The cited path runtime/nine-gene-audit-20260909/ exists locally on this machine; it is untracked (gitignored under runtime/) and its content was not read and is not sent.",
+    "source_path": "runtime/nine-gene-audit-20260909/ (exists locally, content not sent)"
+   },
+   {
+    "claim_id": "c07",
+    "claim": "The diagnostic replay (replay-2, verified) produced full-evaluation output for both lanes over the nine regions plus the frozen passing controls.",
+    "excerpt": "{\n \"claim\": \"'What remains genuinely undecided'\",\n \"why_wrong\": \"Tier A membership was already determinable from the disclosed replay-2 and specialist-packet outputs before the rule was written.\",\n \"evidence\": \"Lines 13, 15 and 17.\"\n}\n\n(No tracked artifact describes replay-2's output; runtime/diagnostic-replay-20260909 exists locally, untracked, content not sent.)",
+    "source_path": "verification/reviews/ea68d94.json (mention only)"
+   },
+   {
+    "claim_id": "c08",
+    "claim": "The recurrent-gene run (11 September, verified) flagged eleven genes appearing in the top thirty of both lanes, of which one lies inside a predeclared region.",
+    "excerpt": "NO SOURCE FOUND in the tracked tree. runtime/recurrent-genes-20260911 exists locally, untracked, content not sent.",
+    "source_path": "NO SOURCE FOUND"
+   },
+   {
+    "claim_id": "c09",
+    "claim": "The specialist packet is dated 10 September (verified) at runtime/specialist-review-20260910/, and the release-candidate methods packet docs/21-public-methods-packet.md is dated the same day; the packet covers the alleles that passed every filter in each lane and nineteen inheritance-sensitive entries.",
+    "excerpt": "Release candidate, 10 September 2026. Aligned to the official Track 1 methods workbook.[1] Not submitted. Specialist review, account-specific AI disclosure and publication approval remain open. No candidate identities, case-level values or patient-derived rows appear in this document.\n...\nThe preparation receipt records 34 detailed first-pass gene entries with the complete 500-gene source set retained. The stricter run retained 263 of 365 variants. Twelve variants passed the numerical conditions but lost inheritance compatibility. The dossier flags 19 genes for inheritance review. These counts are members of the fixed preparation aggregate schema that the reviewed preparation receipt publishes; an independent fact check verified every figure against that receipt before the earlier methods draft was released for internal review. The diagnostic replay produced a verified restricted aggregate report; its case-specific counts remain internal until the release review approves disclosure.",
+    "source_path": "docs/21-public-methods-packet.md"
+   },
+   {
+    "claim_id": "c10",
+    "claim": "The ReMM 0.963 sensitivity run retained 263 of 365 unique variants, and 12 variants lost inheritance compatibility.",
+    "excerpt": "The preparation receipt records 34 detailed first-pass gene entries with the complete 500-gene source set retained. The stricter run retained 263 of 365 variants. Twelve variants passed the numerical conditions but lost inheritance compatibility. The dossier flags 19 genes for inheritance review. These counts are members of the fixed preparation aggregate schema that the reviewed preparation receipt publishes; an independent fact check verified every figure against that receipt before the earlier methods draft was released for internal review. The diagnostic replay produced a verified restricted aggregate report; its case-specific counts remain internal until the release review approves disclosure.\n...\nIf the noncoding lane had used the engine's compiled `PATHOGENIC_THRESHOLD` (0.963) instead of `LIKELY_PATHOGENIC_THRESHOLD` (0.914), which of the 365 lane-2 variants and 243 genes would remain, and which recessive candidates would lose their partner and drop out?",
+    "source_path": "docs/21-public-methods-packet.md + docs/18-private-sensitivity-design.md"
+   },
+   {
+    "claim_id": "c11",
+    "claim": "The ReMM 0.963 sensitivity run was executed on 6 September; it retained 175 of 243 genes; 90 variants fell to the cutoff; 7 retained genes changed inheritance mode; receipt d5ba10df94dcf684... is in runtime/candidate-review-20260906/completion.json.",
+    "excerpt": "NO SOURCE FOUND in the tracked tree. The cited path runtime/candidate-review-20260906/completion.json exists locally on this machine; it is untracked (gitignored under runtime/) and its content was not read and is not sent. Deterministic grep: '175', '90 variants', '7 retained', 'd5ba10df94dcf684' and '6 September' appear in no tracked file; '243' appears only as the baseline gene count in docs/18.",
+    "source_path": "runtime/candidate-review-20260906/completion.json (exists locally, content not sent)"
+   },
+   {
+    "claim_id": "c12",
+    "claim": "The candidate review dossier (6 September, verified) preserved 421 coding gene rows with 794 variant associations and 290 noncoding gene rows with 454 associations over a 500-gene union, and is the source of the nineteen inheritance-review entries.",
+    "excerpt": "The preparation receipt records 34 detailed first-pass gene entries with the complete 500-gene source set retained. The stricter run retained 263 of 365 variants. Twelve variants passed the numerical conditions but lost inheritance compatibility. The dossier flags 19 genes for inheritance review. These counts are members of the fixed preparation aggregate schema that the reviewed preparation receipt publishes; an independent fact check verified every figure against that receipt before the earlier methods draft was released for internal review. The diagnostic replay produced a verified restricted aggregate report; its case-specific counts remain internal until the release review approves disclosure.\n...\nRow model. `TsvVariantResultsWriter` walks `GeneScoreRanker.rankedVariants()`: one gene score per compatible mode, and under each, every variant compatible with that mode. A variant compatible with both dominant and recessive therefore appears twice, once per `MOI`. Collapsing rows to `CONTIG|START|REF|ALT` within a gene recovers the unique variant; the set of `MOI` values across its rows recovers\n\n(Deterministic grep: 421, 794 and 290 appear in no tracked file as these counts; '6 September' appears nowhere.)",
+    "source_path": "docs/21-public-methods-packet.md + docs/18-private-sensitivity-design.md"
+   },
+   {
+    "claim_id": "c13",
+    "claim": "The alleles passing every filter in both lanes (Tier A) were already determinable from the disclosed replay-2 and specialist-packet outputs before this rule was written, so which alleles sit in the top tier was knowable at writing time.",
+    "excerpt": "{\n \"claim\": \"'What remains genuinely undecided'\",\n \"why_wrong\": \"Tier A membership was already determinable from the disclosed replay-2 and specialist-packet outputs before the rule was written.\",\n \"evidence\": \"Lines 13, 15 and 17.\"\n}",
+    "source_path": "verification/reviews/ea68d94.json"
+   },
+   {
+    "claim_id": "c14",
+    "claim": "The official scorer awards a full match unconditionally: `if full_match_rank is not None: rank_points = float(_rank_to_points(full_match_rank))` / `elif partial_match_rank is not None: rank_points = 0.5 * _rank_to_points(partial_match_rank)`.",
+    "excerpt": "    if full_match_rank is not None:\n        rank_points = float(_rank_to_points(full_match_rank))\n    elif partial_match_rank is not None:\n        # CAGI-style partial credit: half weight for recovering only one\n        # of two causal variants in a compound-het pair.\n        rank_points = 0.5 * _rank_to_points(partial_match_rank)\n    else:",
+    "source_path": "tools/official-track1/evaluation.py"
+   },
+   {
+    "claim_id": "c15",
+    "claim": "A full match at rank 4 scores 25. A partial match at rank 1 scores 50.",
+    "excerpt": "RANK_POINT_TIERS = [\n    (1, 100),\n    (3, 50),\n    (5, 25),\n    (10, 10),\n]\n\n\n    for max_rank, points in RANK_POINT_TIERS:\n        if rank <= max_rank:\n            return points\n    return 0\n\n\ndef score_proband(\n...\n        rank_points = float(_rank_to_points(full_match_rank))\n    elif partial_match_rank is not None:\n        # CAGI-style partial credit: half weight for recovering only one\n        # of two causal variants in a compound-het pair.\n        rank_points = 0.5 * _rank_to_points(partial_match_rank)\n    else:\n\nreview ea68d94 claims_verified: A pair at rank 4 scores 25 while its single allele at rank 1 scores 50 partial.",
+    "source_path": "tools/official-track1/evaluation.py + verification/reviews/ea68d94.json"
+   },
+   {
+    "claim_id": "c16",
+    "claim": "A brute-force check over 1,843,650 scored combinations was run against the pinned official bytes, with scripts and results under verification/scorer-hedging/.",
+    "excerpt": "combinations scored: 1843650\n\nhedging_modes.py lines 18-21:\nsys.path.insert(0, str(ROOT / \"tools/official-track1\"))\n\nimport evaluation as off\n",
+    "source_path": "verification/scorer-hedging/result.txt + verification/scorer-hedging/hedging_modes.py"
+   },
+   {
+    "claim_id": "c17",
+    "claim": "Rows appended strictly below every existing row lowered rank points in 48,608 cases.",
+    "excerpt": "A. strictly-below hedging lowered RANK POINTS : 48608",
+    "source_path": "verification/scorer-hedging/result.txt"
+   },
+   {
+    "claim_id": "c18",
+    "claim": "Rows appended strictly below every existing row lowered F-max in 0 cases.",
+    "excerpt": "B. strictly-below hedging lowered F-MAX       : 0",
+    "source_path": "verification/scorer-hedging/result.txt"
+   },
+   {
+    "claim_id": "c19",
+    "claim": "A row added at an EPCR equal to an existing row lowered F-max in 44,090 cases.",
+    "excerpt": "C. equal-EPCR hedging lowered F-MAX           : 44090",
+    "source_path": "verification/scorer-hedging/result.txt"
+   },
+   {
+    "claim_id": "c20",
+    "claim": "A row added at an EPCR equal to an existing row lowered rank points in 7,216 cases.",
+    "excerpt": "   equal-EPCR hedging lowered RANK POINTS     : 7216",
+    "source_path": "verification/scorer-hedging/result.txt"
+   },
+   {
+    "claim_id": "c21",
+    "claim": "The rank-point loss under an equal EPCR happens because the gate breaks a tie by file order.",
+    "excerpt": "        # Sort descending by EPCR (ties broken by original order)\n        rows_sorted = sorted(enumerate(rows), key=lambda x: (-x[1][1], x[0]))\n        result[pid] = [\n            SubmissionRow(variants=v, epcr=e, rank=i + 1, finding_type=ft)\n            for i, (_, (v, e, ft)) in enumerate(rows_sorted)\n        ]\n    return result\n",
+    "source_path": "tools/official-track1/evaluation.py"
+   },
+   {
+    "claim_id": "c22",
+    "claim": "A reader running brute_force_hedging.py sees 48,252 for the equal-EPCR arm rather than 44,090, because that script counts a case when either metric drops, while hedging_modes.py separates the two metrics (44,090 F-max, 7,216 rank points).",
+    "excerpt": "scored combinations: 1843650\nstrictly-lower hedge violations: 48608\nequal-EPCR hedge violations:     48252\n\nresult.txt lines 1-8:\ncombinations scored: 1843650\n  strictly-below arm: 1735200   equal-EPCR arm: 108450\n  equal-EPCR cases where EITHER metric dropped (brute_force_hedging.py counts these): 48252\n\nA. strictly-below hedging lowered RANK POINTS : 48608\nB. strictly-below hedging lowered F-MAX       : 0\nC. equal-EPCR hedging lowered F-MAX           : 44090\n   equal-EPCR hedging lowered RANK POINTS     : 7216\n\nhedging_modes.py lines 90-91:\n    print(f\"  equal-EPCR cases where EITHER metric dropped (brute_force_hedging.py counts these): {either}\\n\")\n    print(f\"A. strictly-below hedging lowered RANK POINTS : {len(a_pts_drop)}\")",
+    "source_path": "verification/scorer-hedging/brute-force-result.txt + verification/scorer-hedging/result.txt + hedging_modes.py"
+   },
+   {
+    "claim_id": "c23",
+    "claim": "The arms are 1,735,200 strictly-below comparisons plus 108,450 equal-EPCR comparisons, totalling 1,843,650.",
+    "excerpt": "combinations scored: 1843650\n  strictly-below arm: 1735200   equal-EPCR arm: 108450",
+    "source_path": "verification/scorer-hedging/result.txt"
+   },
+   {
+    "claim_id": "c24",
+    "claim": "Every one of the 48,608 rank-point drops is the same inversion: the exact true pair added below a higher-ranked row that already earned partial credit; none had another cause.",
+    "excerpt": "A. strictly-below hedging lowered RANK POINTS : 48608\n   of which 'added the exact true pair lower than an existing partial': 48608\n   unexplained by that inversion: 0",
+    "source_path": "verification/scorer-hedging/result.txt"
+   }
+  ]
+ },
+ "questions": {
+  "c01": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c01. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c02": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c02. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c03": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c03. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c04": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c04. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c05": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c05. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c06": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c06. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c07": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c07. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c08": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c08. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c09": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c09. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c10": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c10. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c11": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c11. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c12": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c12. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c13": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c13. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c14": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c14. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c15": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c15. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c16": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c16. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c17": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c17. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c18": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c18. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c19": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c19. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c20": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c20. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c21": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c21. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c22": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c22. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c23": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c23. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c24": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c24. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  }
+ }
+}

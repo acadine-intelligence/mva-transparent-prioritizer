@@ -12,8 +12,10 @@ actually fire:
   D1  DETERMINISM. Every input permutation of a pool yields the identical
       final row list (variants, EPCR, tier).
   D2  INVARIANTS. In every final list: no single row sits above a pair row
-      that shares an allele with it; no kept pair shares an allele with a
-      kept pair above it; EPCRs are the ladder prefix; at most ten rows.
+      that shares an allele with it; a kept pair that shares an allele with
+      a kept pair above it sits only where its own full-match points are
+      strictly above the partial it earns through that winner; EPCRs are the
+      ladder prefix; at most ten rows.
   D3  FIRING. Promotion and demotion each changed the order in a non-trivial
       share of pools, so D2 was not vacuous.
   D4  DOMINATION AGAINST THE PLAIN EVIDENCE SORT. For every pool and every
@@ -92,7 +94,7 @@ def main() -> int:
                 shared = r.variants & set(claimed)
                 if shared:
                     q = min(claimed[v] for v in shared) + 1
-                    if _rank_points(j + 1) < 0.5 * _rank_points(q):
+                    if _rank_points(j + 1) <= 0.5 * _rank_points(q):
                         d2_pair_overlap += 1
                 for v in r.variants:
                     claimed.setdefault(v, j)
@@ -133,7 +135,7 @@ def main() -> int:
     print(f"Pools: {POOLS:,}  seed {SEED}  universe {len(UNIVERSE)} alleles, tiers A/B, ranks 1-9\n")
     print(f"D1  determinism: pools with a permutation-dependent result   {d1_fail}")
     print(f"D2  single above a sharing pair                              {d2_single_above_pair}")
-    print(f"D2  kept sharing pair below the rank where it pays           {d2_pair_overlap}")
+    print(f"D2  kept sharing pair at a rank that does not strictly pay    {d2_pair_overlap}")
     print(f"D2  EPCR not the ladder prefix                               {d2_epcr}")
     print(f"D2  more than ten rows                                       {d2_cap}")
     print(f"D3  pools where promotion fired                              {d3_promoted:,}")

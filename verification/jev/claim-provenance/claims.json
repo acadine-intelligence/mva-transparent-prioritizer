@@ -1,322 +1,322 @@
 [
- {
-  "claim_id": "c01",
-  "claim": "The nine-gene audit (9 September) established that all nine regions carry recorded alternate genotypes in both the stored original VCF and the prepared analysis VCF, and that two regional records per input matched saved filtered rows.",
-  "excerpt": "9 September 2026\n\nAll nine target regions contained recorded alternate genotypes in both the stored original VCF and the prepared analysis VCF. All eight genes missing from the filtered 500-gene packet had regional records in both input files.\n\nThe authorized read-only audit is complete. A separate verification run recomputed the audit from its sources and reproduced the saved output bytes.\n\n## Recorded evidence\n\n| Measure | Original VCF | Prepared analysis VCF |\n| --- | ---: | ---: |\n| Records scanned | 5,012,204 | 5,035,176 |\n| Records in the inspected regions | 1,272 | 1,283 |\n| Regional records with an exact allele-key match in saved filtered rows | 2 | 2 |\n| Regional records that triggered the reader's quality flags | 0 | 0 |\n\nEvery regional record counted above contained a recorded alternate genotype. These are record counts. A multiallelic record can contain several alleles. An exact match means that at least one of its allele keys matched a saved filtered row. The match counts provide a trace into existing outputs; clinical relevance remains unassessed.",
-  "source_path": "runtime/nine-gene-audit-20260909/audit-summary.md",
-  "deterministic_hit": true,
-  "deterministic_note": "9 September 2026 date present in audit-summary.md",
-  "jev_probability": 0.44,
-  "bucket": "uncertain"
- },
- {
-  "claim_id": "c02",
-  "claim": "The diagnostic replay, named replay-2 and verified, is the run whose outputs the later recurrent-gene analysis read, and the run's regional selection included the nine target regions plus the frozen passing controls.",
-  "excerpt": "{\n  \"output_directory\": \"recurrent-1\",\n  \"replay_directory\": \"review-work/diagnostic-replay-20260909/replay-2\",\n  \"replay_receipt_sha256\": \"09769e3e027d5afb443930222f8559fab2b20bcdc9b021aede02397301718142\",\n  \"replay_result_sha256\": \"1a62e8cc91514b1d5bf6240558fd00668f139ff0929446916566fda4943e5d47\",\n  \"schema\": \"mva-recurrent-genes-pins-v1\",\n  \"stage\": \"review-work/recurrent-genes-20260911\",\n  \"top_n\": [10, 30]\n}\n...\n## What this does and does not mean\n\n- One of the eleven recurrent genes sits in a predeclared public-literature region. This is a diagnostic observation about ranking behaviour in a bounded regional run, not a discovery and not a clinical finding.\n- The run's regional selection includes the nine target regions plus the frozen passing controls, so recurrence partly reflects that selection. It does not describe the whole genome.\n- Rank here is native output order only. No score, filter state or pathogenicity conclusion is asserted.",
-  "source_path": "runtime/recurrent-genes-20260911/recurrent-pins.json + runtime/recurrent-genes-20260911/aggregate-report.md",
-  "deterministic_hit": true,
-  "deterministic_note": "top 30 / nine regions / frozen passing controls present",
-  "jev_probability": 0.45,
-  "bucket": "uncertain"
- },
- {
-  "claim_id": "c03",
-  "claim": "The recurrent-gene run (11 September, verified) flagged eleven genes appearing in the top thirty of both lanes, of which one lies inside a predeclared region.",
-  "excerpt": "# Recurrent-gene flagging: result\n\nBuilt and verified on encrypted M1, 11 September 2026. Build and verify agree byte for byte.\n\n## What was measured\n\nEvery gene in both lanes of the verified diagnostic replay, ranked by native output order. A gene is flagged when it appears in the top 30 of both lanes.\n\n## Counts\n\n| Measure | Coding | Noncoding |\n|---|---:|---:|\n| Genes in lane | 510 | 508 |\n\n| Measure | Value |\n|---|---:|\n| Union of genes across lanes | 522 |\n| In the top 30 of both lanes | 11 |\n| In the top 10 of both lanes | 5 |\n| Recurrent and inside the nine predeclared regions | 1 |\n\nRecurrent symbols: ACLY, ADAMTS1, ARL9, BUB1B, CACNB1, CDC7, FANCD2, HK1, LZTR1, SERPINA1, SLC25A5.",
-  "source_path": "runtime/recurrent-genes-20260911/aggregate-report.md",
-  "deterministic_hit": true,
-  "deterministic_note": "11 and 1 present in aggregate-report.md",
-  "jev_probability": 0.76,
-  "bucket": "supported"
- },
- {
-  "claim_id": "c04",
-  "claim": "The ReMM 0.963 sensitivity run was executed (state prepared_and_verified, 2026-09-06) and retained 263 of 365 unique variants and 175 of 243 genes; 90 variants fell to the cutoff and 12 more lost inheritance compatibility; 7 retained genes changed inheritance mode.",
-  "excerpt": "  \"schema\": \"mva-private-review-preparation-receipt-v1\",\n  \"verified_at_utc\": \"2026-09-06T13:07:00Z\",\n  \"state\": \"prepared_and_verified\",\n  \"specialist_review\": \"pending\",\n  \"clinical_interpretation\": false,\n  \"clinical_probability\": false,\n  \"hidden_top_n\": null,\n  \"source_commit\": \"380f24a111a6e4399164e716e6a121b557cf86e0\",\n  \"source_worktree_clean\": true,\n  \"source_integrity_and_permissions_rechecked\": true,\n  \"private_rows_exported\": false,\n  \"submission_performed\": false,\n  \"publication_performed\": false,\n  \"sensitivity\": {\n    \"cutoff\": 0.963,\n    \"original_unique_variants\": 365,\n    \"retained_unique_variants\": 263,\n    \"removed_by_cutoff_unique_variants\": 90,\n    \"removed_by_inheritance_unique_variants\": 12,\n    \"original_genes\": 243,\n    \"retained_genes\": 175,\n    \"removed_by_cutoff_genes\": 56,\n    \"removed_by_inheritance_genes\": 12,\n    \"retained_genes_with_changed_modes\": 7,\n    \"receipt_sha256\": \"d5ba10df94dcf68415580d5fdb9e204fb5f2f1ad43186792d88bd0b7912b504f\"\n  },",
-  "source_path": "runtime/candidate-review-20260906/completion.json",
-  "deterministic_hit": true,
-  "deterministic_note": "263/365/175/243/90/12/7 present in completion.json",
-  "jev_probability": 0.77,
-  "bucket": "supported"
- },
- {
-  "claim_id": "c05",
-  "claim": "A receipt whose SHA-256 begins d5ba10df94dcf684 is recorded in runtime/candidate-review-20260906/completion.json for the sensitivity run.",
-  "excerpt": "  \"sensitivity\": {\n    \"cutoff\": 0.963,\n    \"original_unique_variants\": 365,\n    \"retained_unique_variants\": 263,\n    \"removed_by_cutoff_unique_variants\": 90,\n    \"removed_by_inheritance_unique_variants\": 12,\n    \"original_genes\": 243,\n    \"retained_genes\": 175,\n    \"removed_by_cutoff_genes\": 56,\n    \"removed_by_inheritance_genes\": 12,\n    \"retained_genes_with_changed_modes\": 7,\n    \"receipt_sha256\": \"d5ba10df94dcf68415580d5fdb9e204fb5f2f1ad43186792d88bd0b7912b504f\"\n  },",
-  "source_path": "runtime/candidate-review-20260906/completion.json",
-  "deterministic_hit": true,
-  "deterministic_note": "d5ba10df94dcf684 prefix present in completion.json",
-  "jev_probability": 0.94,
-  "bucket": "supported"
- },
- {
-  "claim_id": "c06",
-  "claim": "The candidate review dossier (6 September) preserved 421 coding gene rows with 794 variant associations and 290 noncoding gene rows with 454 associations over a 500-gene union, and it carries 19 inheritance-review entries.",
-  "excerpt": "  \"candidate_review\": {\n    \"gene_union_count\": 500,\n    \"coding_unique_genes\": 364,\n    \"noncoding_unique_genes\": 243,\n    \"initial_detail_gene_count\": 34,\n    \"inheritance_review_count\": 19,\n    \"coding_gene_rows_preserved\": 421,\n    \"coding_variant_associations_preserved\": 794,\n    \"noncoding_gene_rows_preserved\": 290,\n    \"noncoding_variant_associations_preserved\": 454,\n    \"output_hashes_rechecked\": true,\n    \"read_only_permissions_verified\": true,\n    \"review_receipt_sha256\": \"7bf0ca66854b7a4b73a608f8bf67a167391bbc8ea9137f1ba018494b664480db\"\n  },",
-  "source_path": "runtime/candidate-review-20260906/completion.json",
-  "deterministic_hit": true,
-  "deterministic_note": "421/794/290/454/500/19 present in completion.json",
-  "jev_probability": 0.71,
-  "bucket": "supported"
- },
- {
-  "claim_id": "c07",
-  "claim": "The official scorer contains exactly this code: if full_match_rank is not None: rank_points = float(_rank_to_points(full_match_rank)) elif partial_match_rank is not None: rank_points = 0.5 * _rank_to_points(partial_match_rank)",
-  "excerpt": "    # --- Rank points (metric 1) ---\n    if full_match_rank is not None:\n        rank_points = float(_rank_to_points(full_match_rank))\n    elif partial_match_rank is not None:\n        # CAGI-style partial credit: half weight for recovering only one\n        # of two causal variants in a compound-het pair.\n        rank_points = 0.5 * _rank_to_points(partial_match_rank)",
-  "source_path": "tools/official-track1/evaluation.py",
-  "deterministic_hit": true,
-  "deterministic_note": "code lines verbatim in evaluation.py",
-  "jev_probability": 0.85,
-  "bucket": "supported"
- },
- {
-  "claim_id": "c08",
-  "claim": "The official scorer awards the full match unconditionally once found: a full match at rank 4 scores 25 points and a partial match at rank 1 scores 50, so the full-match branch wins even when the partial match would have scored more.",
-  "excerpt": "# Rank-point scale, compressed from CAGI's RGP weighting to fit a single\n# proband with a max of 10 submitted candidates (rather than CAGI's\n# multi-family, up-to-100-candidate benchmark).\nRANK_POINT_TIERS = [\n    (1, 100),\n    (3, 50),\n    (5, 25),\n    (10, 10),\n]\n...\n    # --- Rank points (metric 1) ---\n    if full_match_rank is not None:\n        rank_points = float(_rank_to_points(full_match_rank))\n    elif partial_match_rank is not None:\n        # CAGI-style partial credit: half weight for recovering only one\n        # of two causal variants in a compound-het pair.\n        rank_points = 0.5 * _rank_to_points(partial_match_rank)",
-  "source_path": "tools/official-track1/evaluation.py",
-  "deterministic_hit": true,
-  "deterministic_note": "RANK_POINT_TIERS in evaluation.py",
-  "jev_probability": 0.6,
-  "bucket": "uncertain"
- },
- {
-  "claim_id": "c09",
-  "claim": "Full-match rank-point tiers are 100 at rank 1, 50 at ranks 2 to 3, 25 at ranks 4 to 5, and 10 at ranks 6 to 10.",
-  "excerpt": "# Rank-point scale, compressed from CAGI's RGP weighting to fit a single\n# proband with a max of 10 submitted candidates (rather than CAGI's\n# multi-family, up-to-100-candidate benchmark).\nRANK_POINT_TIERS = [\n    (1, 100),\n    (3, 50),\n    (5, 25),\n    (10, 10),\n]\n...\ndef _rank_to_points(rank: int) -> int:\n    for max_rank, points in RANK_POINT_TIERS:\n        if rank <= max_rank:\n            return points\n    return 0",
-  "source_path": "tools/official-track1/evaluation.py",
-  "deterministic_hit": true,
-  "deterministic_note": "tier table and 0.5 factor in evaluation.py",
-  "jev_probability": 0.74,
-  "bucket": "supported"
- },
- {
-  "claim_id": "c10",
-  "claim": "A pair placed below rank 3 scores worse than the partial credit its own single allele would have earned at rank 1 (a pair at rank 4 or 5 earns 25, while a partial match at rank 1 earns half of 100, i.e. 50).",
-  "excerpt": "RANK_POINT_TIERS = [\n    (1, 100),\n    (3, 50),\n    (5, 25),\n    (10, 10),\n]\n...\n    elif partial_match_rank is not None:\n        # CAGI-style partial credit: half weight for recovering only one\n        # of two causal variants in a compound-het pair.\n        rank_points = 0.5 * _rank_to_points(partial_match_rank)",
-  "source_path": "tools/official-track1/evaluation.py",
-  "deterministic_hit": true,
-  "deterministic_note": "25/50/0.5 values in evaluation.py",
-  "jev_probability": 0.57,
-  "bucket": "uncertain"
- },
- {
-  "claim_id": "c11",
-  "claim": "The scorer's partial-match test is row.variants & true_variants, an intersection, so a two-variant row naming one correct allele and one incorrect one earns the same partial credit as that allele alone.",
-  "excerpt": "    if is_compound_het and full_match_rank is None:\n        # Look for a row containing exactly one of the two true variants -\n        # either proposed alone, or paired with an incorrect second variant.\n        for row in submission_rows:\n            if row.variants & true_variants:\n                partial_match_rank = row.rank\n                break",
-  "source_path": "tools/official-track1/evaluation.py",
-  "deterministic_hit": true,
-  "deterministic_note": "row.variants & true_variants in evaluation.py",
-  "jev_probability": 0.64,
-  "bucket": "uncertain"
- },
- {
-  "claim_id": "c12",
-  "claim": "The official scorer refuses a submission with more than 10 rows per proband (so an eleventh row is refused).",
-  "excerpt": "    for pid, rows in by_proband.items():\n        if len(rows) > 10:\n            raise ValueError(f\"Proband {pid} has {len(rows)} rows; max is 10\")",
-  "source_path": "tools/official-track1/evaluation.py",
-  "deterministic_hit": true,
-  "deterministic_note": "'max is 10' in evaluation.py",
-  "jev_probability": 0.64,
-  "bucket": "uncertain"
- },
- {
-  "claim_id": "c13",
-  "claim": "A brute-force check scored 1,843,650 combinations against the pinned official evaluator vendored at tools/official-track1/evaluation.py, with results stored under runtime/scorer-hedging-20260919/.",
-  "excerpt": "combinations scored: 1843650\n\n...\nROOT = pathlib.Path.home() / \"projects/mva-transparent-prioritizer/.worktrees/reference-setup\"\nsys.path.insert(0, str(ROOT / \"tools/official-track1\"))\n\nimport evaluation as off  # the pinned official scorer",
-  "source_path": "runtime/scorer-hedging-20260919/result.txt + runtime/scorer-hedging-20260919/brute_force_hedging.py",
-  "deterministic_hit": true,
-  "deterministic_note": "1,843,650 in result.txt",
-  "jev_probability": 0.31,
-  "bucket": "uncertain"
- },
- {
-  "claim_id": "c14",
-  "claim": "The brute-force check found: rows appended strictly below every existing row lowered rank points in 48,608 cases; strictly-below rows never lowered F-max (0 cases); a row added at an EPCR equal to an existing row lowered F-max in 44,090 cases and lowered rank points in 7,216 cases.",
-  "excerpt": "combinations scored: 1843650\n\nA. strictly-below hedging lowered RANK POINTS : 48608\nB. strictly-below hedging lowered F-MAX       : 0\nC. equal-EPCR hedging lowered F-MAX           : 44090\n   equal-EPCR hedging lowered RANK POINTS     : 7216\n\n   of which 'added the exact true pair lower than an existing partial': 48608\n   unexplained by that inversion: 0",
-  "source_path": "runtime/scorer-hedging-20260919/result.txt",
-  "deterministic_hit": true,
-  "deterministic_note": "48,608/0/44,090/7,216 in result.txt",
-  "jev_probability": 0.8,
-  "bucket": "supported"
- },
- {
-  "claim_id": "c15",
-  "claim": "Every one of the 48,608 rank-point drops was the same inversion: the exact true pair added below a higher-ranked row that already earned partial credit, with 0 drops unexplained by that inversion.",
-  "excerpt": "   of which 'added the exact true pair lower than an existing partial': 48608\n   unexplained by that inversion: 0",
-  "source_path": "runtime/scorer-hedging-20260919/result.txt",
-  "deterministic_hit": true,
-  "deterministic_note": "48,608 / unexplained 0 in result.txt",
-  "jev_probability": 0.87,
-  "bucket": "supported"
- },
- {
-  "claim_id": "c16",
-  "claim": "Of the 48,608 rank-point drops, the higher-ranked partial match was a row pairing one true allele with a wrong partner in 36,456 cases (75.0%) and a single allele of the true pair in 12,152 cases (25.0%).",
-  "excerpt": "total rank-point drops: 48608\n\nwhat the higher-ranked partial match actually was, in the BASE:\n  true_allele_paired_with_wrong_partner        36456  ( 75.0%)\n  single_allele_of_the_pair                    12152  ( 25.0%)",
-  "source_path": "runtime/scorer-hedging-20260919/classify-result.txt",
-  "deterministic_hit": true,
-  "deterministic_note": "36,456/12,152/75.0%/25.0% in classify-result.txt",
-  "jev_probability": 0.84,
-  "bucket": "supported"
- },
- {
-  "claim_id": "c17",
-  "claim": "Three wider ordering formulations were tested against the pinned scorer and recorded in verify_rule.py: 'every pair above every single row' lowered the score in 1,020 cases; 'every pair above any row sharing an allele' lowered it in 420 cases; 'a pair above every single sharing an allele' never lowered the score in 29,400 comparisons and raised it on 480 row sets.",
-  "excerpt": "def promote_allele_sharing(ordered_shapes):\n    \"\"\"The rule as it survives measurement: promote a pair above every SINGLE row\n    that shares an allele with it. Relative order of two pairs is NEVER changed.\n\n    Two earlier formulations were falsified by this script:\n\n      \"every pair above every single\" moves an UNRELATED pair above a true\n      single and costs 25 points (draft 3, 1,020 cases).\n\n      \"every pair above any row sharing an allele\" reorders two allele-sharing\n      PAIRS, and since the rule cannot know which of them is true, the swap\n      demotes the true pair half the time (draft 4, 420 cases).\n\n    Pair-versus-pair precedence is a question about which hypothesis is stronger.\n    That is evidence, decided by tier in Step 3, not by this ordering rule.\n...\nASSUMPTION: the answer key is a compound-heterozygous pair\n            (official evaluation.py docstring; partial credit gated at line 133)\n\nR1  allele-sharing promotion, comparisons : 29400\nR1  the rule LOWERED the score            : 0\nR1  row sets where it RAISED it           : 480",
-  "source_path": "runtime/scorer-hedging-20260919/verify_rule.py + runtime/scorer-hedging-20260919/verify-rule-result.txt",
-  "deterministic_hit": true,
-  "deterministic_note": "1,020/420/29,400/480 in verify_rule.py + verify-rule-result.txt",
-  "jev_probability": 0.63,
-  "bucket": "uncertain"
- },
- {
-  "claim_id": "c18",
-  "claim": "When two candidate pairs share an allele, keeping the weaker one below never scored lower than dropping it and scored higher in 120 of 600 comparisons.",
-  "excerpt": "R2  allele-sharing pair comparisons       : 600\nR2  dropping beat keeping-below           : 0\nR2  keeping-below beat dropping           : 120\nR2  equal                                 : 480\n\nRESULT: both rules hold under a compound-heterozygous answer key.\n  R1 promoting a pair above only the rows SHARING AN ALLELE with it\n     never lowered the score, and raised it on 480 row sets.\n  R2 keeping a weaker allele-sharing pair below never scored lower than\n     dropping it, and scored higher in 120 comparisons.",
-  "source_path": "runtime/scorer-hedging-20260919/verify-rule-result.txt",
-  "deterministic_hit": true,
-  "deterministic_note": "600/120/0 in verify-rule-result.txt",
-  "jev_probability": 0.85,
-  "bucket": "supported"
- },
- {
-  "claim_id": "c19",
-  "claim": "On the recommended shape (exact pair on top, each allele alone below): if the pair is correct it scores 100 points with F-max 1.000; if only one of the two alleles is truly causal it scores 50 points, where a pair-only file scores 0; no tested case scored worse.",
-  "excerpt": "--- recommended shape under both truths ---\n  truth=(('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T'))         rank_points= 100.0 f_max=1.000\n  truth=(('chr1', 1000, 'A', 'G'),)                                  rank_points=  50.0 f_max=0.667\n  truth=(('chr1', 2000, 'C', 'T'),)                                  rank_points=  50.0 f_max=0.667\n  truth=(('chr2', 3000, 'G', 'A'),)                                  rank_points=   0.0 f_max=0.000\n\n--- pair-only, no hedge rows ---\n  truth=(('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T'))         rank_points= 100.0 f_max=1.000\n  truth=(('chr1', 1000, 'A', 'G'),)                                  rank_points=   0.0 f_max=0.667\n  truth=(('chr1', 2000, 'C', 'T'),)                                  rank_points=   0.0 f_max=0.667",
-  "source_path": "runtime/scorer-hedging-20260919/result.txt",
-  "deterministic_hit": true,
-  "deterministic_note": "100/50/0/1.000 in result.txt",
-  "jev_probability": 0.27,
-  "bucket": "unsupported"
- },
- {
-  "claim_id": "c20",
-  "claim": "Across 19,779 sort-key comparisons no two distinct rows tied; across 32,612 runs the same candidate pool shuffled into every input order produced the identical file; truncation climbed out of an exhausted tier in every case; the allele-sharing constraint held without ever reordering two pair rows.",
-  "excerpt": "T1 sort keys compared                      : 19779\nT1 distinct rows with an EQUAL key (ties)  : 0\nT2 permutation runs                        : 32612\nT2 outputs differing by input order        : 0\nT3 cap failures                            : 0\nT4 allele-sharing violations after sort    : 0\nT4 runs where two PAIR rows were reordered : 0\n\nRESULT: the Step 4 ordering is total and operator-independent.\n  No two distinct rows tie, so no comparison falls to a human.\n  Every input permutation of the same pool produced the identical file.\n  Truncation climbs tiers; the allele-sharing constraint holds and never\n  reorders two pair rows.",
-  "source_path": "runtime/scorer-hedging-20260919/verify-determinism-result.txt",
-  "deterministic_hit": true,
-  "deterministic_note": "19,779/32,612 in verify-determinism-result.txt",
-  "jev_probability": 0.71,
-  "bucket": "supported"
- },
- {
-  "claim_id": "c21",
-  "claim": "The fixed EPCR ladder assigned by row position is 0.90, 0.75, 0.60, 0.50, 0.40, 0.30, 0.20, 0.15, 0.10, 0.05.",
-  "excerpt": "LADDER = [0.90, 0.75, 0.60, 0.50, 0.40, 0.30, 0.20, 0.15, 0.10, 0.05]  (verify_rule.py line 48)\n...\nLADDER = [0.90, 0.75, 0.60, 0.50, 0.40, 0.30, 0.20, 0.15, 0.10, 0.05]  (verify_determinism.py line 29)",
-  "source_path": "runtime/scorer-hedging-20260919/verify_rule.py",
-  "deterministic_hit": true,
-  "deterministic_note": "ladder values in verify_rule.py and verify_determinism.py",
-  "jev_probability": 0.79,
-  "bucket": "supported"
- },
- {
-  "claim_id": "c22",
-  "claim": "The scorer-hedging scripts import the vendored official evaluator at tools/official-track1/evaluation.py, whose bytes are pinned by full SHA-256 in tests/test_track1_submission.py (6d18b581e65a45e1...).",
-  "excerpt": "ROOT = pathlib.Path.home() / \"projects/mva-transparent-prioritizer/.worktrees/reference-setup\"\nsys.path.insert(0, str(ROOT / \"tools/official-track1\"))\n\nimport evaluation as off  # the pinned official scorer\n...\nROOT = Path(__file__).resolve().parent.parent\nOFFICIAL = ROOT / \"tools\" / \"official-track1\" / \"evaluation.py\"\nOFFICIAL_SHA256 = \"6d18b581e65a45e1ccc120071d588e740c2e42e983ff50704c60a40232b19180\"\nTEMPLATE = ROOT / \"tools\" / \"official-track1\" / \"track1_submission_template.csv\"\nTEMPLATE_SHA256 = \"7b3ed41c091d34fb6c5622d049c7a3f46124211fc7ec02947e69daef8752755a\"",
-  "source_path": "runtime/scorer-hedging-20260919/brute_force_hedging.py + tests/test_track1_submission.py",
-  "deterministic_hit": true,
-  "deterministic_note": "6d18b581e65a45e1 in test_track1_submission.py",
-  "jev_probability": 0.58,
-  "bucket": "uncertain"
- },
- {
-  "claim_id": "c23",
-  "claim": "The five scripts brute_force_hedging.py, hedging_modes.py, classify_drops.py, verify_rule.py and verify_determinism.py exist in runtime/scorer-hedging-20260919/, and verify_determinism.py executes the Step 4 ordering as code, confirming the order is total and operator-independent.",
-  "excerpt": "ripgrep file listing of runtime/scorer-hedging-20260919/ (2026-09-26): hedging_modes.py, brute_force_hedging.py, verify_determinism.py, verify_rule.py, classify_drops.py (plus result.txt, classify-result.txt, verify-rule-result.txt, verify-determinism-result.txt, __pycache__).\n...\nverify-determinism-result.txt lines 9-13:\nRESULT: the Step 4 ordering is total and operator-independent.\n  No two distinct rows tie, so no comparison falls to a human.\n  Every input permutation of the same pool produced the identical file.\n  Truncation climbs tiers; the allele-sharing constraint holds and never\n  reorders two pair rows.",
-  "source_path": "runtime/scorer-hedging-20260919/ (listing + verify-determinism-result.txt)",
-  "deterministic_hit": "na",
-  "deterministic_note": "file-existence check, not a text grep",
-  "jev_probability": 0.31,
-  "bucket": "uncertain"
- },
- {
-  "claim_id": "c24",
-  "claim": "For a pair row the native-rank key is the better (numerically lower) rank of its two alleles, implemented as min(row['ranks']) in the Step 4 sort key.",
-  "excerpt": "def row_sort_key(row):\n    \"\"\"The five keys of Step 4, in order.\n\n    row = {alleles: tuple, tier: str, both_lanes: bool, ranks: tuple[int,...]}\n    \"\"\"\n    alleles = tuple(sorted(row[\"alleles\"], key=allele_key))\n    return (\n        0 if len(alleles) == 2 else 1,            # 1. class: pairs first\n        TIER_ORDER[row[\"tier\"]],                   # 2. tier\n        0 if row[\"both_lanes\"] else 1,             # 3. lane agreement\n        min(row[\"ranks\"]),                         # 4. better native rank\n        tuple(allele_key(a) for a in alleles),     # 5. coordinate\n    )",
-  "source_path": "runtime/scorer-hedging-20260919/verify_determinism.py",
-  "deterministic_hit": "na",
-  "deterministic_note": "code semantics, no number",
-  "jev_probability": 0.91,
-  "bucket": "supported"
- },
- {
-  "claim_id": "c25",
-  "claim": "The Step 4 allele-sharing constraint promotes a pair row above every single row that shares an allele with it, and the relative order of two pair rows is never changed by this step.",
-  "excerpt": "def apply_allele_sharing(rows):\n    \"\"\"A pair row is promoted above every SINGLE row sharing an allele with it.\n    Two pair rows are never reordered.\"\"\"\n    out = list(rows)\n    for _ in range(len(out) ** 2 + 1):\n        for i, upper in enumerate(out):\n            if len(upper[\"alleles\"]) != 1:\n                continue\n            for j in range(i + 1, len(out)):\n                lower = out[j]\n                if len(lower[\"alleles\"]) == 2 and (set(upper[\"alleles\"]) & set(lower[\"alleles\"])):\n                    out.insert(i, out.pop(j))\n                    break\n            else:\n                continue\n            break\n        else:\n            return out",
-  "source_path": "runtime/scorer-hedging-20260919/verify_determinism.py",
-  "deterministic_hit": "na",
-  "deterministic_note": "code semantics, no number",
-  "jev_probability": 0.56,
-  "bucket": "uncertain"
- },
- {
-  "claim_id": "c26",
-  "claim": "A mitochondrial row blocks the file: the validator reports mitochondrial_rows and a candidate file carrying a mitochondrial row must not be uploaded until the organizers confirm the contig spelling.",
-  "excerpt": "## Open representation risk: the mitochondrial contig\n\nPublic sources name the answer key's chromosome form only by example (`chr15`, `chr1`, `chr7`, `chr2`). Nothing public says whether a mitochondrial variant would be written `chrM` (UCSC and GRCh38 no-alt analysis-set convention) or `chrMT`; the private key could plausibly use either. The validator therefore takes the spelling as a parameter (`mitochondrial_name`, CLI `--mitochondrial-name`, values `chrM` or `chrMT`, default `chrM`) and never accepts an unprefixed form. `track1-check` reports `mitochondrial_rows`. A candidate file that carries a mitochondrial row must not be uploaded until the organizers confirm the spelling in the Community tab, or the candidate set is known to be nuclear.",
-  "source_path": "docs/20-track1-submission-gate.md",
-  "deterministic_hit": true,
-  "deterministic_note": "mitochondrial_rows in docs/20",
-  "jev_probability": 0.76,
-  "bucket": "supported"
- },
- {
-  "claim_id": "c27",
-  "claim": "track1-check runs the canonical parser together with the gate mirror, and validate_against_lane_representation checks every submitted variant against the lane contig keys it is given.",
-  "excerpt": "`score_submission` mirrors `score_proband`. `validate_against_lane_representation` maps submission chromosomes to the lane's contig naming (no prefix, `MT` for the mitochondrion) and requires every submitted variant to exist among the lane keys it is given; it receives keys, never rows, and reports counts only.\n\n`tests/test_sensitivity_partition_mutations.py` disables each of 30 guards and scoring constants in this module and 2 in the CLI boundary in turn and requires the named test to fail.\n\nCLI: `python3 -m mva_prioritizer.cli track1-check --submission <file> [--synthetic-truth '[[chrom,pos,ref,alt],...]'] [--mitochondrial-name chrM|chrMT] [--allow-ties] [--allow-unsorted] [--allow-repeated-pairings]`. One JSON line with counts on success; the file is opened with `O_NOFOLLOW`, decided on the descriptor, bounded at 1 MiB; after the canonical parse the CLI also runs the gate mirror and refuses if the two ranked variant lists differ. Every refusal, including argument errors (argument parsing runs inside the same boundary, with usage output suppressed), exits 2 with the fixed `input_rejected` line and never echoes a row or an argument.",
-  "source_path": "docs/20-track1-submission-gate.md",
-  "deterministic_hit": true,
-  "deterministic_note": "track1-check and validate_against_lane_representation in docs/20",
-  "jev_probability": 0.56,
-  "bucket": "uncertain"
- },
- {
-  "claim_id": "c28",
-  "claim": "The canonical validator has an --allow-repeated-pairings flag, existing for the shape of alternative pairings for an uncertain partner.",
-  "excerpt": "docs/20-track1-submission-gate.md line 58 (canonical validator): \"By default it also refuses repeated variants, EPCR ties and unsorted rows; each has a flag because each is legal at the gate and occasionally deliberate (alternative pairings for an uncertain partner).\"\n...\nline 64 (CLI): \"python3 -m mva_prioritizer.cli track1-check --submission <file> [--synthetic-truth '[[chrom,pos,ref,alt],...]'] [--mitochondrial-name chrM|chrMT] [--allow-ties] [--allow-unsorted] [--allow-repeated-pairings]\".",
-  "source_path": "docs/20-track1-submission-gate.md",
-  "deterministic_hit": true,
-  "deterministic_note": "--allow-repeated-pairings in docs/20",
-  "jev_probability": 0.81,
-  "bucket": "supported"
- },
- {
-  "claim_id": "c29",
-  "claim": "The supplied data is a singleton VCF with no read-backed phase linking distant loci and no parental data, so two heterozygous alleles in one gene cannot be shown to be in trans from this input alone.",
-  "excerpt": "It does not measure how often this happens in the private genome. It does not exercise phenotype scoring, gene ranking, the frequency filter, regulatory feature filtering, or the full CLI. Single-proband unphased data cannot distinguish cis from trans; the engine's recessive annotation reflects that ambiguity and so does this probe.",
-  "source_path": "docs/17-exomiser-probe.md",
-  "deterministic_hit": "na",
-  "deterministic_note": "prose statement, no number",
-  "jev_probability": 0.37,
-  "bucket": "uncertain"
- },
- {
-  "claim_id": "c30",
-  "claim": "The official challenge requires a methods report alongside the Track 1 prediction CSV.",
-  "excerpt": "The 3-minute pitch video is a Track 2 requirement in `tabs/submit_track2.py`. Track 1 requires a prediction CSV and a methods report. Its form also requires a repository link. The Track 1 instructions do not state a pitch-video requirement. The official workbook still says one final Track 2 submission, while the submission interface and organizer update allow three attempts with only the latest reviewed. Treat those as three attempts toward one reviewed final entry.",
-  "source_path": "docs/20-track1-submission-gate.md",
-  "deterministic_hit": true,
-  "deterministic_note": "methods report in docs/20",
-  "jev_probability": 0.75,
-  "bucket": "supported"
- },
- {
-  "claim_id": "c31",
-  "claim": "config/reference-bundle.json holds the SHA-256 pins for the pinned reference artifacts.",
-  "excerpt": "The Java program checked in as `tools/exomiser-probe/Probe.java` (SHA-256 `f8947dac3c5021e3cd482d41b5e091292fcba6af257823d89698f1b41b346881`), compiled against the published `exomiser-core-15.1.0.jar` and executed with the pinned Temurin 21 JDK. Both artifacts were downloaded from their public release URLs into a scratch directory on the M4 and matched the SHA-256 pins in `config/reference-bundle.json` exactly. The engine source was not modified. The encrypted M1 volume was not touched. The same directory holds the later `RoundTrip.java` and `Recompute.java`; each fixture in `tests/fixtures/` names the program and the run that produced it.",
-  "source_path": "docs/17-exomiser-probe.md",
-  "deterministic_hit": true,
-  "deterministic_note": "config/reference-bundle.json in docs/17",
-  "jev_probability": 0.79,
-  "bucket": "supported"
- },
- {
-  "claim_id": "c32",
-  "claim": "Work on this project producing results existed by 5 September 2026 (the Exomiser probe note and the Track 1 submission gate note are both dated 2026-09-05).",
-  "excerpt": "# Exomiser 15.1.0 threshold and inheritance probe\n\nDate: 2026-09-05. Scope: public synthetic probe of two engine classes. No patient data, no reference databases, no private analysis.\n...\n# Track 1 submission gate: pinned official code, local validator, scorer mirror\n\nDate: 2026-09-05. Public and synthetic only. This note authorizes no upload. Every example variant below is invented.",
-  "source_path": "docs/17-exomiser-probe.md + docs/20-track1-submission-gate.md",
-  "deterministic_hit": true,
-  "deterministic_note": "2026-09-05 in docs/17 and docs/20",
-  "jev_probability": 0.84,
-  "bucket": "supported"
- }
+  {
+    "claim_id": "c01",
+    "claim": "The nine-gene audit (9 September) established that all nine regions carry recorded alternate genotypes in both the stored original VCF and the prepared analysis VCF, and that two regional records per input matched saved filtered rows.",
+    "excerpt": "[excerpt withheld: source is a private artifact on the encrypted host; the pairing was made locally and the excerpt is not kept in the tracked tree]",
+    "source_path": "runtime/nine-gene-audit-20260909/audit-summary.md",
+    "deterministic_hit": true,
+    "deterministic_note": "9 September 2026 date present in audit-summary.md",
+    "jev_probability": 0.44,
+    "bucket": "uncertain"
+  },
+  {
+    "claim_id": "c02",
+    "claim": "The diagnostic replay, named replay-2 and verified, is the run whose outputs the later recurrent-gene analysis read, and the run's regional selection included the nine target regions plus the frozen passing controls.",
+    "excerpt": "[excerpt withheld: source is a private artifact on the encrypted host; the pairing was made locally and the excerpt is not kept in the tracked tree]",
+    "source_path": "runtime/recurrent-genes-20260911/recurrent-pins.json + runtime/recurrent-genes-20260911/aggregate-report.md",
+    "deterministic_hit": true,
+    "deterministic_note": "top 30 / nine regions / frozen passing controls present",
+    "jev_probability": 0.45,
+    "bucket": "uncertain"
+  },
+  {
+    "claim_id": "c03",
+    "claim": "The recurrent-gene run (11 September, verified) flagged eleven genes appearing in the top thirty of both lanes, of which one lies inside a predeclared region.",
+    "excerpt": "[excerpt withheld: source is a private artifact on the encrypted host; the pairing was made locally and the excerpt is not kept in the tracked tree]",
+    "source_path": "runtime/recurrent-genes-20260911/aggregate-report.md",
+    "deterministic_hit": true,
+    "deterministic_note": "11 and 1 present in aggregate-report.md",
+    "jev_probability": 0.76,
+    "bucket": "supported"
+  },
+  {
+    "claim_id": "c04",
+    "claim": "The ReMM 0.963 sensitivity run was executed (state prepared_and_verified, 2026-09-06) and retained 263 of 365 unique variants and 175 of 243 genes; 90 variants fell to the cutoff and 12 more lost inheritance compatibility; 7 retained genes changed inheritance mode.",
+    "excerpt": "[excerpt withheld: source is a private artifact on the encrypted host; the pairing was made locally and the excerpt is not kept in the tracked tree]",
+    "source_path": "runtime/candidate-review-20260906/completion.json",
+    "deterministic_hit": true,
+    "deterministic_note": "263/365/175/243/90/12/7 present in completion.json",
+    "jev_probability": 0.77,
+    "bucket": "supported"
+  },
+  {
+    "claim_id": "c05",
+    "claim": "A receipt whose SHA-256 begins d5ba10df94dcf684 is recorded in runtime/candidate-review-20260906/completion.json for the sensitivity run.",
+    "excerpt": "[excerpt withheld: source is a private artifact on the encrypted host; the pairing was made locally and the excerpt is not kept in the tracked tree]",
+    "source_path": "runtime/candidate-review-20260906/completion.json",
+    "deterministic_hit": true,
+    "deterministic_note": "d5ba10df94dcf684 prefix present in completion.json",
+    "jev_probability": 0.94,
+    "bucket": "supported"
+  },
+  {
+    "claim_id": "c06",
+    "claim": "The candidate review dossier (6 September) preserved 421 coding gene rows with 794 variant associations and 290 noncoding gene rows with 454 associations over a 500-gene union, and it carries 19 inheritance-review entries.",
+    "excerpt": "[excerpt withheld: source is a private artifact on the encrypted host; the pairing was made locally and the excerpt is not kept in the tracked tree]",
+    "source_path": "runtime/candidate-review-20260906/completion.json",
+    "deterministic_hit": true,
+    "deterministic_note": "421/794/290/454/500/19 present in completion.json",
+    "jev_probability": 0.71,
+    "bucket": "supported"
+  },
+  {
+    "claim_id": "c07",
+    "claim": "The official scorer contains exactly this code: if full_match_rank is not None: rank_points = float(_rank_to_points(full_match_rank)) elif partial_match_rank is not None: rank_points = 0.5 * _rank_to_points(partial_match_rank)",
+    "excerpt": "    # --- Rank points (metric 1) ---\n    if full_match_rank is not None:\n        rank_points = float(_rank_to_points(full_match_rank))\n    elif partial_match_rank is not None:\n        # CAGI-style partial credit: half weight for recovering only one\n        # of two causal variants in a compound-het pair.\n        rank_points = 0.5 * _rank_to_points(partial_match_rank)",
+    "source_path": "tools/official-track1/evaluation.py",
+    "deterministic_hit": true,
+    "deterministic_note": "code lines verbatim in evaluation.py",
+    "jev_probability": 0.85,
+    "bucket": "supported"
+  },
+  {
+    "claim_id": "c08",
+    "claim": "The official scorer awards the full match unconditionally once found: a full match at rank 4 scores 25 points and a partial match at rank 1 scores 50, so the full-match branch wins even when the partial match would have scored more.",
+    "excerpt": "# Rank-point scale, compressed from CAGI's RGP weighting to fit a single\n# proband with a max of 10 submitted candidates (rather than CAGI's\n# multi-family, up-to-100-candidate benchmark).\nRANK_POINT_TIERS = [\n    (1, 100),\n    (3, 50),\n    (5, 25),\n    (10, 10),\n]\n...\n    # --- Rank points (metric 1) ---\n    if full_match_rank is not None:\n        rank_points = float(_rank_to_points(full_match_rank))\n    elif partial_match_rank is not None:\n        # CAGI-style partial credit: half weight for recovering only one\n        # of two causal variants in a compound-het pair.\n        rank_points = 0.5 * _rank_to_points(partial_match_rank)",
+    "source_path": "tools/official-track1/evaluation.py",
+    "deterministic_hit": true,
+    "deterministic_note": "RANK_POINT_TIERS in evaluation.py",
+    "jev_probability": 0.6,
+    "bucket": "uncertain"
+  },
+  {
+    "claim_id": "c09",
+    "claim": "Full-match rank-point tiers are 100 at rank 1, 50 at ranks 2 to 3, 25 at ranks 4 to 5, and 10 at ranks 6 to 10.",
+    "excerpt": "# Rank-point scale, compressed from CAGI's RGP weighting to fit a single\n# proband with a max of 10 submitted candidates (rather than CAGI's\n# multi-family, up-to-100-candidate benchmark).\nRANK_POINT_TIERS = [\n    (1, 100),\n    (3, 50),\n    (5, 25),\n    (10, 10),\n]\n...\ndef _rank_to_points(rank: int) -> int:\n    for max_rank, points in RANK_POINT_TIERS:\n        if rank <= max_rank:\n            return points\n    return 0",
+    "source_path": "tools/official-track1/evaluation.py",
+    "deterministic_hit": true,
+    "deterministic_note": "tier table and 0.5 factor in evaluation.py",
+    "jev_probability": 0.74,
+    "bucket": "supported"
+  },
+  {
+    "claim_id": "c10",
+    "claim": "A pair placed below rank 3 scores worse than the partial credit its own single allele would have earned at rank 1 (a pair at rank 4 or 5 earns 25, while a partial match at rank 1 earns half of 100, i.e. 50).",
+    "excerpt": "RANK_POINT_TIERS = [\n    (1, 100),\n    (3, 50),\n    (5, 25),\n    (10, 10),\n]\n...\n    elif partial_match_rank is not None:\n        # CAGI-style partial credit: half weight for recovering only one\n        # of two causal variants in a compound-het pair.\n        rank_points = 0.5 * _rank_to_points(partial_match_rank)",
+    "source_path": "tools/official-track1/evaluation.py",
+    "deterministic_hit": true,
+    "deterministic_note": "25/50/0.5 values in evaluation.py",
+    "jev_probability": 0.57,
+    "bucket": "uncertain"
+  },
+  {
+    "claim_id": "c11",
+    "claim": "The scorer's partial-match test is row.variants & true_variants, an intersection, so a two-variant row naming one correct allele and one incorrect one earns the same partial credit as that allele alone.",
+    "excerpt": "    if is_compound_het and full_match_rank is None:\n        # Look for a row containing exactly one of the two true variants -\n        # either proposed alone, or paired with an incorrect second variant.\n        for row in submission_rows:\n            if row.variants & true_variants:\n                partial_match_rank = row.rank\n                break",
+    "source_path": "tools/official-track1/evaluation.py",
+    "deterministic_hit": true,
+    "deterministic_note": "row.variants & true_variants in evaluation.py",
+    "jev_probability": 0.64,
+    "bucket": "uncertain"
+  },
+  {
+    "claim_id": "c12",
+    "claim": "The official scorer refuses a submission with more than 10 rows per proband (so an eleventh row is refused).",
+    "excerpt": "    for pid, rows in by_proband.items():\n        if len(rows) > 10:\n            raise ValueError(f\"Proband {pid} has {len(rows)} rows; max is 10\")",
+    "source_path": "tools/official-track1/evaluation.py",
+    "deterministic_hit": true,
+    "deterministic_note": "'max is 10' in evaluation.py",
+    "jev_probability": 0.64,
+    "bucket": "uncertain"
+  },
+  {
+    "claim_id": "c13",
+    "claim": "A brute-force check scored 1,843,650 combinations against the pinned official evaluator vendored at tools/official-track1/evaluation.py, with results stored under runtime/scorer-hedging-20260919/.",
+    "excerpt": "combinations scored: 1843650\n\n...\nROOT = pathlib.Path.home() / \"projects/mva-transparent-prioritizer/.worktrees/reference-setup\"\nsys.path.insert(0, str(ROOT / \"tools/official-track1\"))\n\nimport evaluation as off  # the pinned official scorer",
+    "source_path": "runtime/scorer-hedging-20260919/result.txt + runtime/scorer-hedging-20260919/brute_force_hedging.py",
+    "deterministic_hit": true,
+    "deterministic_note": "1,843,650 in result.txt",
+    "jev_probability": 0.31,
+    "bucket": "uncertain"
+  },
+  {
+    "claim_id": "c14",
+    "claim": "The brute-force check found: rows appended strictly below every existing row lowered rank points in 48,608 cases; strictly-below rows never lowered F-max (0 cases); a row added at an EPCR equal to an existing row lowered F-max in 44,090 cases and lowered rank points in 7,216 cases.",
+    "excerpt": "combinations scored: 1843650\n\nA. strictly-below hedging lowered RANK POINTS : 48608\nB. strictly-below hedging lowered F-MAX       : 0\nC. equal-EPCR hedging lowered F-MAX           : 44090\n   equal-EPCR hedging lowered RANK POINTS     : 7216\n\n   of which 'added the exact true pair lower than an existing partial': 48608\n   unexplained by that inversion: 0",
+    "source_path": "runtime/scorer-hedging-20260919/result.txt",
+    "deterministic_hit": true,
+    "deterministic_note": "48,608/0/44,090/7,216 in result.txt",
+    "jev_probability": 0.8,
+    "bucket": "supported"
+  },
+  {
+    "claim_id": "c15",
+    "claim": "Every one of the 48,608 rank-point drops was the same inversion: the exact true pair added below a higher-ranked row that already earned partial credit, with 0 drops unexplained by that inversion.",
+    "excerpt": "   of which 'added the exact true pair lower than an existing partial': 48608\n   unexplained by that inversion: 0",
+    "source_path": "runtime/scorer-hedging-20260919/result.txt",
+    "deterministic_hit": true,
+    "deterministic_note": "48,608 / unexplained 0 in result.txt",
+    "jev_probability": 0.87,
+    "bucket": "supported"
+  },
+  {
+    "claim_id": "c16",
+    "claim": "Of the 48,608 rank-point drops, the higher-ranked partial match was a row pairing one true allele with a wrong partner in 36,456 cases (75.0%) and a single allele of the true pair in 12,152 cases (25.0%).",
+    "excerpt": "total rank-point drops: 48608\n\nwhat the higher-ranked partial match actually was, in the BASE:\n  true_allele_paired_with_wrong_partner        36456  ( 75.0%)\n  single_allele_of_the_pair                    12152  ( 25.0%)",
+    "source_path": "runtime/scorer-hedging-20260919/classify-result.txt",
+    "deterministic_hit": true,
+    "deterministic_note": "36,456/12,152/75.0%/25.0% in classify-result.txt",
+    "jev_probability": 0.84,
+    "bucket": "supported"
+  },
+  {
+    "claim_id": "c17",
+    "claim": "Three wider ordering formulations were tested against the pinned scorer and recorded in verify_rule.py: 'every pair above every single row' lowered the score in 1,020 cases; 'every pair above any row sharing an allele' lowered it in 420 cases; 'a pair above every single sharing an allele' never lowered the score in 29,400 comparisons and raised it on 480 row sets.",
+    "excerpt": "def promote_allele_sharing(ordered_shapes):\n    \"\"\"The rule as it survives measurement: promote a pair above every SINGLE row\n    that shares an allele with it. Relative order of two pairs is NEVER changed.\n\n    Two earlier formulations were falsified by this script:\n\n      \"every pair above every single\" moves an UNRELATED pair above a true\n      single and costs 25 points (draft 3, 1,020 cases).\n\n      \"every pair above any row sharing an allele\" reorders two allele-sharing\n      PAIRS, and since the rule cannot know which of them is true, the swap\n      demotes the true pair half the time (draft 4, 420 cases).\n\n    Pair-versus-pair precedence is a question about which hypothesis is stronger.\n    That is evidence, decided by tier in Step 3, not by this ordering rule.\n...\nASSUMPTION: the answer key is a compound-heterozygous pair\n            (official evaluation.py docstring; partial credit gated at line 133)\n\nR1  allele-sharing promotion, comparisons : 29400\nR1  the rule LOWERED the score            : 0\nR1  row sets where it RAISED it           : 480",
+    "source_path": "runtime/scorer-hedging-20260919/verify_rule.py + runtime/scorer-hedging-20260919/verify-rule-result.txt",
+    "deterministic_hit": true,
+    "deterministic_note": "1,020/420/29,400/480 in verify_rule.py + verify-rule-result.txt",
+    "jev_probability": 0.63,
+    "bucket": "uncertain"
+  },
+  {
+    "claim_id": "c18",
+    "claim": "When two candidate pairs share an allele, keeping the weaker one below never scored lower than dropping it and scored higher in 120 of 600 comparisons.",
+    "excerpt": "R2  allele-sharing pair comparisons       : 600\nR2  dropping beat keeping-below           : 0\nR2  keeping-below beat dropping           : 120\nR2  equal                                 : 480\n\nRESULT: both rules hold under a compound-heterozygous answer key.\n  R1 promoting a pair above only the rows SHARING AN ALLELE with it\n     never lowered the score, and raised it on 480 row sets.\n  R2 keeping a weaker allele-sharing pair below never scored lower than\n     dropping it, and scored higher in 120 comparisons.",
+    "source_path": "runtime/scorer-hedging-20260919/verify-rule-result.txt",
+    "deterministic_hit": true,
+    "deterministic_note": "600/120/0 in verify-rule-result.txt",
+    "jev_probability": 0.85,
+    "bucket": "supported"
+  },
+  {
+    "claim_id": "c19",
+    "claim": "On the recommended shape (exact pair on top, each allele alone below): if the pair is correct it scores 100 points with F-max 1.000; if only one of the two alleles is truly causal it scores 50 points, where a pair-only file scores 0; no tested case scored worse.",
+    "excerpt": "--- recommended shape under both truths ---\n  truth=(('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T'))         rank_points= 100.0 f_max=1.000\n  truth=(('chr1', 1000, 'A', 'G'),)                                  rank_points=  50.0 f_max=0.667\n  truth=(('chr1', 2000, 'C', 'T'),)                                  rank_points=  50.0 f_max=0.667\n  truth=(('chr2', 3000, 'G', 'A'),)                                  rank_points=   0.0 f_max=0.000\n\n--- pair-only, no hedge rows ---\n  truth=(('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T'))         rank_points= 100.0 f_max=1.000\n  truth=(('chr1', 1000, 'A', 'G'),)                                  rank_points=   0.0 f_max=0.667\n  truth=(('chr1', 2000, 'C', 'T'),)                                  rank_points=   0.0 f_max=0.667",
+    "source_path": "runtime/scorer-hedging-20260919/result.txt",
+    "deterministic_hit": true,
+    "deterministic_note": "100/50/0/1.000 in result.txt",
+    "jev_probability": 0.27,
+    "bucket": "unsupported"
+  },
+  {
+    "claim_id": "c20",
+    "claim": "Across 19,779 sort-key comparisons no two distinct rows tied; across 32,612 runs the same candidate pool shuffled into every input order produced the identical file; truncation climbed out of an exhausted tier in every case; the allele-sharing constraint held without ever reordering two pair rows.",
+    "excerpt": "T1 sort keys compared                      : 19779\nT1 distinct rows with an EQUAL key (ties)  : 0\nT2 permutation runs                        : 32612\nT2 outputs differing by input order        : 0\nT3 cap failures                            : 0\nT4 allele-sharing violations after sort    : 0\nT4 runs where two PAIR rows were reordered : 0\n\nRESULT: the Step 4 ordering is total and operator-independent.\n  No two distinct rows tie, so no comparison falls to a human.\n  Every input permutation of the same pool produced the identical file.\n  Truncation climbs tiers; the allele-sharing constraint holds and never\n  reorders two pair rows.",
+    "source_path": "runtime/scorer-hedging-20260919/verify-determinism-result.txt",
+    "deterministic_hit": true,
+    "deterministic_note": "19,779/32,612 in verify-determinism-result.txt",
+    "jev_probability": 0.71,
+    "bucket": "supported"
+  },
+  {
+    "claim_id": "c21",
+    "claim": "The fixed EPCR ladder assigned by row position is 0.90, 0.75, 0.60, 0.50, 0.40, 0.30, 0.20, 0.15, 0.10, 0.05.",
+    "excerpt": "LADDER = [0.90, 0.75, 0.60, 0.50, 0.40, 0.30, 0.20, 0.15, 0.10, 0.05]  (verify_rule.py line 48)\n...\nLADDER = [0.90, 0.75, 0.60, 0.50, 0.40, 0.30, 0.20, 0.15, 0.10, 0.05]  (verify_determinism.py line 29)",
+    "source_path": "runtime/scorer-hedging-20260919/verify_rule.py",
+    "deterministic_hit": true,
+    "deterministic_note": "ladder values in verify_rule.py and verify_determinism.py",
+    "jev_probability": 0.79,
+    "bucket": "supported"
+  },
+  {
+    "claim_id": "c22",
+    "claim": "The scorer-hedging scripts import the vendored official evaluator at tools/official-track1/evaluation.py, whose bytes are pinned by full SHA-256 in tests/test_track1_submission.py (6d18b581e65a45e1...).",
+    "excerpt": "ROOT = pathlib.Path.home() / \"projects/mva-transparent-prioritizer/.worktrees/reference-setup\"\nsys.path.insert(0, str(ROOT / \"tools/official-track1\"))\n\nimport evaluation as off  # the pinned official scorer\n...\nROOT = Path(__file__).resolve().parent.parent\nOFFICIAL = ROOT / \"tools\" / \"official-track1\" / \"evaluation.py\"\nOFFICIAL_SHA256 = \"6d18b581e65a45e1ccc120071d588e740c2e42e983ff50704c60a40232b19180\"\nTEMPLATE = ROOT / \"tools\" / \"official-track1\" / \"track1_submission_template.csv\"\nTEMPLATE_SHA256 = \"7b3ed41c091d34fb6c5622d049c7a3f46124211fc7ec02947e69daef8752755a\"",
+    "source_path": "runtime/scorer-hedging-20260919/brute_force_hedging.py + tests/test_track1_submission.py",
+    "deterministic_hit": true,
+    "deterministic_note": "6d18b581e65a45e1 in test_track1_submission.py",
+    "jev_probability": 0.58,
+    "bucket": "uncertain"
+  },
+  {
+    "claim_id": "c23",
+    "claim": "The five scripts brute_force_hedging.py, hedging_modes.py, classify_drops.py, verify_rule.py and verify_determinism.py exist in runtime/scorer-hedging-20260919/, and verify_determinism.py executes the Step 4 ordering as code, confirming the order is total and operator-independent.",
+    "excerpt": "ripgrep file listing of runtime/scorer-hedging-20260919/ (2026-09-26): hedging_modes.py, brute_force_hedging.py, verify_determinism.py, verify_rule.py, classify_drops.py (plus result.txt, classify-result.txt, verify-rule-result.txt, verify-determinism-result.txt, __pycache__).\n...\nverify-determinism-result.txt lines 9-13:\nRESULT: the Step 4 ordering is total and operator-independent.\n  No two distinct rows tie, so no comparison falls to a human.\n  Every input permutation of the same pool produced the identical file.\n  Truncation climbs tiers; the allele-sharing constraint holds and never\n  reorders two pair rows.",
+    "source_path": "runtime/scorer-hedging-20260919/ (listing + verify-determinism-result.txt)",
+    "deterministic_hit": "na",
+    "deterministic_note": "file-existence check, not a text grep",
+    "jev_probability": 0.31,
+    "bucket": "uncertain"
+  },
+  {
+    "claim_id": "c24",
+    "claim": "For a pair row the native-rank key is the better (numerically lower) rank of its two alleles, implemented as min(row['ranks']) in the Step 4 sort key.",
+    "excerpt": "def row_sort_key(row):\n    \"\"\"The five keys of Step 4, in order.\n\n    row = {alleles: tuple, tier: str, both_lanes: bool, ranks: tuple[int,...]}\n    \"\"\"\n    alleles = tuple(sorted(row[\"alleles\"], key=allele_key))\n    return (\n        0 if len(alleles) == 2 else 1,            # 1. class: pairs first\n        TIER_ORDER[row[\"tier\"]],                   # 2. tier\n        0 if row[\"both_lanes\"] else 1,             # 3. lane agreement\n        min(row[\"ranks\"]),                         # 4. better native rank\n        tuple(allele_key(a) for a in alleles),     # 5. coordinate\n    )",
+    "source_path": "runtime/scorer-hedging-20260919/verify_determinism.py",
+    "deterministic_hit": "na",
+    "deterministic_note": "code semantics, no number",
+    "jev_probability": 0.91,
+    "bucket": "supported"
+  },
+  {
+    "claim_id": "c25",
+    "claim": "The Step 4 allele-sharing constraint promotes a pair row above every single row that shares an allele with it, and the relative order of two pair rows is never changed by this step.",
+    "excerpt": "def apply_allele_sharing(rows):\n    \"\"\"A pair row is promoted above every SINGLE row sharing an allele with it.\n    Two pair rows are never reordered.\"\"\"\n    out = list(rows)\n    for _ in range(len(out) ** 2 + 1):\n        for i, upper in enumerate(out):\n            if len(upper[\"alleles\"]) != 1:\n                continue\n            for j in range(i + 1, len(out)):\n                lower = out[j]\n                if len(lower[\"alleles\"]) == 2 and (set(upper[\"alleles\"]) & set(lower[\"alleles\"])):\n                    out.insert(i, out.pop(j))\n                    break\n            else:\n                continue\n            break\n        else:\n            return out",
+    "source_path": "runtime/scorer-hedging-20260919/verify_determinism.py",
+    "deterministic_hit": "na",
+    "deterministic_note": "code semantics, no number",
+    "jev_probability": 0.56,
+    "bucket": "uncertain"
+  },
+  {
+    "claim_id": "c26",
+    "claim": "A mitochondrial row blocks the file: the validator reports mitochondrial_rows and a candidate file carrying a mitochondrial row must not be uploaded until the organizers confirm the contig spelling.",
+    "excerpt": "## Open representation risk: the mitochondrial contig\n\nPublic sources name the answer key's chromosome form only by example (`chr15`, `chr1`, `chr7`, `chr2`). Nothing public says whether a mitochondrial variant would be written `chrM` (UCSC and GRCh38 no-alt analysis-set convention) or `chrMT`; the private key could plausibly use either. The validator therefore takes the spelling as a parameter (`mitochondrial_name`, CLI `--mitochondrial-name`, values `chrM` or `chrMT`, default `chrM`) and never accepts an unprefixed form. `track1-check` reports `mitochondrial_rows`. A candidate file that carries a mitochondrial row must not be uploaded until the organizers confirm the spelling in the Community tab, or the candidate set is known to be nuclear.",
+    "source_path": "docs/20-track1-submission-gate.md",
+    "deterministic_hit": true,
+    "deterministic_note": "mitochondrial_rows in docs/20",
+    "jev_probability": 0.76,
+    "bucket": "supported"
+  },
+  {
+    "claim_id": "c27",
+    "claim": "track1-check runs the canonical parser together with the gate mirror, and validate_against_lane_representation checks every submitted variant against the lane contig keys it is given.",
+    "excerpt": "`score_submission` mirrors `score_proband`. `validate_against_lane_representation` maps submission chromosomes to the lane's contig naming (no prefix, `MT` for the mitochondrion) and requires every submitted variant to exist among the lane keys it is given; it receives keys, never rows, and reports counts only.\n\n`tests/test_sensitivity_partition_mutations.py` disables each of 30 guards and scoring constants in this module and 2 in the CLI boundary in turn and requires the named test to fail.\n\nCLI: `python3 -m mva_prioritizer.cli track1-check --submission <file> [--synthetic-truth '[[chrom,pos,ref,alt],...]'] [--mitochondrial-name chrM|chrMT] [--allow-ties] [--allow-unsorted] [--allow-repeated-pairings]`. One JSON line with counts on success; the file is opened with `O_NOFOLLOW`, decided on the descriptor, bounded at 1 MiB; after the canonical parse the CLI also runs the gate mirror and refuses if the two ranked variant lists differ. Every refusal, including argument errors (argument parsing runs inside the same boundary, with usage output suppressed), exits 2 with the fixed `input_rejected` line and never echoes a row or an argument.",
+    "source_path": "docs/20-track1-submission-gate.md",
+    "deterministic_hit": true,
+    "deterministic_note": "track1-check and validate_against_lane_representation in docs/20",
+    "jev_probability": 0.56,
+    "bucket": "uncertain"
+  },
+  {
+    "claim_id": "c28",
+    "claim": "The canonical validator has an --allow-repeated-pairings flag, existing for the shape of alternative pairings for an uncertain partner.",
+    "excerpt": "docs/20-track1-submission-gate.md line 58 (canonical validator): \"By default it also refuses repeated variants, EPCR ties and unsorted rows; each has a flag because each is legal at the gate and occasionally deliberate (alternative pairings for an uncertain partner).\"\n...\nline 64 (CLI): \"python3 -m mva_prioritizer.cli track1-check --submission <file> [--synthetic-truth '[[chrom,pos,ref,alt],...]'] [--mitochondrial-name chrM|chrMT] [--allow-ties] [--allow-unsorted] [--allow-repeated-pairings]\".",
+    "source_path": "docs/20-track1-submission-gate.md",
+    "deterministic_hit": true,
+    "deterministic_note": "--allow-repeated-pairings in docs/20",
+    "jev_probability": 0.81,
+    "bucket": "supported"
+  },
+  {
+    "claim_id": "c29",
+    "claim": "The supplied data is a singleton VCF with no read-backed phase linking distant loci and no parental data, so two heterozygous alleles in one gene cannot be shown to be in trans from this input alone.",
+    "excerpt": "It does not measure how often this happens in the private genome. It does not exercise phenotype scoring, gene ranking, the frequency filter, regulatory feature filtering, or the full CLI. Single-proband unphased data cannot distinguish cis from trans; the engine's recessive annotation reflects that ambiguity and so does this probe.",
+    "source_path": "docs/17-exomiser-probe.md",
+    "deterministic_hit": "na",
+    "deterministic_note": "prose statement, no number",
+    "jev_probability": 0.37,
+    "bucket": "uncertain"
+  },
+  {
+    "claim_id": "c30",
+    "claim": "The official challenge requires a methods report alongside the Track 1 prediction CSV.",
+    "excerpt": "The 3-minute pitch video is a Track 2 requirement in `tabs/submit_track2.py`. Track 1 requires a prediction CSV and a methods report. Its form also requires a repository link. The Track 1 instructions do not state a pitch-video requirement. The official workbook still says one final Track 2 submission, while the submission interface and organizer update allow three attempts with only the latest reviewed. Treat those as three attempts toward one reviewed final entry.",
+    "source_path": "docs/20-track1-submission-gate.md",
+    "deterministic_hit": true,
+    "deterministic_note": "methods report in docs/20",
+    "jev_probability": 0.75,
+    "bucket": "supported"
+  },
+  {
+    "claim_id": "c31",
+    "claim": "config/reference-bundle.json holds the SHA-256 pins for the pinned reference artifacts.",
+    "excerpt": "The Java program checked in as `tools/exomiser-probe/Probe.java` (SHA-256 `f8947dac3c5021e3cd482d41b5e091292fcba6af257823d89698f1b41b346881`), compiled against the published `exomiser-core-15.1.0.jar` and executed with the pinned Temurin 21 JDK. Both artifacts were downloaded from their public release URLs into a scratch directory on the M4 and matched the SHA-256 pins in `config/reference-bundle.json` exactly. The engine source was not modified. The encrypted M1 volume was not touched. The same directory holds the later `RoundTrip.java` and `Recompute.java`; each fixture in `tests/fixtures/` names the program and the run that produced it.",
+    "source_path": "docs/17-exomiser-probe.md",
+    "deterministic_hit": true,
+    "deterministic_note": "config/reference-bundle.json in docs/17",
+    "jev_probability": 0.79,
+    "bucket": "supported"
+  },
+  {
+    "claim_id": "c32",
+    "claim": "Work on this project producing results existed by 5 September 2026 (the Exomiser probe note and the Track 1 submission gate note are both dated 2026-09-05).",
+    "excerpt": "# Exomiser 15.1.0 threshold and inheritance probe\n\nDate: 2026-09-05. Scope: public synthetic probe of two engine classes. No patient data, no reference databases, no private analysis.\n...\n# Track 1 submission gate: pinned official code, local validator, scorer mirror\n\nDate: 2026-09-05. Public and synthetic only. This note authorizes no upload. Every example variant below is invented.",
+    "source_path": "docs/17-exomiser-probe.md + docs/20-track1-submission-gate.md",
+    "deterministic_hit": true,
+    "deterministic_note": "2026-09-05 in docs/17 and docs/20",
+    "jev_probability": 0.84,
+    "bucket": "supported"
+  }
 ]

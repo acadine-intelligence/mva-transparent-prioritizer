@@ -1,24 +1,22 @@
-27,594 truth comparisons over 4,000 random pools
+27,594 truth comparisons over 4,000 random pools (6 alleles, tiers A/B, ranks 1-9).
+below/above: comparisons where the policy's rank points are below/above the plain evidence sort.
+A policy with below > 0 can hurt the file under some truth and is not eligible.
 
-mean rank points / mean F-max per policy
-  plain                   34.411   0.7012
-  promote_keep            45.852   0.6829
-  demote_then_promote     45.623   0.6829
-  promote_then_demote     46.557   0.6829
-  promote_then_pays       46.557   0.6829
+  policy                 below   above   mean rp  mean F-max  = module
+  plain                      0       0    34.411      0.7012     1,219
+  direct+keep                0  10,132    45.852      0.6829     2,634
+  direct+demote             75  11,120    46.574      0.6829     3,695
+  direct+pays_ge             0  10,744    46.557      0.6829     2,923
+  direct+pays_gt             0  11,187    46.833      0.6829     4,000
+  floor+keep                 0   6,979    41.818      0.6871     2,462
+  floor+demote              63   8,786    43.395      0.6860     2,921
+  floor+pays_ge              0   8,405    43.194      0.6863     2,562
+  floor+pays_gt              0   8,728    43.438      0.6860     3,016
+  transitive+keep          609  11,531    45.737      0.6828     2,462
+  transitive+demote        598  12,252    46.534      0.6828     3,068
+  transitive+pays_ge       609  12,054    46.427      0.6828     2,581
+  transitive+pays_gt       579  12,336    46.706      0.6828     3,164
+  module                     0  11,187    46.833      0.6829     4,000
 
-rank-point wins[row over column]
-                                plain promote_keep demote_then_ promote_then promote_then
-  plain                             0            0            0            0            0
-  promote_keep                 10,132            0        1,133            0            0
-  demote_then_promote           9,603          574            0           42           42
-  promote_then_demote          10,744          901        1,502            0            0
-  promote_then_pays            10,744          901        1,502            0            0
-
-F-max wins[row over column]
-                                plain promote_keep demote_then_ promote_then promote_then
-  plain                             0        8,212        7,453        8,212        8,212
-  promote_keep                  3,980            0        1,237            0            0
-  demote_then_promote           3,178        2,032            0        2,032        2,032
-  promote_then_demote           3,980            0        1,237            0            0
-  promote_then_pays             3,980            0        1,237            0            0
+Best policy that never scores below the plain sort: direct+pays_gt (mean 46.833, F-max 0.6829).
+Module coincides with: ['direct+pays_gt']

@@ -1,0 +1,31 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "c16": {
+      "type": "noul",
+      "noul": 0.42
+    },
+    "c43": {
+      "type": "noul",
+      "noul": 0.34
+    },
+    "c47": {
+      "type": "noul",
+      "noul": 0.31
+    },
+    "c54": {
+      "type": "noul",
+      "noul": 0.68
+    },
+    "c57": {
+      "type": "noul",
+      "noul": 0.38
+    }
+  },
+  "usage": {
+    "input_tokens": 3006,
+    "output_tokens": 94
+  },
+  "digest": "d5b69c825b1504dd8a8ac5f85c5bdd41aa9857c9a08609ba01c526e8bb994942",
+  "latency_ms": 1568
+}

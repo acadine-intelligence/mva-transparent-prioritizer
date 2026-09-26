@@ -116,6 +116,7 @@
       {"name": "known-bad-tests", "argv": ["python3", "scripts/known_bad_tests.py"], "required": true},
       {"name": "synthetic-journey", "argv": ["bash", "scripts/verify.sh"], "required": true},
       {"name": "privacy-scan", "argv": ["python3", "scripts/verify_public_tree.py"], "required": true},
+      {"name": "case-token-scan", "argv": ["python3", "scripts/verify_no_case_tokens.py"], "required": true},
       {"name": "contract-check", "argv": ["python3", "-m", "unittest", "tests.test_contract", "-v"], "required": true},
       {"name": "cli-help", "argv": ["python3", "-m", "mva_prioritizer.cli", "--help"], "required": true}
     ],

@@ -1,0 +1,248 @@
+{
+ "state": {
+  "claims": [
+   {
+    "claim_id": "c25",
+    "claim": "classify_drops.py classified the higher-ranked partial match in the 48,608 drops: 36,456 (75.0%) were a row pairing one true allele with a wrong partner, 12,152 (25.0%) were a single allele of the true pair.",
+    "excerpt": "total rank-point drops: 48608\n\nwhat the higher-ranked partial match actually was, in the BASE:\n  true_allele_paired_with_wrong_partner        36456  ( 75.0%)\n  single_allele_of_the_pair                    12152  ( 25.0%)",
+    "source_path": "verification/scorer-hedging/classify-result.txt"
+   },
+   {
+    "claim_id": "c26",
+    "claim": "The scorer's partial-match test is `row.variants & true_variants`, an intersection, so a two-variant row naming one correct allele and one incorrect one earns the same partial credit as that allele alone.",
+    "excerpt": "        # Look for a row containing exactly one of the two true variants -\n        # either proposed alone, or paired with an incorrect second variant.\n        for row in submission_rows:\n            if row.variants & true_variants:\n                partial_match_rank = row.rank\n                break\n",
+    "source_path": "tools/official-track1/evaluation.py"
+   },
+   {
+    "claim_id": "c27",
+    "claim": "Full-match tiers are 100 at rank 1, 50 at ranks 2 to 3, 25 at ranks 4 to 5, 10 at ranks 6 to 10.",
+    "excerpt": "RANK_POINT_TIERS = [\n    (1, 100),\n    (3, 50),\n    (5, 25),\n    (10, 10),\n]\n\n\n            return points\n    return 0\n\n\ndef score_proband(\n    proband_id: str,",
+    "source_path": "tools/official-track1/evaluation.py"
+   },
+   {
+    "claim_id": "c28",
+    "claim": "The canonical validator has an --allow-repeated-pairings flag; by default the canonical parser refuses repeated variants, EPCR ties and unsorted rows, and each has a flag.",
+    "excerpt": "    track1.add_argument(\"--allow-ties\", action=\"store_true\")\n    track1.add_argument(\"--allow-unsorted\", action=\"store_true\")\n    track1.add_argument(\"--allow-repeated-pairings\", action=\"store_true\")\n\ndocs/20 line 58 (excerpt):\nk, a pair naming two distinct variants, EPCR numeric in (0, 1], `finding_type` written out, notes without line breaks, no BOM, one proband, at most 10 rows. By default it also refuses repeated variants, EPCR ties and unsorted rows; each has a flag because each is legal at the gate and occasionally deliberate (alternative pairings for an uncertain partner). Forms the gate would normalize for us, such as ` chr1 ` or lowercase alleles or a ten-column header, are refused on purpose: a file that passes the canonical check is one whose gate parse is unambiguous by inspection, and `tests/test_track1_submission.py` shows for each such shape both what the validator does and what the gate would score.",
+    "source_path": "mva_prioritizer/cli.py + docs/20-track1-submission-gate.md"
+   },
+   {
+    "claim_id": "c29",
+    "claim": "Measured on the recommended shape (pair on top, its alleles alone beneath): if the pair is correct, 100 points and F-max 1.000; if only one allele is truly causal, 50 points where a pair-only file scores 0, and F-max falls from 1.000 to 0.667.",
+    "excerpt": "--- recommended shape under both truths ---\n  truth=(('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T'))         rank_points= 100.0 f_max=1.000\n  truth=(('chr1', 1000, 'A', 'G'),)                                  rank_points=  50.0 f_max=0.667\n  truth=(('chr1', 2000, 'C', 'T'),)                                  rank_points=  50.0 f_max=0.667\n  truth=(('chr2', 3000, 'G', 'A'),)                                  rank_points=   0.0 f_max=0.000\n\n--- pair-only, no hedge rows ---\n  truth=(('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T'))         rank_points= 100.0 f_max=1.000\n  truth=(('chr1', 1000, 'A', 'G'),)                                  rank_points=   0.0 f_max=0.667\n  truth=(('chr1', 2000, 'C', 'T'),)                                  rank_points=   0.0 f_max=0.667\n  truth=(('chr2', 3000, 'G', 'A'),)                                  rank_points=   0.0 f_max=0.000",
+    "source_path": "verification/scorer-hedging/result.txt"
+   },
+   {
+    "claim_id": "c30",
+    "claim": "Rank points is the leaderboard's primary metric.",
+    "excerpt": "Two metrics are computed, matching CAGI's two numeric metrics:\n    1. Rank points  - weighted score based on the rank position of the\n       true causal variant(s) in the submission.\n    2. F-max        - the maximum F-measure (harmonic mean of precision\n       and recall) for causal-variant identification, swept across all\n       unique EPCR thresholds present in the submission.\n",
+    "source_path": "tools/official-track1/evaluation.py (header only; no tracked file uses the word 'primary' for the metric)"
+   },
+   {
+    "claim_id": "c31",
+    "claim": "The pinned reference is config/reference-bundle.json and it pins an Ensembl GRCh38 reference and an Ensembl database.",
+    "excerpt": "      \"name\": \"ensembl-vep-source\",\n      \"role\": \"tool_source\",\n      \"source_checksum\": {\n        \"algorithm\": \"none\",\n        \"value\": null\n      },\n      \"source_url\": \"https://github.com/Ensembl/ensembl-vep/archive/97c24b205f4ba8b44ccc75b839512a1d59104019.tar.gz\",\n...\n      \"name\": \"ensembl-grch38-primary-assembly\",\n      \"role\": \"reference_data\",\n      \"source_checksum\": {\n        \"algorithm\": \"none\",\n        \"value\": null\n      },\n      \"source_url\": \"https://ftp.ensembl.org/pub/release-116/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz\",\n      \"version\": \"Ensembl release 116 GRCh38\"",
+    "source_path": "config/reference-bundle.json"
+   },
+   {
+    "claim_id": "c32",
+    "claim": "The public fixture tests/fixtures/exomiser_probe_output.json and mva_prioritizer/sensitivity_partition.py carry the token AUTOSOMAL_RECESSIVE verbatim.",
+    "excerpt": "    \"ANY\", \"AUTOSOMAL_DOMINANT\", \"AUTOSOMAL_RECESSIVE\", \"X_DOMINANT\", \"X_RECESSIVE\", \"MITOCHONDRIAL\",\n}\nCLASSES = (\"retained\", \"removed_by_cutoff\", \"removed_by_inheritance\")\n\nexomiser_probe_output.json (first occurrence):\ne,\"strict_pass\":true},\"pair\":{\"a_remm\":0.97,\"b_remm\":0.95,\"baseline_survivors\":2,\"strict_survivors\":1,\"modes_after_baseline\":{\"AUTOSOMAL_DOMINANT\":2,\"AUTOSOMAL_RECESSIVE\":2},\"modes_after_strict_rerun\":{\"AUTOSOMAL_DOMINANT\":1},\"posthoc_note\":\"Filtering the baseline records to REMM > 0.963 keeps A wit",
+    "source_path": "mva_prioritizer/sensitivity_partition.py + tests/fixtures/exomiser_probe_output.json"
+   },
+   {
+    "claim_id": "c33",
+    "claim": "The sensitivity run showed that twelve variants kept their numerical scores and lost recessive compatibility.",
+    "excerpt": "The preparation receipt records 34 detailed first-pass gene entries with the complete 500-gene source set retained. The stricter run retained 263 of 365 variants. Twelve variants passed the numerical conditions but lost inheritance compatibility. The dossier flags 19 genes for inheritance review. These counts are members of the fixed preparation aggregate schema that the reviewed preparation receipt publishes; an independent fact check verified every figure against that receipt before the earlier methods draft was released for internal review. The diagnostic replay produced a verified restricted aggregate report; its case-specific counts remain internal until the release review approves disclosure.",
+    "source_path": "docs/21-public-methods-packet.md"
+   },
+   {
+    "claim_id": "c34",
+    "claim": "Pairing operates across the union of Tier A and Tier B; a pair row formed from alleles in different tiers takes the weaker of the two tiers; with k qualifying alleles in a gene, C(k,2) pair rows form.",
+    "excerpt": "    return a if TIERS.index(a) >= TIERS.index(b) else b\n\n\n    # carrying the recessive annotation. A cross-tier pair takes the weaker tier.\n    by_gene: Dict[str, List[Candidate]] = {}\n    for c in pool:\n        if c.tier in PAIRING_TIERS and c.recessive_annotation:\n            by_gene.setdefault(c.gene, []).append(c)\n    for gene, members in by_gene.items():\n        members = sorted(members, key=lambda c: _variant_key(c.variant))\n        for i in range(len(members)):\n            for j in range(i + 1, len(members)):\n                a, b = members[i], members[j]\n                rows.append(_make_row(\n                    [a.variant, b.variant], gene,\n                    _weaker_tier(a.tier, b.tier),\n                    a.both_lanes and b.both_lanes,\n                    min(a.native_rank, b.native_rank),\n                ))\n    return rows\n\n\ntests:     def test_pairing_spans_tier_a_and_tier_b(self):\n    def test_three_alleles_form_three_pairs_before_resolution(self):\n        # Step 4: \"With three or more qualifying alleles in a gene, C(k,2) pair\n        # rows form\". Formation is stage 1; which survive is stage 3's job.\n        pool = [cand(allele(\"chr1\", p), \"G1\", \"A\") for p in (1000, 2000, 3000)]\n        pairs = [r for r in order_rows(pool) if len(r.variants) == 2]\n        self.assertEqual(len(pairs), 3)\n        self.assertEqual(select_rows(pool).pair_rows_formed, 3)\n\n",
+    "source_path": "mva_prioritizer/candidate_selection.py + tests/test_candidate_selection.py"
+   },
+   {
+    "claim_id": "c35",
+    "claim": "Steps 4 to 6 are implemented by mva_prioritizer/candidate_selection.py, tests/test_candidate_selection.py pins each sentence of Step 4 to a synthetic case, and the module handles no data; Steps 1 to 3 run only on the encrypted host.",
+    "excerpt": "\"\"\"Executable form of docs/22, the pre-registered candidate selection rule.\n\nThis module turns a pool of candidate alleles, each carrying the tier evidence\nthe rule names, into the ordered Track 1 rows the rule prescribes. It is the\ncode that makes docs/22 checkable: if the document and this module disagree,\none of them is wrong and ``tests/test_candidate_selection.py`` says which\nsentence.\n\nIt handles no data. The caller assembles the pool from the frozen verified\noutputs on the encrypted host (Steps 1 to 3 of docs/22, which read private\nfiles and therefore run there). This module performs Steps 4 to 6 and writes\nthe canonical CSV shape that ``track1_submission.parse_submission`` accepts.\nEvery example in the tests is invented.",
+    "source_path": "mva_prioritizer/candidate_selection.py"
+   },
+   {
+    "claim_id": "c36",
+    "claim": "Stage 1 sorts by six keys in order: tier, lane agreement (both lanes first), native rank, first allele coordinate (contig, position, ref, alt), class (pair before the single of its own first allele), second allele coordinate.",
+    "excerpt": "    ordered = tuple(sorted(vs, key=_variant_key))\n    # Step 4 stage 1, the keys in order: tier, lane agreement, native rank,\n    # first allele coordinate, class (pair before single) as the tiebreak\n    # between a pair and the single of its own first allele, second allele.\n    key = (\n        TIERS.index(tier),\n        0 if both_lanes else 1,\n        native_rank,\n        _variant_key(ordered[0]),\n        0 if len(vs) == 2 else 1,\n        _variant_key(ordered[1]) if len(vs) == 2 else (),\n    )\n    return Row(variants=vs, gene=gene, tier=tier, both_lanes=both_lanes, native_rank=native_rank, sort_key=key)",
+    "source_path": "mva_prioritizer/candidate_selection.py"
+   },
+   {
+    "claim_id": "c37",
+    "claim": "For a pair row the native rank is the better (numerically lower) rank of its two alleles.",
+    "excerpt": "                    _weaker_tier(a.tier, b.tier),\n                    a.both_lanes and b.both_lanes,\n                    min(a.native_rank, b.native_rank),\n                ))\n    return rows\n",
+    "source_path": "mva_prioritizer/candidate_selection.py"
+   },
+   {
+    "claim_id": "c38",
+    "claim": "An earlier draft made 'all pairs before all singles' the first key; the measurement arm had already falsified that formulation (1,020 cases); the review of commit 741aaad caught the contradiction.",
+    "excerpt": "Step 4 sort key 1 ('Class. All pair rows before all single rows') enacts formulation 1 from the document's own falsification table ('Every pair above every single row - Lowered the score in 1,020 cases: an unrelated pair displaces a true single'; count reproduced exactly). The allele-sharing override only promotes a pair above singles SHARING an allele, so displacement of an unrelated true-allele single is unrepaired. Concrete synthetic counterexample: pool = Tier-B pair (chr2:3000 G>A + chr2:4000 T>C, both lanes) and Tier-A single (chr1:1000 A>G); truth = (chr1:1000 A>G, chr1:2000 C>T) with the partner allele excluded at Step 2 (representation). Step 4 order puts the Tier-B pair first: 25.0\n\ntests/test_candidate_selection.py:\n    def test_tier_outranks_class(self):\n        # docs/22 Step 4 stage 1: tier is the first key. An earlier draft put\n        # every pair above every single; the measurement arm had falsified\n        # that (1,020 cases) and the review of 741aaad caught the contradiction.\n        # Reviewer's counterexample, verbatim: Tier B pair, Tier A single.",
+    "source_path": "verification/reviews/741aaad.json + tests/test_candidate_selection.py"
+   },
+   {
+    "claim_id": "c39",
+    "claim": "Promotion moves only the block: a pair takes the topmost slot among itself and the sharing singles above it, singles fill the rest in order, rows outside the block keep their positions.",
+    "excerpt": "    \"\"\"One promotion: the topmost pair that has a sharing single above it takes\n    the topmost slot of its block. Only block members change position.\"\"\"\n    for j, pair in enumerate(rows):\n        if not pair.is_pair:\n            continue\n        above = [i for i in range(j) if not rows[i].is_pair and (rows[i].variants & pair.variants)]\n        if not above:\n            continue\n        slots = above + [j]\n        movers = [rows[i] for i in above]\n        promoted = replace(\n            pair,\n            promoted_over=pair.promoted_over + tuple(\n                v for r in movers for v in sorted(r.variants, key=_variant_key)),\n        )\n        out = list(rows)\n        out[slots[0]] = promoted\n        for slot, mover in zip(slots[1:], movers):\n            out[slot] = mover\n        return out, True\n    return rows, False\n\n",
+    "source_path": "mva_prioritizer/candidate_selection.py"
+   },
+   {
+    "claim_id": "c40",
+    "claim": "An earlier draft inserted the pair at the single's slot and shifted rows between them down one rank, which at four rows or more pushed an unrelated row across the 50-to-25 tier boundary: 5,220 lowered scores in 327,600 comparisons at four rows, found by the review of 741aaad.",
+    "excerpt": "verify_rule.py R1 coverage gap: it enumerates permutations only for n in (2,3) while the gate accepts up to 10 rows (docs/22 Step 6) and the ladder has 10 rungs. At n=4 the same rule lowers the score in 5,220 of 327,600 comparisons. Mechanism: promote_allele_sharing inserts the pair at the single's position, shifting every row between them down one rank; at n<=3 a shift cannot cross a tier boundary (ranks 2,3 share the 50-point tier), at n>=4 it can (rank 3->4 crosses 50->25). First counterexample (reproduced verbatim): orig = [single chr1:1000, single chr1:2000, single chr2:3000, pair chr1:1000+chr1:2000], truth = (chr2:3000, chr2:4000): original scores 25.0 (partial at rank 3), ruled scores 12.5 (partial pushed to rank 4 by the insertion shift, though the pair shares no allele with it).",
+    "source_path": "verification/reviews/741aaad.json"
+   },
+   {
+    "claim_id": "c41",
+    "claim": "Stage 3: a losing pair stays a pair only when its own full-match points at its rank are at least the partial value (half the winner's points) it already earns through the winner; otherwise it becomes a single for its unshared allele in place, or is removed when both alleles are claimed above or that single already sits above.",
+    "excerpt": "def _demote_once(rows: List[Row]) -> Tuple[List[Row], Optional[str]]:\n    \"\"\"One demotion. Walk top to bottom. A pair at rank r sharing an allele\n    with a pair kept above it at rank q already earns the partial value\n    0.5 * points(q) through that winner under its own truth. It stays a pair\n    only when its full-match value points(r) is at least that much; otherwise\n    the pair row can only lower the score (a full match preempts a better\n    partial), so it becomes its unshared single in place. It is removed\n    outright when both alleles are claimed above or when that single already\n    sits above it.\"\"\"\n    claimed: Dict[Variant, int] = {}\n    for j, row in enumerate(rows):",
+    "source_path": "mva_prioritizer/candidate_selection.py"
+   },
+   {
+    "claim_id": "c42",
+    "claim": "In the official tiers a pair sharing an allele with the rank-1 pair stays at ranks 2 and 3 and is demoted from rank 4 down; one sharing with a rank-2 or rank-3 pair stays through rank 5.",
+    "excerpt": "def _rank_points(rank: int) -> int:\n    \"\"\"The official rank-point tiers (tools/official-track1/evaluation.py).\"\"\"\n    return 100 if rank == 1 else 50 if rank <= 3 else 25 if rank <= 5 else 10 if rank <= 10 else 0\n\n\ntests:\n    def test_losing_pair_in_the_next_tier_stays_a_pair(self):\n        # docs/22 Step 4 stage 3. Three alleles in one gene form three pairs.\n        # Ranks make (a,b) the strongest pair at rank 1. (a,c) at rank 2 shares\n        # a with it: under truth (a,c) it already earns 50 through the winner's\n        # partial, and a full match at rank 2 is worth 50, so it stays and\n        # claims c. (b,c) at rank 4 shares b with (a,b) and c with (a,c): 25\n        # is below the 50 partial it already has and both alleles are\n        # claimed, so it is removed outright. The singles below stay.\n        a, b, c = allele(\"chr1\", 1000), allele(\"chr1\", 2000), allele(\"chr1\", 3000)\n    def test_losing_pair_stays_only_while_its_full_match_pays(self):\n        # The rule's arithmetic, pinned: winner at rank 1 gives a partial worth\n        # 50. A sharing pair at rank 2 or 3 (full match 50) stays; at rank 4\n        # (full match 25) it is demoted.\n        from mva_prioritizer.candidate_selection import resolve_rows\n        a, b, c, e, f = (allele(\"chr1\", 1000), allele(\"chr1\", 2000), allele(\"chr1\", 3000),\n                         allele(\"chr3\", 5000), allele(\"chr2\", 4000))",
+    "source_path": "mva_prioritizer/candidate_selection.py (rank points) + tests/test_candidate_selection.py"
+   },
+   {
+    "claim_id": "c43",
+    "claim": "policy_probe.py measured four policies for the losing pair over 27,594 truth comparisons: always keep, demote before promotion, demote after promotion, and the arithmetic test; the test had the highest mean rank points, 46.56 against 45.85 for always-keep.",
+    "excerpt": "27,594 truth comparisons over 4,000 random pools\n\nmean rank points / mean F-max per policy\n  plain                   34.411   0.7012\n  promote_keep            45.852   0.6829\n  demote_then_promote     45.623   0.6829\n  promote_then_demote     46.557   0.6829\n  promote_then_pays       46.557   0.6829",
+    "source_path": "verification/scorer-hedging/policy-probe-result.txt"
+   },
+   {
+    "claim_id": "c44",
+    "claim": "The arithmetic test lost head-to-head only where keeping a paying row pushed an unrelated true pair across the rank-5 boundary, which no rule blind to the truth can see.",
+    "excerpt": "rank-point wins[row over column]\n                                plain promote_keep demote_then_ promote_then promote_then\n  plain                             0            0            0            0            0\n  promote_keep                 10,132            0        1,133            0            0\n  demote_then_promote           9,603          574            0           42           42\n  promote_then_demote          10,744          901        1,502            0            0\n  promote_then_pays            10,744          901        1,502            0            0\n\n\ncandidate_selection.py docstring lines 31-37:\n   value. Otherwise it becomes a single row for its unshared allele, in the\n   same position, or is removed when both alleles are claimed above or the\n   single already sits above. Measured in\n   ``verification/scorer-hedging/policy_probe.py`` against always-keep,\n   always-demote and demote-first, this rule had the highest mean rank\n   points and lost head-to-head only where keeping a paying row pushed an\n   unrelated true pair across the rank-5 boundary, which no rule blind to",
+    "source_path": "verification/scorer-hedging/policy-probe-result.txt (wins matrix; the mechanism is stated only in the module docstring)"
+   },
+   {
+    "claim_id": "c45",
+    "claim": "An earlier draft said 'both are kept' and cited a 600-comparison measurement made only on two-row files; the review of 741aaad showed the keep policy re-admits the headline failure at rank 4 and beyond.",
+    "excerpt": "R2  allele-sharing pair comparisons       : 600\nR2  dropping beat keeping-below           : 0\nR2  keeping-below beat dropping           : 120\nR2  equal                                 : 480\n\nRESULT: both rules hold under a compound-heterozygous answer key.\n  R1 promoting a pair above only the rows SHARING AN ALLELE with it\n     never lowered the score, and raised it on 480 row sets.\n  R2 keeping a weaker allele-sharing pair below never scored lower than\n     dropping it, and scored higher in 120 comparisons.\n\nreview 741aaad logic error 4:\nR2 overgeneralization: 'keeping the weaker one below never scored lower than dropping it' was measured only on 2-row files (ranks 1,2). With bystander rows it fails: keep = [pair chr1:1000+chr2:3000, single chr3:5000, single chr2:4000, pair chr1:1000+chr1:2000] scores 25.0 under truth (chr1:1000, chr1:2000) while dropping the last row scores 50.0. This is the document's own headline phenomenon (full match at rank 4 = 25 < partial at rank 1 = 50) re-entering through the 'both are kept' mandate for allele-sharing pairs; the R2 verification design cannot see it. The keep-policy may still be the right tradeoff under ignorance, but the stated measurement support is an unproven universal.",
+    "source_path": "verification/scorer-hedging/verify-rule-result.txt + verification/reviews/741aaad.json"
+   },
+   {
+    "claim_id": "c46",
+    "claim": "EPCR is assigned from a fixed ladder by row position: 0.90, 0.75, 0.60, 0.50, 0.40, 0.30, 0.20, 0.15, 0.10, 0.05.",
+    "excerpt": "# Step 5: \"Descending, distinct, from a fixed ladder assigned by row position\".\nEPCR_LADDER: Tuple[float, ...] = (0.90, 0.75, 0.60, 0.50, 0.40, 0.30, 0.20, 0.15, 0.10, 0.05)\n    final = tuple(replace(r, epcr=EPCR_LADDER[i]) for i, r in enumerate(kept))",
+    "source_path": "mva_prioritizer/candidate_selection.py"
+   },
+   {
+    "claim_id": "c47",
+    "claim": "The gate refuses eleven rows; the rule caps at ten, removing rows from the bottom of the Step 4 order one at a time, so truncation climbs tiers, and the count of truncated candidates is recorded by tier.",
+    "excerpt": "        # Sort descending by EPCR (ties broken by original order)\n        rows_sorted = sorted(enumerate(rows), key=lambda x: (-x[1][1], x[0]))\n        result[pid] = [\n\ncandidate_selection.py:\n    # Step 6: cap at ten, cutting from the bottom of the final order one row at\n    # a time, so truncation climbs through tiers when the lowest is exhausted.\n    truncated: Dict[str, int] = {}\n    kept = list(resolved)\n    while len(kept) > MAX_ROWS:\n        dropped = kept.pop()\n        truncated[dropped.tier] = truncated.get(dropped.tier, 0) + 1\n",
+    "source_path": "tools/official-track1/evaluation.py + mva_prioritizer/candidate_selection.py"
+   },
+   {
+    "claim_id": "c48",
+    "claim": "Step 7 runs track1-check with the canonical parser and the gate mirror, and validate_against_lane_representation against the lane keys; the CLI runs the gate mirror after the canonical parse and refuses if the two ranked lists differ.",
+    "excerpt": "`score_submission` mirrors `score_proband`. `validate_against_lane_representation` maps submission chromosomes to the lane's contig naming (no prefix, `MT` for the mitochondrion) and requires every submitted variant to exist among the lane keys it is given; it receives keys, never rows, and reports counts only.\n\nCLI: `python3 -m mva_prioritizer.cli track1-check --submission <file> [--synthetic-truth '[[chrom,pos,ref,alt],...]'] [--mitochondrial-name chrM|chrMT] [--allow-ties] [--allow-unsorted] [--allow-repeated-pairings]`. One JSON line with counts on success; the file is opened with `O_NOFOLLOW`, decided on the descriptor, bounded at 1 MiB; after the canonical parse the CLI also runs the gate mirror and refuses if the two ranked variant lists differ. Every refusal, including argument errors (argument parsing runs inside the same boundary, with usage output suppressed), exits 2 with the fixed `input_",
+    "source_path": "docs/20-track1-submission-gate.md"
+   }
+  ]
+ },
+ "questions": {
+  "c25": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c25. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c26": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c26. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c27": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c27. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c28": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c28. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c29": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c29. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c30": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c30. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c31": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c31. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c32": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c32. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c33": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c33. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c34": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c34. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c35": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c35. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c36": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c36. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c37": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c37. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c38": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c38. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c39": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c39. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c40": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c40. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c41": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c41. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c42": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c42. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c43": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c43. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c44": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c44. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c45": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c45. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c46": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c46. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c47": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c47. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c48": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c48. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  }
+ }
+}

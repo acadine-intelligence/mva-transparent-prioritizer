@@ -1,0 +1,58 @@
+{
+ "state": {
+  "claims": [
+   {
+    "claim_id": "c16",
+    "claim": "A brute-force check over 1,843,650 scored combinations was run against the pinned official bytes, with scripts and results under verification/scorer-hedging/.",
+    "excerpt": "combinations scored: 1843650\n  strictly-below arm: 1735200   equal-EPCR arm: 108450\n\nhedging_modes.py lines 18-21:\nsys.path.insert(0, str(ROOT / \"tools/official-track1\"))\n\nimport evaluation as off\n\n\ntests/test_track1_submission.py lines 28-29:\nOFFICIAL_SHA256 = \"6d18b581e65a45e1ccc120071d588e740c2e42e983ff50704c60a40232b19180\"\nTEMPLATE = ROOT / \"tools\" / \"official-track1\" / \"track1_submission_template.csv\"\n\nreview ea68d94 claims_verified: sha256(tools/official-track1/evaluation.py) = 6d18b581e65a45e1ccc120071d588e740c2e42e983ff50704c60a40232b19180, equal to OFFICIAL_SHA256 in tests/test_track1_submission.py.",
+    "source_path": "verification/scorer-hedging/result.txt + verification/scorer-hedging/hedging_modes.py (re-paired, call 4)"
+   },
+   {
+    "claim_id": "c43",
+    "claim": "policy_probe.py measured four policies for the losing pair over 27,594 truth comparisons: always keep, demote before promotion, demote after promotion, and the arithmetic test; the test had the highest mean rank points, 46.56 against 45.85 for always-keep.",
+    "excerpt": "27,594 truth comparisons over 4,000 random pools\n\nmean rank points / mean F-max per policy\n  plain                   34.411   0.7012\n  promote_keep            45.852   0.6829\n  demote_then_promote     45.623   0.6829\n  promote_then_demote     46.557   0.6829\n  promote_then_pays       46.557   0.6829\n\nrank-point wins[row over column]\n                                plain promote_keep demote_then_ promote_then promote_then\n  plain                             0            0            0            0            0\n  promote_keep                 10,132            0        1,133            0            0\n  demote_then_promote           9,603          574            0           42           42\n  promote_then_demote          10,744          901        1,502            0            0\n  promote_then_pays            10,744          901        1,502            0            0\n\n\npolicy_probe.py lines 81 and 96: for _ in range(4000): | print(f\"{n:,} truth comparisons over 4,000 random pools\\n\")\n\ncandidate_selection.py docstring lines 31-34:\n   value. Otherwise it becomes a single row for its unshared allele, in the\n   same position, or is removed when both alleles are claimed above or the\n   single already sits above. Measured in\n   ``verification/scorer-hedging/policy_probe.py`` against always-keep,",
+    "source_path": "verification/scorer-hedging/policy-probe-result.txt (re-paired, call 4)"
+   },
+   {
+    "claim_id": "c47",
+    "claim": "The gate refuses eleven rows; the rule caps at ten, removing rows from the bottom of the Step 4 order one at a time, so truncation climbs tiers, and the count of truncated candidates is recorded by tier.",
+    "excerpt": "            raise ValueError(f\"Proband {pid} has {len(rows)} rows; max is 10\")\n        # Sort descending by EPCR (ties broken by original order)\n        rows_sorted = sorted(enumerate(rows), key=lambda x: (-x[1][1], x[0]))\n        result[pid] = [\n\ncandidate_selection.py lines 304-311:\n    # Step 6: cap at ten, cutting from the bottom of the final order one row at\n    # a time, so truncation climbs through tiers when the lowest is exhausted.\n    truncated: Dict[str, int] = {}\n    kept = list(resolved)\n    while len(kept) > MAX_ROWS:\n        dropped = kept.pop()\n        truncated[dropped.tier] = truncated.get(dropped.tier, 0) + 1\n\n\ntrack1_submission.py line 50: MAX_ROWS = 10",
+    "source_path": "tools/official-track1/evaluation.py + mva_prioritizer/candidate_selection.py (re-paired, call 4)"
+   },
+   {
+    "claim_id": "c54",
+    "claim": "The official evaluator's docstring says 'simplified for a single proband (N-of-1) with a clinically validated compound-heterozygous answer key', and it gates partial credit on `is_compound_het = len(true_variants) == 2`.",
+    "excerpt": "(Stenton et al., 2024), simplified for a single proband (\"N-of-1\") with a\nclinically validated compound-heterozygous answer key.\n\nSubmission format (CSV):\n...\n    true_variants: frozenset of 1 variant (simple dominant/de novo case) or\n                   2 variants (compound heterozygous recessive case).\n    \"\"\"\n    is_compound_het = len(true_variants) == 2\n\n    full_match_rank = None\n    partial_match_rank = None\n\n...\n        # Look for a row containing exactly one of the two true variants -\n        # either proposed alone, or paired with an incorrect second variant.\n        for row in submission_rows:\n            if row.variants & true_variants:\n                partial_match_rank = row.rank\n                break\n",
+    "source_path": "tools/official-track1/evaluation.py (re-paired, call 4)"
+   },
+   {
+    "claim_id": "c57",
+    "claim": "verify_rule_v3.py measures position-preserving promotion at every row count the gate allows: 2 to 4 enumerated in full, 5 to 10 sampled, 5,880,600 comparisons, 0 rank-point drops, and it moves only the block in all 230,332 orderings where it fired.",
+    "excerpt": "Universe 6 alleles, 21 row shapes, 15 truths.\nSizes 2..4 enumerated in full; sizes 5..10 sampled 40,000 orderings each, seed 20260926.\n\nC1  position-preserving promotion, against leaving the order alone\n    size   kind    comparisons   rank-pts lowered   F-max lowered   F-max raised\n    n= 2  full          6,300               0             120              0\n    n= 3  full        119,700               0           5,700          1,500\n    n= 4  full      2,154,600               0         164,640         61,500\n    n= 5  sample      600,000               0          61,255         26,033\n    n= 6  sample      600,000               0          72,481         33,474\n    n= 7  sample      600,000               0          80,003         38,912\n    n= 8  sample      600,000               0          87,074         43,790\n    n= 9  sample      600,000               0          91,090         47,576\n    n=10  sample      600,000               0          93,611         49,954\n    total              5,880,600               0         655,974        302,739\n    row sets where rank points ROSE: 201,298\n    first F-max lowering at n=2: truth=(('chr1', 1000, 'A', 'G'), ('chr2', 3000, 'G', 'A'))\n       orig=[(('chr1', 1000, 'A', 'G'),), (('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T'))] -> 0.667\n       ruled=[(('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T')), (('chr1', 1000, 'A', 'G'),)] -> 0.500\n\nC2  the promotion moves only the pair and its own singles\n    orderings where it fired                    230,332",
+    "source_path": "verification/scorer-hedging/verify-rule-v3-result.txt (re-paired, call 4)"
+   }
+  ]
+ },
+ "questions": {
+  "c16": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c16. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c43": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c43. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c47": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c47. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c54": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c54. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  },
+  "c57": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c57. Does its `excerpt` fully support its `claim`, including every number, date, path and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, if the excerpt says NO SOURCE FOUND, or if the claim goes beyond what the excerpt says."
+  }
+ }
+}

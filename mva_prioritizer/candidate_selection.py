@@ -27,15 +27,15 @@ Step 4 has three stages, applied in this order:
    is a competing hypothesis that lost on evidence. Under its own truth it
    already earns the partial value of the winner's rank (half the winner's
    points), and a full match preempts a partial, so it stays a pair only
-   when its own full-match points at its rank are at least that partial
-   value. Otherwise it becomes a single row for its unshared allele, in the
-   same position, or is removed when both alleles are claimed above or the
-   single already sits above. Measured in
-   ``verification/scorer-hedging/policy_probe.py`` against always-keep,
-   always-demote and demote-first, this rule had the highest mean rank
-   points and lost head-to-head only where keeping a paying row pushed an
-   unrelated true pair across the rank-5 boundary, which no rule blind to
-   the truth can see.
+   where its own full-match points at its rank are strictly above that
+   partial value. Otherwise it becomes a single row for its unshared
+   allele, in the same position, or is removed when both alleles are
+   claimed above. ``verification/scorer-hedging/policy_probe.py`` measures
+   twelve promotion and demotion policies, each implemented in the probe,
+   against one bar first (never scoring below the plain evidence sort
+   under any truth) and mean rank points second; this rule is the best
+   policy that clears the bar, and the probe checks that the module
+   coincides with it.
 
 Rule version: docs/22 at the commit that introduced this ordering. The CSV
 notes column names that version so a file can be traced to the rule that
@@ -193,7 +193,16 @@ def order_rows(pool: Sequence[Candidate]) -> List[Row]:
 
 def _promote_once(rows: List[Row]) -> Tuple[List[Row], bool]:
     """One promotion: the topmost pair that has a sharing single above it takes
-    the topmost slot of its block. Only block members change position."""
+    the topmost slot of its block; the sharing singles fill the block's other
+    slots in their existing order. Rows outside the block keep their
+    positions, which is what makes the move safe under every truth: the
+    top slot of the block still holds every allele it held before.
+
+    The block may reach above a pair row the evidence ranked higher than
+    this one, when a sharing single sits above both. The pair then lands
+    above the evidence winner. This is deliberate and measured (docs/22
+    Step 4 stage 2): the alternative that preserves pair order pushes the
+    single's allele down and loses the partial credit it was earning."""
     for j, pair in enumerate(rows):
         if not pair.is_pair:
             continue
@@ -233,14 +242,25 @@ def _rank_points(rank: int) -> int:
 
 
 def _demote_once(rows: List[Row]) -> Tuple[List[Row], Optional[str]]:
-    """One demotion. Walk top to bottom. A pair at rank r sharing an allele
-    with a pair kept above it at rank q already earns the partial value
-    0.5 * points(q) through that winner under its own truth. It stays a pair
-    only when its full-match value points(r) is at least that much; otherwise
-    the pair row can only lower the score (a full match preempts a better
-    partial), so it becomes its unshared single in place. It is removed
-    outright when both alleles are claimed above or when that single already
-    sits above it."""
+    """One demotion. Walk top to bottom. A pair at rank r that shares an
+    allele with a pair kept above it at rank q lost on evidence. Under its
+    own truth it already earns the partial value 0.5 * points(q) through
+    that winner, and the scorer takes a full match over a better partial.
+    So the pair row is demoted whenever its own full-match value points(r)
+    is no better than that partial: it becomes a single row for its
+    unshared allele in the same position, and a lower single for that
+    allele is dropped as a duplicate. It is removed outright when both of
+    its alleles are claimed by pairs above it.
+
+    Where points(r) is strictly better than the partial, the pair stays.
+    That is the one demotion policy that never scores below the plain
+    evidence sort under any truth (verification/scorer-hedging/
+    policy_probe.py measures every alternative against that bar); always
+    demoting has a marginally higher mean over uniformly random truths and
+    loses that guarantee.
+
+    This runs after promotion has reached a fixpoint, so no single row that
+    shares an allele with a pair sits above that pair here."""
     claimed: Dict[Variant, int] = {}
     for j, row in enumerate(rows):
         if not row.is_pair:
@@ -251,14 +271,13 @@ def _demote_once(rows: List[Row]) -> Tuple[List[Row], Optional[str]]:
                 claimed[v] = j
             continue
         winner_rank = min(claimed[v] for v in shared) + 1
-        if _rank_points(j + 1) >= 0.5 * _rank_points(winner_rank):
+        if _rank_points(j + 1) > 0.5 * _rank_points(winner_rank):
             for v in row.variants:
                 claimed.setdefault(v, j)
             continue
         unshared = row.variants - shared
         out = list(rows)
-        single_above = any(not r.is_pair and r.variants == unshared for r in rows[:j])
-        if not unshared or single_above:
+        if not unshared:
             del out[j]
             return out, "removed"
         (u,) = unshared

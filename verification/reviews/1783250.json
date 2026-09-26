@@ -1,0 +1,74 @@
+{
+  "commit": "1783250",
+  "verdict": "FAIL",
+  "blocking": [
+    {
+      "id": "B1",
+      "claim": "docs/22 Step 4 Stage 3 (line 112) and candidate_selection.py docstring (lines 33-38): 'Four policies for the losing pair were measured against each other in policy_probe.py ... always keep it, always demote it before promotion, always demote it after promotion, and the arithmetic test above. The test had the highest mean rank points (46.56 against 45.85 for always-keep)'.",
+      "evidence": "policy_probe.py does not implement an always-demote policy. Its demote_all (lines 21-26) calls the module's _demote_once, which already contains the pays test (candidate_selection.py line 254). So 'promote_then_demote' and 'promote_then_pays' are the same policy: policy-probe-result.txt shows identical means (46.557 / 46.557) and 0 wins in both directions, and 'demote_then_promote' is the pays test run before promotion, not always-demote. Only three distinct policies were measured, and the one the document says was beaten (always demote after promotion) was never run. Re-implemented as written (a sharing pair is always converted to its unshared single in place, or removed) and run on the same seed and pool stream, real always-demote-after-promotion scores mean 46.574 against the shipped 46.557 over the same 27,594 comparisons, and wins head-to-head 532 to 305. The document's stated basis for choosing Stage 3 is therefore not what the script measures, and on the script's own metric the shipped test does not have the highest mean.",
+      "repro": "python3 scratch/probe3_1783250.py (synthetic universe, seed 20260926, 4,000 pools, 27,594 comparisons). Example where always-demote beats the shipped rule (probe_1783250.py, last section), truth (chr2:3000, chr3:5000): shipped file [(chr1:2000,chr1:3000), (chr1:1000,chr1:2000), (chr1:1000,chr1:3000), (chr2:3000,chr2:4000), chr2:4000, chr2:3000, chr1:2000, chr1:3000, chr3:5000, chr1:1000] scores partial 12.5 at rank 4; always-demote [(chr1:2000,chr1:3000), chr1:1000, (chr2:3000,chr2:4000), chr2:4000, chr2:3000, chr1:2000, chr1:3000, chr3:5000] scores partial 25.0 at rank 3. Also visible in the tracked file: verification/scorer-hedging/policy-probe-result.txt lines 7-8 and 15-16 show two 'different' policies with byte-identical numbers."
+    },
+    {
+      "id": "B2",
+      "claim": "docs/22 rule 2 (line 65): 'Two pair rows sharing an allele are competing hypotheses; which one is true is an evidence question, decided by tier in Step 4'. Stage 3 (line 110): 'A pair row that shares an allele with a pair row kept above it lost on evidence.' Line 114: 'This ordering is fully determined by the evidence'.",
+      "evidence": "The Stage 3 winner is whichever sharing pair promotion left higher, not the pair that wins the evidence sort. Stage 2 promotes a pair over a sharing single regardless of where the stronger competing pair sits, so a weaker pair can be promoted above the evidence winner and then be treated as the winner. In 828 of 3,000 random Tier A/B pools the final file has two kept pairs in the inverse of their Stage 1 evidence order. In the example below the stronger pair (Tier B, both lanes, native rank 1) ends at rank 2 under the weaker pair (Tier B, one lane) and scores 50 instead of 100 under its own truth, while the document tells the reader the contest was decided by tier.",
+      "repro": "Pool: chr1:3000 G>A gene G1 Tier A one lane native rank 5; chr1:1000 A>G and chr1:2000 C>T gene G1 Tier B both lanes native rank 1; all recessive. order_rows: [single 3000, pair (1000,2000), 1000, 2000, pair (1000,3000), pair (2000,3000)]. select_rows: [(1000,3000), (1000,2000), (2000,3000), 3000, 1000, 2000], promotions 2, demoted 0. Scored with tools/official-track1/evaluation.py: truth (1000,2000) = 50.0; truth (1000,3000) = 100.0. The evidence-respecting order [(1000,2000),(1000,3000),(2000,3000),3000,1000,2000] scores 100.0 / 50.0. See probe_1783250.py section 'evidence winner displaced' and probe2_1783250.py section 4."
+    },
+    {
+      "id": "B3",
+      "claim": "Privacy. Commit message: 'semantic leak scan: 393 chunks, 0 leaks' and 'public-tree privacy scan clear at 184 files'. docs/18 line 61: 'The symbol list stays on the encrypted volume.' docs/21 line 70: 'Only fixed aggregate schemas and hashes leave it.'",
+      "evidence": "verification/jev/claim-provenance/claims.json (claim c03, 'excerpt') and request-1.json copy a block of text from the gitignored private artifact runtime/recurrent-genes-20260911/aggregate-report.md into the tracked tree. The excerpt names the eleven recurrent gene symbols flagged in the top 30 of both lanes for the real proband, plus the per-lane gene counts. These symbols are new to the tracked tree at this commit (git grep at 580bf55 finds none). They are not synthetic, not paired with a coordinate, and are not one of the four synthetic contigs; they are case-derived output of the private prioritization run. The semantic leak scan cited in the commit message scanned commit 580bf55 (verification/jev/semantic-leak-scan/report.md, Artifacts section), so it never saw these files. This is not the coordinate-paired class the task defines as automatically blocking; it is blocked because the project's own documents say symbol lists stay on the encrypted volume and the commit's privacy claim does not cover the files that introduce them.",
+      "repro": "cd worktree; git grep -c '<symbol>' 580bf55 -- . (no hits); git grep -l '<symbol>' 1783250 -- . (claims.json, request-1.json); the claim c03 source_path is runtime/recurrent-genes-20260911/aggregate-report.md, which git check-ignore confirms is ignored. The symbol itself is withheld from this archived copy."
+    }
+  ],
+  "non_blocking": [
+    {
+      "id": "N1",
+      "claim": "Stage 3 'or is removed when ... that single already sits above it' (docs/22 line 110; _demote_once line 260-263) and test_demotion_removes_a_pair_whose_single_already_sits_above.",
+      "evidence": "Inside resolve_rows the branch is unreachable: promote_rows runs to a fixpoint before every _demote_once call, so no single row sharing an allele sits above any pair when demotion is evaluated. Instrumented _demote_once over 4,000 pools (tiers A-D, mixed recessive flags): 0 entries with a sharing single above a pair. The test named for this removal asserts (demoted, removed) == (0, 0) and that promotion fired instead; its name contradicts its assertion and it pins current behaviour, not the sentence. The sentence describes dead code in the pipeline.",
+      "repro": "probe2_1783250.py section 1."
+    },
+    {
+      "id": "N2",
+      "claim": "docs/22 line 112: the shipped test 'lost head-to-head only where keeping a paying row pushed an unrelated true pair across the rank-5 boundary'.",
+      "evidence": "Of the 42 losses to demote_then_promote in policy_probe.py (reproduced exactly), 33 are partial matches (a single or wrong-partner row) pushed from rank 5 to rank 6 (12.5 to 5.0) and 9 are full matches pushed from rank 5 to 6 or 7. The rank-5 boundary part is right; 'true pair' is wrong for 33 of 42.",
+      "repro": "probe2_1783250.py section 3."
+    },
+    {
+      "id": "N3",
+      "claim": "Task claim (b): a kept sharing pair never scores below dropping it.",
+      "evidence": "Not claimed by the document, but its Stage 3 wording ('otherwise the row can only lower the score') reads as if the kept case is safe. It is a trade: in 1,118 of 21,504 comparisons from 4,000 module pools, dropping a kept sharing pair scores higher (625 at kept rank 3, 489 at rank 2, 4 at rank 4). Example from select_rows: rows [(chr1:1000,chr1:2000),(chr1:1000,chr1:3000),1000,3000,2000,chr3:5000,chr2:4000]; truth (chr3:5000, chr2:4000): kept 5.0, drop the rank-2 pair 12.5. The 'otherwise' direction (demoting when points(r) < 0.5*points(q) never loses) holds.",
+      "repro": "probe_1783250.py section (b); probe2_1783250.py section 2."
+    },
+    {
+      "id": "N4",
+      "claim": "verify_module.py docstring D2 (lines 14-16): 'no kept pair shares an allele with a kept pair above it'.",
+      "evidence": "The script measures the pays-rank test (lines 93-96), and the module deliberately keeps sharing pairs at paying ranks. The docstring describes an invariant that neither the code nor the module enforces. Similarly test_kept_pairs_below_the_paying_rank_never_share_an_allele asserts the pays test, not what its name says.",
+      "repro": "read verify_module.py lines 14-16 against 93-96."
+    },
+    {
+      "id": "N5",
+      "claim": "Worktree custody.",
+      "evidence": "Ten untracked files verification/jev/claim-provenance/*-1783250-* appeared during the review (mtimes 16:20-16:25 SAST, HEAD committed 16:11). They are not part of the reviewed commit and were not created by this review; another session is writing to the worktree. Tracked tree was clean before and after (git status --porcelain shows only those untracked files).",
+      "repro": "git status --porcelain in the worktree."
+    }
+  ],
+  "verified_claims": [
+    "HEAD == 178325071c1d8d8b6f831a502e2ea3db3f603b9b on branch mva-reference-setup, parent 580bf55; tracked tree clean before and after; no repo file modified.",
+    "tools/official-track1/evaluation.py SHA-256 6d18b581e65a45e1ccc120071d588e740c2e42e983ff50704c60a40232b19180 matches OFFICIAL_SHA256 in tests/test_track1_submission.py.",
+    "python3 -m unittest tests.test_candidate_selection: 40 tests OK (Python 3.9.6).",
+    "verify_module.py re-run: output byte-identical to verify-module-result.txt (3,000 pools; 0 permutation-dependent; 20,245 comparisons; 0 lowered; promotion fired 2,042; demotion fired 500).",
+    "policy_probe.py re-run: byte-identical to policy-probe-result.txt (27,594 comparisons; 46.557 vs 45.852). The numbers are reproduced; what they measure is finding B1.",
+    "verify_rule_v3.py re-run: byte-identical to verify-rule-v3-result.txt (5,880,600 comparisons, 0 rank-point drops, 230,332 orderings fired, 0 outside-block moves). Its promote_position_preserving copy agrees with the module's promote_rows on all 212,040 orderings tested (exhaustive n<=4, sampled n=5,6).",
+    "brute_force_hedging / hedging_modes / classify_drops numbers (1,843,650; 1,735,200; 108,450; 48,252; 48,608; 44,090; 7,216; 36,456; 12,152) appear in brute-force-result.txt, result.txt and classify-result.txt as quoted in docs/22. Not re-run here; the review of 741aaad re-ran them to identical values.",
+    "Claim (a): module promote_rows never lowers rank points and moves only its block: 4,080,600 scored comparisons against the pinned evaluator (exhaustive n<=4, 20,000 sampled orderings each for n=5..10), 0 lowered, 141,149 orderings fired, 0 rows outside the block moved.",
+    "Claim (c): resolve_rows/select_rows output independent of input permutation: 0 of 3,000 pools over an 8-allele universe with tiers A-D, mixed lane agreement and mixed recessive annotation, 12 permutations each.",
+    "Claim (d): no kept single sits above a pair sharing its allele: 0 violations in 3,000 wide-universe pools; resolved file never scores below the plain evidence sort in 35,430 comparisons.",
+    "Claim (e): the review-of-741aaad counterexamples: tier-vs-class pool scores 50.0 (was 25); keep-vs-drop rows [(1000,3000),(5000),(4000),(1000,2000)] resolve to demoted single 2000 at rank 4 and score 50.0 with F-max 0.571 under truth (1000,2000); the insert-and-shift case keeps the chr2:3000 single at rank 3 (25.0 under truth (chr2:3000, chr2:4000)).",
+    "Stage 3 arithmetic in prose ('sharing with the rank-1 pair stays at ranks 2 and 3, demoted from 4; sharing with a rank-2 or 3 pair stays through rank 5') matches _rank_points and the >= test in _demote_once.",
+    "Stage 1 key order in _make_row (tier, lane agreement, native rank, first allele coordinate, class, second allele) matches docs/22 keys 1-6; test_no_two_distinct_rows_share_a_sort_key passes.",
+    "No home-directory or encrypted-volume paths, HP: terms, rsIDs or Ensembl/RefSeq ids in any added line of the diff; all coordinates in the diff are chr1/chr2/chr3/chrX at round-thousand positions (plus chr9:9, chrM:100 and the contig-index constants in the module).",
+    "The two verification scripts locate the worktree relative to __file__ (parents[2]), not a home directory."
+  ],
+  "privacy": "NOT CLEAR. Coordinates, HP terms, proband ids and machine paths: clear (all diff coordinates are synthetic chr1/chr2/chr3/chrX round-thousand positions; no absolute paths). Finding B3: verification/jev/claim-provenance/claims.json (claim c03 excerpt) and request-1.json copy a block from the gitignored runtime/recurrent-genes-20260911/aggregate-report.md that names the eleven case-derived recurrent gene symbols and per-lane gene counts; these symbols are new to the tracked tree at this commit, are not paired with coordinates, and were not covered by the cited semantic leak scan (which scanned 580bf55)."
+}

@@ -211,58 +211,41 @@ class Promotion(unittest.TestCase):
 
 
 class Demotion(unittest.TestCase):
-    def test_losing_pair_in_the_next_tier_stays_a_pair(self):
+    def test_losing_pair_at_an_equal_paying_rank_is_demoted(self):
         # docs/22 Step 4 stage 3. Three alleles in one gene form three pairs.
-        # Ranks make (a,b) the strongest pair at rank 1. (a,c) at rank 2 shares
-        # a with it: under truth (a,c) it already earns 50 through the winner's
-        # partial, and a full match at rank 2 is worth 50, so it stays and
-        # claims c. (b,c) at rank 4 shares b with (a,b) and c with (a,c): 25
-        # is below the 50 partial it already has and both alleles are
-        # claimed, so it is removed outright. The singles below stay.
+        # (a,b) is the strongest pair at rank 1 and claims a and b. (a,c) at
+        # rank 2 shares a: a full match there is worth 50, the same as the
+        # partial it already earns through the winner, so keeping it gains
+        # nothing and it becomes its unshared single c in place; the lone c
+        # below is dropped as a duplicate. (b,c) is then promoted over that
+        # remnant c (rule 2), shares b with (a,b) at a non-paying rank, and
+        # is demoted to c in the same slot. Net: one pair, then the three
+        # singles, and two demotions.
         a, b, c = allele("chr1", 1000), allele("chr1", 2000), allele("chr1", 3000)
         pool = [cand(a, "G1", "A", rank=1), cand(b, "G1", "A", rank=2), cand(c, "G1", "A", rank=3)]
         result = select_rows(pool)
         self.assertEqual(result.pair_rows_formed, 3)
         self.assertEqual([r.variants for r in result.rows],
-                         [frozenset({a, b}), frozenset({a, c}), frozenset({a}), frozenset({b}), frozenset({c})])
-        self.assertEqual((result.demoted_pairs, result.removed_pairs), (0, 1))
+                         [frozenset({a, b}), frozenset({c}), frozenset({a}), frozenset({b})])
+        self.assertEqual((result.demoted_pairs, result.removed_pairs), (2, 0))
 
-    def test_losing_pair_stays_only_while_its_full_match_pays(self):
-        # The rule's arithmetic, pinned: winner at rank 1 gives a partial worth
-        # 50. A sharing pair at rank 2 or 3 (full match 50) stays; at rank 4
-        # (full match 25) it is demoted.
+    def test_losing_pair_stays_only_where_its_full_match_strictly_pays(self):
+        # The rule's arithmetic, pinned. Winner at rank 2 gives a partial worth
+        # 25. A sharing pair at rank 3 (full match 50) stays; at rank 4 (full
+        # match 25, equal to the partial) it is demoted. Commit 1783250 kept
+        # the pair at equality; policy_probe.py measured that choice 0.28
+        # points behind demoting at equality, and both never score below the
+        # plain sort.
         from mva_prioritizer.candidate_selection import resolve_rows
         a, b, c, e, f = (allele("chr1", 1000), allele("chr1", 2000), allele("chr1", 3000),
                          allele("chr3", 5000), allele("chr2", 4000))
         win = _row([a, b], "A", rank=1)
-        resolved, _, demoted, _ = resolve_rows([win, _row([e], "A", 2), _row([a, c], "A", 3)])
+        resolved, _, demoted, _ = resolve_rows([_row([e], "A", 1), win, _row([a, c], "A", 3)])
         self.assertEqual(demoted, 0)
         self.assertTrue(resolved[2].is_pair)
-        resolved, _, demoted, _ = resolve_rows([win, _row([e], "A", 2), _row([f], "A", 3), _row([a, c], "A", 4)])
+        resolved, _, demoted, _ = resolve_rows([_row([e], "A", 1), win, _row([f], "A", 3), _row([a, c], "A", 4)])
         self.assertEqual(demoted, 1)
         self.assertEqual(resolved[3].variants, frozenset({c}))
-
-    def test_demotion_removes_a_pair_whose_single_already_sits_above(self):
-        # A losing pair whose unshared allele already has a single row above
-        # it adds nothing as a remnant: it is removed. Build the case after
-        # promotion has settled: the sharing single sits above by evidence
-        # AND the pair shares its other allele with a pair kept above, so
-        # promotion does not reorder it past the kept pair. Winner (a,b) at
-        # rank 1 claims a and b; single c at rank 2; bystanders at 3 and 4;
-        # (a,c) at rank 5 would earn 25 as a full match, below the 50 partial
-        # it already has, and c is already a row above it.
-        from mva_prioritizer.candidate_selection import resolve_rows
-        a, b, c, e, f = (allele("chr1", 1000), allele("chr1", 2000), allele("chr1", 3000),
-                         allele("chr3", 5000), allele("chr2", 4000))
-        rows = [_row([a, b], "A", 1), _row([c], "A", 2), _row([e], "A", 3), _row([f], "A", 4), _row([a, c], "A", 5)]
-        resolved, promotions, demoted, removed = resolve_rows(rows)
-        # Promotion fires first and lifts (a,c) to c's slot at rank 2, where
-        # a full match pays 50 = the partial it has, so it stays. The rule
-        # keeps it; the single c moves to rank 5.
-        self.assertEqual(promotions, 1)
-        self.assertEqual((demoted, removed), (0, 0))
-        self.assertEqual([r.variants for r in resolved],
-                         [frozenset({a, b}), frozenset({a, c}), frozenset({e}), frozenset({f}), frozenset({c})])
 
     def test_removal_when_both_alleles_are_claimed_above(self):
         # Two kept pairs claim all four alleles; a lower pair sharing one
@@ -275,10 +258,10 @@ class Demotion(unittest.TestCase):
         self.assertEqual((demoted, removed), (0, 1))
         self.assertEqual(len(resolved), 4)
 
-    def test_kept_pairs_below_the_paying_rank_never_share_an_allele(self):
+    def test_kept_sharing_pairs_sit_only_where_they_strictly_pay(self):
         # Stage 3 invariant over random pools: a kept pair that shares an
-        # allele with a kept pair above it sits where its full match is worth
-        # at least the winner's partial.
+        # allele with a kept pair above it at rank q sits at a rank r where
+        # points(r) > 0.5 * points(q).
         from mva_prioritizer.candidate_selection import _rank_points
         rng = random.Random(3)
         universe = [allele("chr1", p) for p in (1000, 2000, 3000, 4000)]
@@ -292,7 +275,7 @@ class Demotion(unittest.TestCase):
                     shared = r.variants & set(claimed)
                     if shared:
                         q = min(claimed[v] for v in shared) + 1
-                        self.assertGreaterEqual(_rank_points(j + 1), 0.5 * _rank_points(q), (pool, r))
+                        self.assertGreater(_rank_points(j + 1), 0.5 * _rank_points(q), (pool, r))
                     for v in r.variants:
                         claimed.setdefault(v, j)
 
@@ -311,6 +294,29 @@ class Demotion(unittest.TestCase):
                     for i in range(j):
                         if not rows[i].is_pair:
                             self.assertFalse(rows[i].variants & pair.variants, (pool, rows))
+
+    def test_promotion_may_lift_a_weaker_pair_over_the_evidence_winner(self):
+        # Review of 1783250, finding B2, pinned as a decision rather than a
+        # defect. Single c (Tier A, rank 5) sits above pair (a,b) (Tier B,
+        # both lanes, rank 1) by evidence. Pair (a,c) shares c with that
+        # single and is promoted into its slot, landing ABOVE (a,b). The
+        # evidence winner (a,b) then shares a with the kept pair and is
+        # demoted to its single b. Under its own truth the file scores 50
+        # where an order that kept it first would score 100; under truth
+        # (a,c) the file scores 100 where that order would score 50.
+        # policy_probe.py measured this promotion ("direct") ahead of the
+        # variant that never passes a higher pair ("floor", 46.574 against
+        # 43.395), because the floor variant leaves the single's allele
+        # stranded below and loses the partial credit it was earning.
+        from mva_prioritizer.track1_submission import parse_submission, score_submission
+        a, b, c = allele("chr1", 1000), allele("chr1", 2000, "C", "T"), allele("chr1", 3000, "G", "A")
+        pool = [cand(c, "G1", "A", both_lanes=False, rank=5), cand(a, "G1", "B", rank=1), cand(b, "G1", "B", rank=1)]
+        result = select_rows(pool)
+        self.assertEqual([r.variants for r in result.rows],
+                         [frozenset({a, c}), frozenset({b}), frozenset({c}), frozenset({a})])
+        parsed = parse_submission(build_submission_csv(result), allow_repeated_pairings=True)
+        self.assertEqual(score_submission(parsed, frozenset({a, b})).rank_points, 50.0)
+        self.assertEqual(score_submission(parsed, frozenset({a, c})).rank_points, 100.0)
 
     def test_reviewers_r2_counterexample_now_scores_50(self):
         # Review of 741aaad, logic error 3: keeping the losing pair at rank 4
