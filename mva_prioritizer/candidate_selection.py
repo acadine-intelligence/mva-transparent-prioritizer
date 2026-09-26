@@ -311,14 +311,16 @@ def resolve_rows(rows: List[Row]) -> Tuple[List[Row], int, int, int]:
 
     Schedule: promote to a fixpoint, then demote to a fixpoint, and repeat
     until a full round changes nothing. Demoting to a fixpoint before any
-    re-promotion means every loser in a round is judged at its evidence rank
-    (its rank in the promoted table), before a single created by an earlier
-    demotion can be promoted over and lift it. The alternative, one
-    demotion then re-promotion, judges later losers one slot lower; the two
-    schedules produce different files on about 1 pool in 80 and the batch
-    schedule scores higher on every seed measured in
-    verification/scorer-hedging/policy_probe.py, with both never below the
-    plain sort."""
+    re-promotion means no single created by an earlier demotion is
+    promoted over a later loser before that loser is judged. Each loser is
+    judged at its current index in the table as the earlier demotions of
+    the round have left it: a removal or a duplicate-single drop above it
+    moves it up one slot first (1 pool in 3,000 on the tracked run; the
+    frozen-rank reading was measured and scores no higher, see
+    verification/scorer-hedging/batch_rank_reading.py). The alternative,
+    one demotion then re-promotion, differs on 22 of 3,000 tracked pools
+    and scores lower on every seed measured in policy_probe.py, both never
+    below the plain sort."""
     out = list(rows)
     promotions = demoted = removed = 0
     for _ in range(len(out) * len(out) + 1):

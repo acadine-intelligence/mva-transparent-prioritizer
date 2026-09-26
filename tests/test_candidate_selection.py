@@ -233,8 +233,9 @@ class Demotion(unittest.TestCase):
         # The schedule, pinned on the pool from the review of 28761f8, the
         # smallest pool found where the two schedules write different files
         # (it needs four alleles in one gene). Batch: after promotion every
-        # loser in the round is judged at its rank in that table before any
-        # re-promotion. Step: one demotion, then re-promote, so a single
+        # loser in the round is judged before any re-promotion, at its index
+        # in the table as earlier demotions of the round have left it. Step:
+        # one demotion, then re-promote, so a single
         # created by the first demotion is promoted over and the second loser
         # is judged one slot lower. This test asserts the batch file and
         # asserts the step file is not produced; a module that went back to
@@ -257,6 +258,39 @@ class Demotion(unittest.TestCase):
         self.assertEqual(variants, batch)
         self.assertNotEqual(variants, step)
         self.assertEqual((result.promotions, result.demoted_pairs, result.removed_pairs), (6, 2, 2))
+
+    def test_loser_is_judged_at_its_current_index_after_earlier_removals(self):
+        # The rank a loser sees, pinned on the pool from the review of
+        # c1c2c34. After promotion the pair (c3,c4) in gene G2 sits at row
+        # 11, its winner (c3,c5) at row 8. The first demotion of the round
+        # removes the G1 pair at row 4 (both alleles claimed above), and
+        # every row below moves up one. The loser is then judged at row 10:
+        # full match there pays 10, the partial from the winner at row 7
+        # pays 5, so it stays as a pair and is the tenth row of the file.
+        # Judged at its promoted rank 11 (0 points) it would have been
+        # removed. Under its own truth the shipped file scores 10 and the
+        # frozen-rank file 5; batch_rank_reading.py measures the frozen
+        # reading at no higher mean on any seed, never below the plain sort.
+        c3, c4, c5 = allele("chr2", 3000), allele("chr2", 4000), allele("chr2", 5000)
+        b2, b3, b4 = allele("chr1", 2000), allele("chr1", 3000), allele("chr1", 4000)
+        a5, d7 = allele("chr3", 5000), allele("chr4", 7000)
+        pool = [cand(c4, "G2", "B", both_lanes=False, rank=4), cand(b4, "G1", "A", both_lanes=False, rank=2),
+                cand(b3, "G1", "A", both_lanes=False, rank=7), cand(c3, "G2", "B", both_lanes=False, rank=4),
+                cand(c5, "G2", "B", both_lanes=False, rank=2), cand(b2, "G1", "B", rank=7),
+                cand(a5, "G3", "A", rank=7), cand(d7, "G4", "B", rank=4)]
+        from mva_prioritizer.track1_submission import parse_submission, score_submission
+        result = select_rows(pool)
+        variants = [r.variants for r in result.rows]
+        self.assertEqual(len(variants), 10)
+        self.assertEqual(variants[6], frozenset({c3, c5}))
+        self.assertEqual(variants[9], frozenset({c3, c4}))
+        self.assertEqual((result.promotions, result.demoted_pairs, result.removed_pairs), (2, 0, 1))
+        parsed = parse_submission(build_submission_csv(result), allow_repeated_pairings=True)
+        self.assertEqual(score_submission(parsed, frozenset({c3, c4})).rank_points, 10.0)
+        # The frozen-rank file: the same rows without the tenth.
+        frozen = SelectionResult(**{**result.__dict__, "rows": result.rows[:9]})
+        parsed = parse_submission(build_submission_csv(frozen), allow_repeated_pairings=True)
+        self.assertEqual(score_submission(parsed, frozenset({c3, c4})).rank_points, 5.0)
 
     def test_losing_pair_stays_only_where_its_full_match_strictly_pays(self):
         # The rule's arithmetic, pinned. Winner at rank 2 gives a partial worth

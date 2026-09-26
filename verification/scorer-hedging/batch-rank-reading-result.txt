@@ -1,0 +1,33 @@
+Two readings of the batch schedule, direct promotion, pays_gt, on policy_probe.py's universe.
+differ: pools where the two readings write different files. below: comparisons under the plain sort.
+
+seed 20260926: 36,033 comparisons, differ 1/3,000, module == current-index on 3,000/3,000
+  plain                  below    0  mean 29.9877
+  batch/current-index    below    0  mean 36.3574
+  batch/promoted-rank    below    0  mean 36.3572
+  module                 below    0  mean 36.3574
+
+seed 1: 35,981 comparisons, differ 0/3,000, module == current-index on 3,000/3,000
+  plain                  below    0  mean 29.8205
+  batch/current-index    below    0  mean 36.5091
+  batch/promoted-rank    below    0  mean 36.5091
+  module                 below    0  mean 36.5091
+
+seed 2: 35,758 comparisons, differ 1/3,000, module == current-index on 3,000/3,000
+  plain                  below    0  mean 29.9740
+  batch/current-index    below    0  mean 36.3891
+  batch/promoted-rank    below    0  mean 36.3888
+  module                 below    0  mean 36.3891
+
+seed 3: 36,632 comparisons, differ 2/3,000, module == current-index on 3,000/3,000
+  plain                  below    0  mean 29.8529
+  batch/current-index    below    0  mean 36.4665
+  batch/promoted-rank    below    0  mean 36.4659
+  module                 below    0  mean 36.4665
+
+seed 4: 34,831 comparisons, differ 4/3,000, module == current-index on 3,000/3,000
+  plain                  below    0  mean 30.1184
+  batch/current-index    below    0  mean 36.6161
+  batch/promoted-rank    below    0  mean 36.6147
+  module                 below    0  mean 36.6161
+
