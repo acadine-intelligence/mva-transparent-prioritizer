@@ -4,7 +4,7 @@ Release candidate, 10 September 2026. Aligned to the official Track 1 methods wo
 
 ## Team and track
 
-Team name and submitter identity are not yet confirmed for public use. Track 1 (variant prediction). One model. Model number: pending; the official workbook assigns numbers at submission time (one per model, up to six).[1]
+Team name: Acadine Intelligence (confirmed by Jonathan Bylos, 26 September 2026). Submitter identity for public use: the Hugging Face account that files the submission, not yet created. Track 1 (variant prediction). One model. Model number: pending; the official workbook assigns numbers at submission time (one per model, up to six).[1]
 
 ## Abstract
 
