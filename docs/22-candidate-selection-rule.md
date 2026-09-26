@@ -124,7 +124,9 @@ This ordering is fully determined by the evidence; no discretionary reordering i
 
 **Step 6. Cap at ten rows.** The gate refuses eleven. If more than ten rows qualify, remove rows from the bottom of the Step 4 order, one at a time, until ten remain. Truncation therefore climbs through tiers when the lowest tier is exhausted, and it cuts from the tail of each tier's own ordering. The count of truncated candidates is recorded, by tier.
 
-**Step 7. Validate.** Run `track1-check` with the canonical parser and the gate mirror, and `validate_against_lane_representation` against the lane keys on the encrypted host. Any refusal stops the run. A mitochondrial row blocks the file until the organizers confirm the contig spelling.
+**Step 7. Validate.** Run `track1-check --allow-repeated-pairings` with the canonical parser and the gate mirror, and `validate_against_lane_representation` against the lane keys on the encrypted host. The flag is required, not optional: the rule's shape repeats each pair's alleles as single rows below it on purpose, and the canonical parser refuses repeats by default because they add no F-max recall. The parser's other defaults (no ties, sorted rows) stay in force; the ladder satisfies both. Any refusal stops the run. A mitochondrial row blocks the file until the organizers confirm the contig spelling.
+
+Steps 4 to 6 are executable: `mva_prioritizer/candidate_selection.py` implements them, and `tests/test_candidate_selection.py` pins each sentence above to a synthetic case, so a change to this document that is not mirrored in the code fails the suite. The module handles no data; Steps 1 to 3 read private files and run only on the encrypted host.
 
 ## Phase, and what the file can honestly claim
 
