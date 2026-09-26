@@ -217,25 +217,45 @@ class Demotion(unittest.TestCase):
         # rank 2 shares a: a full match there is worth 50, the same as the
         # partial it already earns through the winner, so keeping it gains
         # nothing and it becomes its unshared single c in place; the lone c
-        # below is dropped as a duplicate. (b,c) is then promoted over that
-        # remnant c (rule 2), shares b with (a,b) at a non-paying rank, and
-        # is demoted to c in the same slot. Net: one pair, then the three
-        # singles, and two demotions.
+        # below is dropped as a duplicate. In the same demotion round (b,c)
+        # shares b with (a,b) at a non-paying rank and its unshared single c
+        # already sits above it, so it is removed. Net: one pair, then the
+        # three singles; one demotion and one removal.
         a, b, c = allele("chr1", 1000), allele("chr1", 2000), allele("chr1", 3000)
         pool = [cand(a, "G1", "A", rank=1), cand(b, "G1", "A", rank=2), cand(c, "G1", "A", rank=3)]
         result = select_rows(pool)
         self.assertEqual(result.pair_rows_formed, 3)
         self.assertEqual([r.variants for r in result.rows],
                          [frozenset({a, b}), frozenset({c}), frozenset({a}), frozenset({b})])
-        self.assertEqual((result.demoted_pairs, result.removed_pairs), (2, 0))
+        self.assertEqual((result.demoted_pairs, result.removed_pairs), (1, 1))
+
+    def test_demotions_run_to_a_fixpoint_before_any_repromotion(self):
+        # The schedule, pinned. After promotion, every loser in a round is
+        # judged at its rank in that table before a single created by an
+        # earlier demotion can be promoted over and lift a later loser. The
+        # reviewer's pool (review of 28761f8): a stepwise schedule left a
+        # second single a in the file; the batch schedule removes the pair
+        # whose remnant would duplicate it. policy_probe.py measured batch
+        # ahead of step on every seed, both never below the plain sort.
+        g = allele("chr4", 7000)
+        v3, v5, v4 = allele("chr1", 3000), allele("chr2", 5000), allele("chr2", 4000)
+        w4, w1, x5 = allele("chr1", 4000), allele("chr1", 1000), allele("chr3", 5000)
+        pool = [cand(g, "G4", "A", rank=1), cand(v3, "G1", "A", rank=2), cand(v5, "G2", "A", rank=3),
+                cand(v4, "G2", "A", both_lanes=False, rank=4), cand(w4, "G1", "A", both_lanes=False, rank=5),
+                cand(w1, "G1", "B", rank=1), cand(x5, "G3", "C", rank=1)]
+        result = select_rows(pool)
+        variants = [r.variants for r in result.rows]
+        self.assertEqual(variants.count(frozenset({w1})), 1)
+        self.assertEqual(len(variants), len(set(variants)))
+        self.assertEqual(variants[:3], [frozenset({g}), frozenset({v3, w4}), frozenset({v4, v5})])
 
     def test_losing_pair_stays_only_where_its_full_match_strictly_pays(self):
         # The rule's arithmetic, pinned. Winner at rank 2 gives a partial worth
         # 25. A sharing pair at rank 3 (full match 50) stays; at rank 4 (full
         # match 25, equal to the partial) it is demoted. Commit 1783250 kept
-        # the pair at equality; policy_probe.py measured that choice 0.28
-        # points behind demoting at equality, and both never score below the
-        # plain sort.
+        # the pair at equality; policy_probe.py measures that choice behind
+        # demoting at equality (36.155 against 36.357), and both never score
+        # below the plain sort.
         from mva_prioritizer.candidate_selection import resolve_rows
         a, b, c, e, f = (allele("chr1", 1000), allele("chr1", 2000), allele("chr1", 3000),
                          allele("chr3", 5000), allele("chr2", 4000))
@@ -305,9 +325,10 @@ class Demotion(unittest.TestCase):
         # where an order that kept it first would score 100; under truth
         # (a,c) the file scores 100 where that order would score 50.
         # policy_probe.py measured this promotion ("direct") ahead of the
-        # variant that never passes a higher pair ("floor", 46.574 against
-        # 43.395), because the floor variant leaves the single's allele
-        # stranded below and loses the partial credit it was earning.
+        # variant that never passes a higher pair ("floor", 36.357 against
+        # 34.895 with the shipped demotion rule), because the floor variant
+        # leaves the single's allele stranded below and loses the partial
+        # credit it was earning.
         from mva_prioritizer.track1_submission import parse_submission, score_submission
         a, b, c = allele("chr1", 1000), allele("chr1", 2000, "C", "T"), allele("chr1", 3000, "G", "A")
         pool = [cand(c, "G1", "A", both_lanes=False, rank=5), cand(a, "G1", "B", rank=1), cand(b, "G1", "B", rank=1)]

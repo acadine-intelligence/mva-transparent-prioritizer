@@ -1,0 +1,335 @@
+[
+ {
+  "claim_id": "c01",
+  "where": "Step 4 stage 2",
+  "claim": "Insert-and-shift promotion lowered 5,220 scores in 327,600 comparisons at four rows",
+  "source_path": "verification/reviews/741aaad.json",
+  "excerpt": " for n in (2,3) while the gate accepts up to 10 rows (docs/22 Step 6) and the ladder has 10 rungs. At n=4 the same rule lowers the score in 5,220 of 327,600 comparisons. Mechanism: promote_allele_sharing inserts the pair at the single's position, shifting every row between them down one rank; at n<=3 a shift cannot cross a tier boundary (ranks 2,3 share the 50-point tier), at n>=4 it can (rank 3->4 crosses 50->25). First counterexample (reproduced verbatim): orig = [single chr1:1000, single chr1:2000, single chr2:3000, pair chr1:1000+chr1:2000], truth = (chr2",
+  "jev_probability": 0.68,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c02",
+  "where": "Step 4 stage 2",
+  "claim": "batch/floor+pays_gt has mean rank points 34.895 and 10 comparisons below the plain sort",
+  "source_path": "verification/scorer-hedging/policy-probe-result.txt",
+  "excerpt": "                50   7,007    34.897      0.6170     2,578\n  batch/floor+pays_ge                7   6,567    34.752      0.6153     2,435\n  batch/floor+pays_gt               10   6,932    34.895      0.6164     2,620\n  batch/transitive+keep            680   8,893    35.864      0.6099     2,404\n  batch/transitive+demote          606   9,577    36.283      0.6147     2,648\n  batch/transitive+pays_ge         625   9,205    36.134      0.6123     2,442\n  batch/transitive+pays_gt         589   9,604    36.329      0.6146     2,695\n  module                             0   8,570",
+  "jev_probability": 0.55,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c03",
+  "where": "Step 4 stage 2",
+  "claim": "batch/transitive+pays_gt has 589 comparisons below the plain sort",
+  "source_path": "verification/scorer-hedging/policy-probe-result.txt",
+  "excerpt": "emote          606   9,577    36.283      0.6147     2,648\n  batch/transitive+pays_ge         625   9,205    36.134      0.6123     2,442\n  batch/transitive+pays_gt         589   9,604    36.329      0.6146     2,695\n  module                             0   8,570    36.357      0.6145     3,000\n\nEligible policies (never below the plain sort), best first:\n  batch/direct+pays_gt         mean 36.357  F-max 0.6145\n  step/direct+pays_gt          mean 36.353  F-max 0.6145\n  batch/direct+pays_ge         mean 36.155  F-max 0.6122\n  step/direct+pays_ge          mean 36.155  F-max 0.6122",
+  "jev_probability": 0.83,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c04",
+  "where": "Step 4 stage 2",
+  "claim": "batch/direct+keep has 44 and batch/direct+demote has 34 comparisons below the plain sort",
+  "source_path": "verification/scorer-hedging/policy-probe-result.txt",
+  "excerpt": "ys_ge          625   9,201    36.133      0.6123     2,441\n  step/transitive+pays_gt          594   9,604    36.332      0.6146     2,689\n  batch/direct+keep                 44   7,723    35.899      0.6099     2,510\n  batch/direct+demote               34   8,556    36.296      0.6147     2,881\n  batch/direct+pays_ge               0   8,043    36.155      0.6122     2,582\n  batch/direct+pays_gt               0   8,570    36.357      0.6145     3,000\n  batch/floor+keep                   8   5,978    34.360      0.6120     2,404\n  batch/floor+demote                50   7,0",
+  "jev_probability": 0.91,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c05",
+  "where": "Step 4 stage 3",
+  "claim": "The module keeps a losing pair only where points(r) > 0.5 * points(q)",
+  "source_path": "mva_prioritizer/candidate_selection.py",
+  "excerpt": "v in row.variants:\n                claimed[v] = j\n            continue\n        winner_rank = min(claimed[v] for v in shared) + 1\n        if _rank_points(j + 1) > 0.5 * _rank_points(winner_rank):\n            for v in row.variants:\n                claimed.setdefault(v, j)\n            continue\n        unshared = row.variants - shared\n        out = list(rows)\n        if not unshared:\n            del out[j]\n            return out, \"removed\"\n        (u,) = unshared\n        if any(not out[k].is_pair and out[k].variants == frozenset({u}) for k in range(j)):\n            del out[j]\n            return out, \"removed\"\n",
+  "jev_probability": 0.81,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c06",
+  "where": "Step 4 stage 3",
+  "claim": "The module removes a losing pair when a single for its unshared allele already sits above it",
+  "source_path": "mva_prioritizer/candidate_selection.py",
+  "excerpt": "\n        out = list(rows)\n        if not unshared:\n            del out[j]\n            return out, \"removed\"\n        (u,) = unshared\n        if any(not out[k].is_pair and out[k].variants == frozenset({u}) for k in range(j)):\n            del out[j]\n            return out, \"removed\"\n        remnant = Row(\n            variants=frozenset({u}), gene=row.gene, tier=row.tier, both_lanes=row.both_lanes,\n            native_rank=row.native_rank, sort_key=row.sort_key, demoted_from=row.variants,\n        )\n        out[j] = remnant\n        # The remnant now carries this allele; a lower single for the same\n        # allele is a duplicate and adds not",
+  "jev_probability": 0.72,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c07",
+  "where": "Step 4 stage 3",
+  "claim": "resolve_rows promotes to a fixpoint, then demotes to a fixpoint, and repeats until a round changes nothing",
+  "source_path": "mva_prioritizer/candidate_selection.py",
+  "excerpt": "ons = demoted = removed = 0\n    for _ in range(len(out) * len(out) + 1):\n        out, n = promote_rows(out)\n        promotions += n\n        changed = False\n        while True:\n            out, what = _demote_once(out)\n            if what is None:\n                break\n            changed = True\n            if what == \"demoted\":\n                demoted += 1\n            else:\n                removed += 1\n        if not changed:\n            return out, promotions, demoted, removed\n    raise SelectionError(\"pair resolution did not converge\")\n\n\ndef select_rows(pool: Sequence[Candidate]) -> SelectionResult:\n    \"\"\"Steps 4 to 6 of docs/",
+  "jev_probability": 0.58,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c08",
+  "where": "Step 4 stage 3",
+  "claim": "The probe's docstring states every policy is implemented inside the file and the module is measured as its own row",
+  "source_path": "verification/scorer-hedging/policy_probe.py",
+  "excerpt": "\"\"\"Probe: which promotion, which losing-pair policy and which schedule to ship.\nSynthetic only.\n\nEvery policy here is implemented inside this file, independent of the module,\nso no two rows can silently be the same function (the fault the review of\n1783250 found in the first version). The shipped module is measured as its\nown row at the end and must coincide with exactly one named policy on every\npool, in a universe wide enough for the policies to differ (the review of\n28761f8 found a 3-alleles-per-gene universe hid a schedule difference that a\nfourth allele e",
+  "jev_probability": 0.78,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c09",
+  "where": "Step 4 stage 3",
+  "claim": "The probe defines two schedules, step and batch, and builds a policy for each schedule, promotion mode and STAGE3 entry",
+  "source_path": "verification/scorer-hedging/policy_probe.py",
+  "excerpt": " r, q: _points(r) >= 0.5 * _points(q),\n    \"pays_gt\": lambda r, q: _points(r) > 0.5 * _points(q),\n}\nPOLICIES = {\"plain\": lambda rows: rows}\nfor schedule in (\"step\", \"batch\"):\n    for mode in (\"direct\", \"floor\", \"transitive\"):\n        for name, keep in STAGE3.items():\n            POLICIES[f\"{schedule}/{mode}+{name}\"] = (\n                lambda m, k, s: lambda rows: _joint(rows, m, k, s))(mode, keep, schedule)\nPOLICIES[\"module\"] = lambda rows: resolve_rows(rows)[0]\n\ndef random_pool(rng):\n    k = rng.randint(2, 8)\n    return [Candidate(v, GENE[v[0]], rng.choice(TIERS), rng.choice([True, Fal",
+  "jev_probability": 0.75,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c10",
+  "where": "Step 4 stage 3",
+  "claim": "36,033 truth comparisons over 3,000 random pools from 10 alleles in 4 genes, 4/3/2/1 per gene, tiers A/B/C",
+  "source_path": "verification/scorer-hedging/policy-probe-result.txt",
+  "excerpt": "36,033 truth comparisons over 3,000 random pools (10 alleles in 4 genes, 4/3/2/1 per gene, 2 to 8 candidates, tiers A/B/C, ranks 1-9).\nbelow/above: comparisons where the policy's rank points are below/above the plain evidence sort.\nA policy with below > 0 can hurt the file under some truth and is not eligible.\n\n  policy                         below   above   mean rp  mean F-max  = module\n  plain                              0       0    29",
+  "jev_probability": 0.72,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c11",
+  "where": "Step 4 stage 3",
+  "claim": "batch/direct+pays_gt has 0 below and mean 36.357; step/direct+pays_gt has 0 below and mean 36.353",
+  "source_path": "verification/scorer-hedging/policy-probe-result.txt",
+  "excerpt": "                34   8,544    36.292      0.6147     2,859\n  step/direct+pays_ge                0   8,041    36.155      0.6122     2,581\n  step/direct+pays_gt                0   8,558    36.353      0.6145     2,978\n  step/floor+keep                    8   5,978    34.360      0.6120     2,404\n  step/floor+demote                 50   7,122    34.946      0.6170     2,580\n  step/floor+pays_ge                 9   6,637    34.779      0.6152     2,436\n  step/floor+pays_gt                12   7,042    34.953      0.6164     2,625\n  step/transitive+keep             680   8,893",
+  "jev_probability": 0.86,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c12",
+  "where": "Step 4 stage 3",
+  "claim": "batch/direct+pays_ge has 0 below and mean 36.155",
+  "source_path": "verification/scorer-hedging/policy-probe-result.txt",
+  "excerpt": "                44   7,723    35.899      0.6099     2,510\n  batch/direct+demote               34   8,556    36.296      0.6147     2,881\n  batch/direct+pays_ge               0   8,043    36.155      0.6122     2,582\n  batch/direct+pays_gt               0   8,570    36.357      0.6145     3,000\n  batch/floor+keep                   8   5,978    34.360      0.6120     2,404\n  batch/floor+demote                50   7,007    34.897      0.6170     2,578\n  batch/floor+pays_ge                7   6,567    34.752      0.6153     2,435\n  batch/floor+pays_gt               10   6,932 ",
+  "jev_probability": 0.93,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c13",
+  "where": "Step 4 stage 3",
+  "claim": "batch/direct+demote has mean 36.296 and 34 below; batch/direct+keep has mean 35.899 and 44 below",
+  "source_path": "verification/scorer-hedging/policy-probe-result.txt",
+  "excerpt": "ys_gt          594   9,604    36.332      0.6146     2,689\n  batch/direct+keep                 44   7,723    35.899      0.6099     2,510\n  batch/direct+demote               34   8,556    36.296      0.6147     2,881\n  batch/direct+pays_ge               0   8,043    36.155      0.6122     2,582\n  batch/direct+pays_gt               0   8,570    36.357      0.6145     3,000\n  batch/floor+keep                   8   5,978    34.360      0.6120     2,404\n  batch/floor+demote                50   7,007    34.897      0.6170     2,578\n  batch/floor+pays_ge                7   6,567",
+  "jev_probability": 0.92,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c14",
+  "where": "Step 4 stage 3",
+  "claim": "The best eligible policy is batch/direct+pays_gt and the module coincides with it on every pool under two seeds",
+  "source_path": "verification/scorer-hedging/policy-probe-result.txt",
+  "excerpt": "pays_gt         589   9,604    36.329      0.6146     2,695\n  module                             0   8,570    36.357      0.6145     3,000\n\nEligible policies (never below the plain sort), best first:\n  batch/direct+pays_gt         mean 36.357  F-max 0.6145\n  step/direct+pays_gt          mean 36.353  F-max 0.6145\n  batch/direct+pays_ge         mean 36.155  F-max 0.6122\n  step/direct+pays_ge          mean 36.155  F-max 0.6122\n\nModule coincides on every pool with: ['batch/direct+pays_gt']\nSecond seed (3,000 pools): module coincides on every pool with: ['batch/direct+pays_gt']\n",
+  "jev_probability": 0.63,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c15",
+  "where": "Step 4 stage 3",
+  "claim": "verify_module.py reports zero pools with a permutation-dependent result",
+  "source_path": "verification/scorer-hedging/verify-module-result.txt",
+  "excerpt": "der test: mva_prioritizer.candidate_selection (imported, not copied)\nPools: 3,000  seed 20260926  universe 6 alleles, tiers A/B, ranks 1-9\n\nD1  determinism: pools with a permutation-dependent result   0\nD2  single above a sharing pair                              0\nD2  kept sharing pair at a rank that does not strictly pay    0\nD2  EPCR not the ladder prefix                               0\nD2  more than ten rows                                       0\nD3  pools where promotion fired                              2,037\nD3  pools where demotion or removal fired           ",
+  "jev_probability": 0.76,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c16",
+  "where": "Step 4 stage 3",
+  "claim": "verify_module.py reports zero rank-point comparisons lower than the plain sort over 20,245",
+  "source_path": "verification/scorer-hedging/verify-module-result.txt",
+  "excerpt": ",016\nD3  pools where the final order differs from the plain sort  2,073\nD4  truth comparisons, resolved vs plain evidence sort       20,245\nD4  rank points LOWER than the plain sort                    0\nD4  rank points higher than the plain sort                   7,982\nD4  F-max lower / higher than the plain sort                 5,991 / 2,948\n\nRESULT: the shipped module is deterministic, satisfies the docs/22 invariants,\n        exercised both stages, and never scored below the plain evidence sort.\n",
+  "jev_probability": 0.87,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c17",
+  "where": "Step 4 stage 3",
+  "claim": "verify_module.py reports zero kept sharing pairs at a rank that does not strictly pay",
+  "source_path": "verification/scorer-hedging/verify-module-result.txt",
+  "excerpt": "B, ranks 1-9\n\nD1  determinism: pools with a permutation-dependent result   0\nD2  single above a sharing pair                              0\nD2  kept sharing pair at a rank that does not strictly pay    0\nD2  EPCR not the ladder prefix                               0\nD2  more than ten rows                                       0\nD3  pools where promotion fired                              2,037\nD3  pools where demotion or removal fired                    1,016\nD3  pools where the final order differs from the plain sort  2,073\nD4  truth comparisons, resolved vs plain evidence ",
+  "jev_probability": 0.88,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c18",
+  "where": "Verification",
+  "claim": "brute_force_hedging.py returns 1 when strict violations are found, so it exits non-zero by design",
+  "source_path": "verification/scorer-hedging/brute_force_hedging.py",
+  "excerpt": "}\")\n        print(f\"    base={base}\")\n        print(f\"    added={extra}\")\n        print(f\"    before (pts,f)={before}  after={after}\")\n\n    return 1 if strict_violations else 0\n\n\nif __name__ == \"__main__\":\n    raise SystemExit(main())\n",
+  "jev_probability": 0.78,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c19",
+  "where": "Verification",
+  "claim": "hedging_modes.py main() returns 0, so it exits zero",
+  "source_path": "verification/scorer-hedging/hedging_modes.py",
+  "excerpt": "v2,), (UNIVERSE[2],)]:\n        pts, f = score(pair_only, truth)\n        print(f\"  truth={truth!s:<60} rank_points={pts:>6} f_max={f:.3f}\")\n\n    return 0\n\n\nif __name__ == \"__main__\":\n    raise SystemExit(main())\n",
+  "jev_probability": 0.79,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c20",
+  "where": "Verification",
+  "claim": "verify_determinism.py imports only the standard library and does not import the evaluator",
+  "source_path": "verification/scorer-hedging/verify_determinism.py",
+  "excerpt": "LDS after the sort, and never reorders two\n      pair rows.\n\nPublic and synthetic only. Every allele below is invented.\n\"\"\"\nfrom __future__ import annotations\n\nimport itertools\nimport random\n\nCONTIG_ORDER = {f\"chr{i}\": i for i in range(1, 23)}\nCONTIG_ORDER.update({\"chrX\": 23, \"chrY\": 24, \"chrM\": 25})\nTIER_ORDER = {\"A\": 0, \"B\": 1, \"C\": 2, \"D\": 3}\nLADDER = [0.90, 0.75, 0.60, 0.50, 0.40, 0.30, 0.20, 0.15, 0.10, 0.05]\n\n\ndef allele_key(a):\n    \"\"\"Step 4 key 5, applied to one allele.\"\"\"\n    chrom, pos, ref, alt = a\n    return (CONTIG_ORDER[chrom], pos, ref, alt)\n\n\nd",
+  "jev_probability": 0.61,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c21",
+  "where": "Verification",
+  "claim": "The evaluator bytes are pinned by SHA-256 in tests/test_track1_submission.py",
+  "source_path": "tests/test_track1_submission.py",
+  "excerpt": "t.TestCase):\n    def test_official_scorer_and_template_are_the_pinned_bytes(self):\n        import hashlib\n\n        self.assertEqual(hashlib.sha256(OFFICIAL.read_bytes()).hexdigest(), OFFICIAL_SHA256)\n        self.assertEqual(hashlib.sha256(TEMPLATE.read_bytes()).hexdigest(), TEMPLATE_SHA256)\n\n    def test_template_header_matches_our_header(self):\n        with TEMPLATE.open(newline=\"\") as handle:\n            header = next(csv.reader(handle))\n        self.assertEqual(header, list(HEADER))\n\n\nclass MirrorAgreesWithOfficialTest(unittest.TestCase):\n    \"\"\"Each case:",
+  "jev_probability": 0.76,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c22",
+  "where": "Verification",
+  "claim": "Rank points is metric 1 in the official evaluator",
+  "source_path": "tools/official-track1/evaluation.py",
+  "excerpt": "ubmission_rows:\n            if row.variants & true_variants:\n                partial_match_rank = row.rank\n                break\n\n    # --- Rank points (metric 1) ---\n    if full_match_rank is not None:\n        rank_points = float(_rank_to_points(full_match_rank))\n    elif partial_match_rank is not None:\n        # CAGI-style partial credit: half weight for recovering only one\n        # of two causal variants in a compound-het pair.\n        rank_points = 0.5 * _rank_to_points(partial_match_rank)\n    else:\n        rank_points = 0.0\n\n    # --- F-max (metric 2), computed at the i",
+  "jev_probability": 0.86,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c23",
+  "where": "Verification",
+  "claim": "case-token-scan running scripts/verify_no_case_tokens.py is a required Build OS command in product.json",
+  "source_path": "product.json",
+  "excerpt": " \"required\": true},\n      {\"name\": \"privacy-scan\", \"argv\": [\"python3\", \"scripts/verify_public_tree.py\"], \"required\": true},\n      {\"name\": \"case-token-scan\", \"argv\": [\"python3\", \"scripts/verify_no_case_tokens.py\"], \"required\": true},\n      {\"name\": \"contract-check\", \"argv\": [\"python3\", \"-m\", \"unittest\", \"tests.test_contract\", \"-v\"], \"required\": true},\n      {\"name\": \"cli-help\", \"argv\": [\"python3\", \"-m\", \"mva_prioritizer.cli\", \"--help\"], \"required\": true}\n    ],\n    \"independent_review\": {\n      \"required\": true,\n      \"policy\": \"A reviewer who did not implement the cha",
+  "jev_probability": 0.75,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c24",
+  "where": "Verification",
+  "claim": "The gate exits 2 with denylist_missing when the denylist file is absent",
+  "source_path": "scripts/verify_no_case_tokens.py",
+  "excerpt": " args = ap.parse_args()\n    root = args.root.resolve()\n    if not args.denylist.is_file():\n        print('{\"state\":\"failed_closed\",\"error\":\"denylist_missing\"}', file=sys.stderr)\n        return 2\n    tokens = load_denylist(args.denylist)\n    if not tokens:\n        print('{\"state\":\"failed_closed\",\"error\":\"denylist_empty\"}', file=sys.stderr)\n        return 2\n    rx = re.compile(rb\"(?<![A-Za-z0-9_])(?:\" + b\"|\".join(re.escape(t.encode()) for t in tokens) + rb\")(?![A-Za-z0-9_])\")\n    hits = 0\n    if args.history:\n        blobs = history_blobs(root)\n        for sha, path in bl",
+  "jev_probability": 0.94,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c25",
+  "where": "Verification",
+  "claim": "The gate has a --history flag that scans every blob reachable from any ref",
+  "source_path": "scripts/verify_no_case_tokens.py",
+  "excerpt": "=DEFAULT_DENYLIST)\n    ap.add_argument(\"--root\", type=Path, default=ROOT, help=\"tree to scan (default: this checkout)\")\n    ap.add_argument(\"--history\", action=\"store_true\",\n                    help=\"scan every blob reachable from any ref instead of the working tree; \"\n                         \"run this before the repository is made public\")\n    args = ap.parse_args()\n    root = args.root.resolve()\n    if not args.denylist.is_file():\n        print('{\"state\":\"failed_closed\",\"error\":\"denylist_missing\"}', file=sys.stderr)\n        return 2\n    tokens = load_denylist(ar",
+  "jev_probability": 0.85,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c26",
+  "where": "Verification",
+  "claim": "build_case_token_denylist.py reads the interval map, the HGNC responses and the aggregate report, and writes runtime/privacy/denied-tokens.txt",
+  "source_path": "scripts/build_case_token_denylist.py",
+  "excerpt": "\"\nfrom __future__ import annotations\n\nimport json\nimport re\nimport sys\nfrom pathlib import Path\n\nROOT = Path(__file__).resolve().parents[1]\nINTERVAL_MAP = ROOT / \"runtime\" / \"nine-gene-audit-20260909\" / \"gene-interval-map.json\"\nHGNC_DIR = ROOT / \"runtime\" / \"internal-review-20260907\" / \"public-hgnc\"\nAGGREGATE_REPORT = ROOT / \"runtime\" / \"recurrent-genes-20260911\" / \"aggregate-report.md\"\nOUT = ROOT / \"runtime\" / \"privacy\" / \"denied-tokens.txt\"\n\n# Symbols that are ordinary words or public-method vocabulary and would\n# block the whole tree: none at present. Add here with a re",
+  "jev_probability": 0.46,
+  "bucket": "below 0.5, checked by hand"
+ },
+ {
+  "claim_id": "c27",
+  "where": "Verification",
+  "claim": "build_case_token_denylist.py takes alias_symbol and prev_symbol from the HGNC responses",
+  "source_path": "scripts/build_case_token_denylist.py",
+  "excerpt": "oads(path.read_text(encoding=\"utf-8\"))\n        for doc in (data.get(\"response\") or {}).get(\"docs\") or []:\n            for key in (\"symbol\", \"alias_symbol\", \"prev_symbol\"):\n                value = doc.get(key)\n                for item in (value if isinstance(value, list) else [value]):\n                    if item and len(str(item)) >= 3:\n                        tokens.add(str(item))\n    return tokens\n\n\nSYMBOL = re.compile(r\"(?<![A-Za-z0-9_])([A-Z][A-Z0-9]{2,9}(?:-[A-Z0-9]+)?|C[0-9]+orf[0-9]+)(?![A-Za-z0-9_])\")\n# Report vocabulary that matches the symbol shape but is not a gene: conti",
+  "jev_probability": 0.8,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c28",
+  "where": "Review history",
+  "claim": "The review of 1783250 returned FAIL",
+  "source_path": "verification/reviews/1783250.json",
+  "excerpt": "{\n  \"commit\": \"1783250\",\n  \"verdict\": \"FAIL\",\n  \"blocking\": [\n    {\n      \"id\": \"B1\",\n      \"claim\": \"docs/22 Step 4 Stage 3 (line 112) and candidate_selection.py docstring (lines 33-38): 'Four policies for the losing pair were measured against each other in policy_probe.py ... always keep it, always demote it before promotion, always demote it after promotion, and the arithmetic test above. The test had the highest mean rank points (46.56 against 45.85 for al",
+  "jev_probability": 0.66,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c29",
+  "where": "Review history",
+  "claim": "The review of 28761f8 returned FAIL with blocking findings B1 and B2",
+  "source_path": "verification/reviews/28761f8.json",
+  "excerpt": "{\n  \"commit\": \"28761f8\",\n  \"verdict\": \"FAIL\",\n  \"blocking\": [\n    {\n      \"id\": \"B1\",\n      \"claim\": \"docs/22 line 114: 'That is the shipped rule, and the probe's last line confirms the module coincides with it on all 4,000 pools.' candidate_selection.py lines 37-38: 'this rule is the best policy that clears the bar, and the probe checks that the module coincides with it.' docs/22 line 112 (Stage 3): a losing pair 'becomes a single row for its unshared",
+  "jev_probability": 0.6,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c30",
+  "where": "Review history",
+  "claim": "B1 of 28761f8: the probe demoted to a fixpoint before re-promoting while the module re-promoted after every demotion, hidden by a universe with at most three alleles per gene",
+  "source_path": "verification/reviews/28761f8.json",
+  "excerpt": "s (lines 303-312) re-promotes after every single demotion. Both differences are invisible in the probe's universe because it allows at most three alleles per gene (chr1 has 3, chr2 has 2, chr3 has 1), so the coincidence on 4,000 pools is an artifact of pool size. With four alleles in one gene they diverge: a 6-allele pool (below) gives module [(1:1000,1:2000),(1:3000,1:4000),2:2000,1:3000,3:1000,1:1000,1:2000,1:4000] and probe [(1:1000,1:2000),(1:3000,1:4000),1:3000,2:2000,1:4000,3:1000,1:1000,1:2000]; under truth (3:1000,2:2000) the module scores 25.0 and the probe 12.5. On ",
+  "jev_probability": 0.69,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c31",
+  "where": "Review history",
+  "claim": "B2 of 28761f8: the sentence giving always-demote the highest raw mean at 46.574 was false against the tracked result, where direct+pays_gt scored 46.833",
+  "source_path": "verification/reviews/28761f8.json",
+  "excerpt": "  },\n    {\n      \"id\": \"B2\",\n      \"claim\": \"docs/22 line 114: 'Always demoting the loser has the highest raw mean in one promotion family (46.574) and fails that bar (75 comparisons below the plain sort)'. candidate_selection.py lines 258-260: 'always demoting has a marginally higher mean over uniformly random truths and loses that guarantee.'\",\n      \"evidence\": \"False against the tracked result file. verification/scorer-hedging/policy-probe-result.txt (re-run byte-identical): direct+demote 46.574 < direct+pays_gt 46.833; floor+demote 43.395 < floor+pays_gt ",
+  "jev_probability": 0.5,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c32",
+  "where": "Review history",
+  "claim": "The second Jev pass on 1783250 covered 71 claims in 4 calls",
+  "source_path": "verification/jev/claim-provenance/report-1783250.md",
+  "excerpt": "`, 184 files). Jev calibrated decision model (TypeSafe System One, `jev-latest`, Noul questions), 4 `decide` calls: three requests covering 71 claims (24 + 24 + 23 rows, each under 35,000 serialized characters) and one repair call re-pairing 5 claims with a wider excerpt. Each instruction addresses its claim by `claim_id`. Buckets: supported at or above 0.70, unsupported at or below 0.30, uncertain between. Deterministic grep over every tracked file ran first for every number, date, path and token in the document.\n\nRead set: tracked files only. For the fou",
+  "jev_probability": 0.6,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c33",
+  "where": "Provenance",
+  "claim": "The frozen interval map at runtime/nine-gene-audit-20260909/gene-interval-map.json is host-local and not in the public tree",
+  "source_path": "runtime/nine-gene-audit-20260909/gene-interval-map.json",
+  "excerpt": "HOST-LOCAL ARTIFACT, NOT EXCERPTED",
+  "jev_probability": 0.12,
+  "bucket": "host-local artifact, excerpt withheld by design"
+ },
+ {
+  "claim_id": "c34",
+  "where": "Provenance",
+  "claim": "The literature-overlay artifacts in runtime/internal-review-20260907/ are host-local",
+  "source_path": "runtime/internal-review-20260907/research-review.md",
+  "excerpt": "HOST-LOCAL ARTIFACT, NOT EXCERPTED",
+  "jev_probability": 0.13,
+  "bucket": "host-local artifact, excerpt withheld by design"
+ },
+ {
+  "claim_id": "c35",
+  "where": "Row rules",
+  "claim": "The parser rejects repeated variant ids across rows unless allow_repeated_pairings is set",
+  "source_path": "mva_prioritizer/track1_submission.py",
+  "excerpt": "wsets:\n            raise SubmissionError(f\"line {line}: repeats an earlier row's variant set\")\n        for variant in variants:\n            if variant in seen_variants and not allow_repeated_pairings:\n                raise SubmissionError(\n                    f\"line {line}: repeats a variant from line {seen_variants[variant]}; \"\n                    \"repeats add no F-max recall (pass allow_repeated_pairings to permit alternative pairings)\"\n                )\n            seen_variants.setdefault(variant, line)\n        seen_rowsets.add(variants)\n        raw_rows.append(SubmissionRow(variants, epcr, 0, finding, notes,",
+  "jev_probability": 0.81,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c36",
+  "where": "Step 4 stage 1",
+  "claim": "Tier is the first key of the evidence sort, before lane count and native rank",
+  "source_path": "mva_prioritizer/candidate_selection.py",
+  "excerpt": " class (pair before single) as the tiebreak\n    # between a pair and the single of its own first allele, second allele.\n    key = (\n        TIERS.index(tier),\n        0 if both_lanes else 1,\n        native_rank,\n        _variant_key(ordered[0]),\n        0 if len(vs) == 2 else 1,\n        _variant_key(ordered[1]) if len(vs) == 2 else (),\n    )\n    return Row(variants=vs, gene=gene, tier=tier, both_lanes=both_lanes, native_rank=native_rank, sort_key=key)\n\n\ndef _form_rows(pool: Sequence[Candidate]) -> List[Row]:\n    rows: List[Row] = []\n    for c in pool:\n        rows.append(",
+  "jev_probability": 0.66,
+  "bucket": "supported"
+ },
+ {
+  "claim_id": "c37",
+  "where": "Publication",
+  "claim": "docs/20 says the history scan found three historical blobs and that the test fixture symbol was a pre-registered literature gene",
+  "source_path": "docs/20-track1-submission-gate.md",
+  "excerpt": "sembl transcript ids, plus every symbol in the recurrent-gene aggregate report). A scan of all 302 blobs reachable from both branches found three historical blobs carrying one: the two Jev request files the review of `1783250` reported (fixed in `28761f8`) and `tests/test_synthetic_journey.py`, which since the baseline commit used one of the nine pre-registered literature gene symbols as its \"not a synthetic gene\" example. That symbol comes from public MVA literature, was declared on 7 September before any case inspection, and is not case-derived; it is in the denylist becaus",
+  "jev_probability": 0.66,
+  "bucket": "supported"
+ }
+]

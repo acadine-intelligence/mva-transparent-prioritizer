@@ -239,7 +239,7 @@ class SyntheticJourneyTests(unittest.TestCase):
         malformed.append(bad_phase)
 
         bad_gene = copy.deepcopy(source)
-        bad_gene["findings"][0]["variants"][0]["gene"] = "BUB1B"
+        bad_gene["findings"][0]["variants"][0]["gene"] = "NOTSYNGENE1"
         malformed.append(bad_gene)
 
         extra_variant_field = copy.deepcopy(source)

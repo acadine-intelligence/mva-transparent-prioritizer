@@ -6,12 +6,12 @@ D2  single above a sharing pair                              0
 D2  kept sharing pair at a rank that does not strictly pay    0
 D2  EPCR not the ladder prefix                               0
 D2  more than ten rows                                       0
-D3  pools where promotion fired                              2,060
+D3  pools where promotion fired                              2,037
 D3  pools where demotion or removal fired                    1,016
 D3  pools where the final order differs from the plain sort  2,073
 D4  truth comparisons, resolved vs plain evidence sort       20,245
 D4  rank points LOWER than the plain sort                    0
-D4  rank points higher than the plain sort                   8,305
+D4  rank points higher than the plain sort                   7,982
 D4  F-max lower / higher than the plain sort                 5,991 / 2,948
 
 RESULT: the shipped module is deterministic, satisfies the docs/22 invariants,

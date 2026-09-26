@@ -1,9 +1,15 @@
-"""Probe: which promotion and which losing-pair policy to ship. Synthetic only.
+"""Probe: which promotion, which losing-pair policy and which schedule to ship.
+Synthetic only.
 
 Every policy here is implemented inside this file, independent of the module,
 so no two rows can silently be the same function (the fault the review of
 1783250 found in the first version). The shipped module is measured as its
-own row at the end and must coincide with one of the named policies.
+own row at the end and must coincide with exactly one named policy on every
+pool, in a universe wide enough for the policies to differ (the review of
+28761f8 found a 3-alleles-per-gene universe hid a schedule difference that a
+fourth allele exposes; this universe has 4 alleles in one gene, 3 in another,
+2 in a third and 1 in a fourth, and the module is also checked on a second
+seed).
 
 Two numbers per policy. The one that decides is DOMINATION: the count of
 truth comparisons where the policy scores BELOW the plain evidence sort.
@@ -26,9 +32,17 @@ Losing-pair policies (stage 3), a losing pair being one that shares an allele
 with a pair kept above it (winner at rank q, loser at rank r):
   keep        keep it
   demote      always demote it to its unshared single in place (remove it
-              when both alleles are claimed above)
+              when both alleles are claimed above, or when that single
+              already sits above it)
   pays_ge     demote only when points(r) <  0.5 * points(q)   (keep at equality)
   pays_gt     demote only when points(r) <= 0.5 * points(q)   (demote at equality)
+Schedules for reaching the joint fixpoint of stages 2 and 3:
+  step        promote to a fixpoint, then ONE demotion, and repeat; a single
+              created by a demotion is promoted over before the next loser
+              is judged (this is what resolve_rows does)
+  batch       promote to a fixpoint, then demote to a fixpoint, and repeat
+The two schedules judge later losers against different tables and can
+produce different files from the same pool.
 """
 from __future__ import annotations
 import itertools, pathlib, random, sys
@@ -38,9 +52,12 @@ import evaluation as off
 from dataclasses import replace
 from mva_prioritizer.candidate_selection import EPCR_LADDER, Candidate, order_rows, resolve_rows
 
-UNIVERSE = [("chr1", 1000, "A", "G"), ("chr1", 2000, "C", "T"), ("chr1", 3000, "G", "A"),
-            ("chr2", 3000, "G", "A"), ("chr2", 4000, "T", "C"), ("chr3", 5000, "A", "C")]
-GENE = {"chr1": "G1", "chr2": "G2", "chr3": "G3"}
+UNIVERSE = [("chr1", 1000, "A", "G"), ("chr1", 2000, "C", "T"), ("chr1", 3000, "G", "A"), ("chr1", 4000, "T", "C"),
+            ("chr2", 3000, "G", "A"), ("chr2", 4000, "T", "C"), ("chr2", 5000, "A", "T"),
+            ("chr3", 5000, "A", "C"), ("chr3", 6000, "C", "G"),
+            ("chr4", 7000, "G", "T")]
+GENE = {"chr1": "G1", "chr2": "G2", "chr3": "G3", "chr4": "G4"}
+TIERS = "ABC"
 EPS = 1e-9
 
 def score(rows, truth):
@@ -79,49 +96,54 @@ def _promote(rows, mode):
             return out
     raise RuntimeError("promotion did not converge")
 
-def _demote(rows, keep_when):
+def _demote_one(rows, keep_when):
+    """One demotion or removal, topmost loser first. Returns (rows, changed)."""
     out = list(rows)
-    for _ in range(100):
-        claimed = {}
-        changed = False
-        for j, r in enumerate(out):
-            if not r.is_pair:
-                continue
-            shared = r.variants & set(claimed)
-            if not shared:
-                for v in r.variants: claimed[v] = j
-                continue
-            q = min(claimed[v] for v in shared) + 1
-            if keep_when(j + 1, q):
-                for v in r.variants: claimed.setdefault(v, j)
-                continue
-            unshared = r.variants - shared
-            if not unshared:
+    claimed = {}
+    for j, r in enumerate(out):
+        if not r.is_pair:
+            continue
+        shared = r.variants & set(claimed)
+        if not shared:
+            for v in r.variants: claimed[v] = j
+            continue
+        q = min(claimed[v] for v in shared) + 1
+        if keep_when(j + 1, q):
+            for v in r.variants: claimed.setdefault(v, j)
+            continue
+        unshared = r.variants - shared
+        if not unshared:
+            del out[j]
+        else:
+            (u,) = unshared
+            # A remnant that would duplicate a single already above adds
+            # nothing; drop the pair instead. Otherwise the remnant takes
+            # the pair's slot and lower duplicates go.
+            if any(not x.is_pair and x.variants == frozenset({u}) for x in out[:j]):
                 del out[j]
             else:
-                (u,) = unshared
-                # A remnant that would duplicate a single already above adds
-                # nothing; drop the pair instead. Otherwise the remnant takes
-                # the pair's slot and lower duplicates go.
-                if any(not x.is_pair and x.variants == frozenset({u}) for x in out[:j]):
-                    del out[j]
-                else:
-                    out[j] = replace(r, variants=frozenset({u}), demoted_from=r.variants)
-                    out = out[:j + 1] + [x for x in out[j + 1:] if x.is_pair or x.variants != frozenset({u})]
-            changed = True
-            break
-        if not changed:
-            return out
-    raise RuntimeError("demotion did not converge")
+                out[j] = replace(r, variants=frozenset({u}), demoted_from=r.variants)
+                out = out[:j + 1] + [x for x in out[j + 1:] if x.is_pair or x.variants != frozenset({u})]
+        return out, True
+    return out, False
 
-def _joint(rows, mode, keep_when):
+def _joint(rows, mode, keep_when, schedule):
     out = list(rows)
-    for _ in range(100):
+    for _ in range(400):
         out = _promote(out, mode)
-        nxt = _demote(out, keep_when)
-        if [r.variants for r in nxt] == [r.variants for r in out]:
-            return out
-        out = nxt
+        if schedule == "step":
+            out, changed = _demote_one(out, keep_when)
+            if not changed:
+                return out
+        else:
+            nxt = out
+            while True:
+                nxt, changed = _demote_one(nxt, keep_when)
+                if not changed:
+                    break
+            if [r.variants for r in nxt] == [r.variants for r in out]:
+                return out
+            out = nxt
     raise RuntimeError("joint resolution did not converge")
 
 STAGE3 = {
@@ -131,10 +153,17 @@ STAGE3 = {
     "pays_gt": lambda r, q: _points(r) > 0.5 * _points(q),
 }
 POLICIES = {"plain": lambda rows: rows}
-for mode in ("direct", "floor", "transitive"):
-    for name, keep in STAGE3.items():
-        POLICIES[f"{mode}+{name}"] = (lambda m, k: lambda rows: _joint(rows, m, k))(mode, keep)
+for schedule in ("step", "batch"):
+    for mode in ("direct", "floor", "transitive"):
+        for name, keep in STAGE3.items():
+            POLICIES[f"{schedule}/{mode}+{name}"] = (
+                lambda m, k, s: lambda rows: _joint(rows, m, k, s))(mode, keep, schedule)
 POLICIES["module"] = lambda rows: resolve_rows(rows)[0]
+
+def random_pool(rng):
+    k = rng.randint(2, 8)
+    return [Candidate(v, GENE[v[0]], rng.choice(TIERS), rng.choice([True, False]), rng.randint(1, 9), True)
+            for v in rng.sample(UNIVERSE, k)]
 
 def main():
     rng = random.Random(20260926)
@@ -143,10 +172,8 @@ def main():
     below = {p: 0 for p in names}; above = {p: 0 for p in names}
     same = {p: 0 for p in names}
     n = pools = 0
-    for _ in range(4000):
-        k = rng.randint(2, 6)
-        pool = [Candidate(v, GENE[v[0]], rng.choice("AB"), rng.choice([True, False]), rng.randint(1, 9), True)
-                for v in rng.sample(UNIVERSE, k)]
+    for _ in range(3000):
+        pool = random_pool(rng)
         base = order_rows(pool)
         outs = {p: f(list(base)) for p, f in POLICIES.items()}
         pools += 1
@@ -162,16 +189,30 @@ def main():
                 total[p] += rp; ftotal[p] += f
                 if rp < plain_rp - EPS: below[p] += 1
                 if rp > plain_rp + EPS: above[p] += 1
-    print(f"{n:,} truth comparisons over {pools:,} random pools (6 alleles, tiers A/B, ranks 1-9).")
+    print(f"{n:,} truth comparisons over {pools:,} random pools "
+          f"(10 alleles in 4 genes, 4/3/2/1 per gene, 2 to 8 candidates, tiers A/B/C, ranks 1-9).")
     print("below/above: comparisons where the policy's rank points are below/above the plain evidence sort.")
     print("A policy with below > 0 can hurt the file under some truth and is not eligible.\n")
-    print(f"  {'policy':20s} {'below':>7s} {'above':>7s} {'mean rp':>9s} {'mean F-max':>11s} {'= module':>9s}")
+    print(f"  {'policy':28s} {'below':>7s} {'above':>7s} {'mean rp':>9s} {'mean F-max':>11s} {'= module':>9s}")
     for p in names:
-        print(f"  {p:20s} {below[p]:>7,} {above[p]:>7,} {total[p]/n:>9.3f} {ftotal[p]/n:>11.4f} {same[p]:>9,}")
+        print(f"  {p:28s} {below[p]:>7,} {above[p]:>7,} {total[p]/n:>9.3f} {ftotal[p]/n:>11.4f} {same[p]:>9,}")
     eligible = [p for p in names if below[p] == 0 and p not in ("plain", "module")]
-    best = max(eligible, key=lambda p: (total[p], ftotal[p]))
-    print(f"\nBest policy that never scores below the plain sort: {best} "
-          f"(mean {total[best]/n:.3f}, F-max {ftotal[best]/n:.4f}).")
-    print(f"Module coincides with: {[p for p in names if p not in ('module',) and same[p] == pools]}")
+    ranked = sorted(eligible, key=lambda p: (total[p], ftotal[p]), reverse=True)
+    print(f"\nEligible policies (never below the plain sort), best first:")
+    for p in ranked[:6]:
+        print(f"  {p:28s} mean {total[p]/n:.3f}  F-max {ftotal[p]/n:.4f}")
+    coincide = [p for p in names if p != "module" and same[p] == pools]
+    print(f"\nModule coincides on every pool with: {coincide}")
+
+    # Second seed, module against the named policies only, for the coincidence claim.
+    rng2 = random.Random(1)
+    agree = {p: 0 for p in names if p != "module"}
+    for _ in range(3000):
+        base = order_rows(random_pool(rng2))
+        mod = [r.variants for r in resolve_rows(list(base))[0]]
+        for p in agree:
+            if [r.variants for r in POLICIES[p](list(base))] == mod:
+                agree[p] += 1
+    print(f"Second seed (3,000 pools): module coincides on every pool with: {[p for p, c in agree.items() if c == 3000]}")
 
 main()

@@ -1,0 +1,66 @@
+{
+  "commit": "28761f8",
+  "verdict": "FAIL",
+  "blocking": [
+    {
+      "id": "B1",
+      "claim": "docs/22 line 114: 'That is the shipped rule, and the probe's last line confirms the module coincides with it on all 4,000 pools.' candidate_selection.py lines 37-38: 'this rule is the best policy that clears the bar, and the probe checks that the module coincides with it.' docs/22 line 112 (Stage 3): a losing pair 'becomes a single row for its unshared allele in the same position ... or is removed when both of its alleles are claimed by pairs above it.'",
+      "evidence": "The probe's direct+pays_gt is not the module's function, and it is not the Stage 3 policy the document describes. Two differences: (1) policy_probe.py _demote lines 106-107 drops a losing pair outright when its unshared single already sits above it, a branch the Review history row (line 189) says was 'removed with the rule change' and which Stage 3 does not describe; (2) _joint (lines 117-125) runs demotion to its own fixpoint before re-promoting, while resolve_rows (lines 303-312) re-promotes after every single demotion. Both differences are invisible in the probe's universe because it allows at most three alleles per gene (chr1 has 3, chr2 has 2, chr3 has 1), so the coincidence on 4,000 pools is an artifact of pool size. With four alleles in one gene they diverge: a 6-allele pool (below) gives module [(1:1000,1:2000),(1:3000,1:4000),2:2000,1:3000,3:1000,1:1000,1:2000,1:4000] and probe [(1:1000,1:2000),(1:3000,1:4000),1:3000,2:2000,1:4000,3:1000,1:1000,1:2000]; under truth (3:1000,2:2000) the module scores 25.0 and the probe 12.5. On a 10-allele, 4-gene universe at 5 to 9 rows (3,000 pools, seed 1, 66,211 comparisons) they differ on 519 pools; the probe's policy scores mean 37.810 against the module's 37.757 with both at 0 comparisons below the plain sort. Re-implementing the module's interleaving (one demotion, then re-promote) with the probe's demote body reproduces the module on all 3,000 pools, so the divergence is the loop structure plus the reintroduced drop branch. Consequence: the row labelled 'module' is the only row that measures the shipped code, the 'best policy that never hurts' label belongs to a different function that outscores the module once pools are larger than the probe can generate, and the document's own safeguard ('no two rows can be the same function unnoticed') was met by declaring two different functions the same. This is the same class of fault as B1 of the previous review, at the next size up.",
+      "repro": "cd <worktree>; python3 scratch/probe5_28761f8.py (table plus a traced example); python3 scratch/probe6_28761f8.py (full 14-row policy table on the 10-allele universe, seed 20260926: direct+pays_gt 37.637 vs module 37.583, both 0 below). Minimal pool (Candidate(variant, gene, tier, both_lanes, native_rank, True)): chr3:1000 B both 1; chr1:1000 A both 3; chr1:4000 B both 3; chr2:2000 A one 5; chr1:2000 A one 8; chr1:3000 A one 6. Compare resolve_rows(order_rows(pool)) with policy_probe._joint(order_rows(pool), 'direct', STAGE3['pays_gt']) and score both under truth (chr3:1000, chr2:2000) with tools/official-track1/evaluation.py."
+    },
+    {
+      "id": "B2",
+      "claim": "docs/22 line 114: 'Always demoting the loser has the highest raw mean in one promotion family (46.574) and fails that bar (75 comparisons below the plain sort)'. candidate_selection.py lines 258-260: 'always demoting has a marginally higher mean over uniformly random truths and loses that guarantee.'",
+      "evidence": "False against the tracked result file. verification/scorer-hedging/policy-probe-result.txt (re-run byte-identical): direct+demote 46.574 < direct+pays_gt 46.833; floor+demote 43.395 < floor+pays_gt 43.438; transitive+demote 46.534 < transitive+pays_gt 46.706. Always-demote has the highest raw mean in no promotion family; the shipped pays_gt policy beats it in all three. The 46.574 figure was the previous review's always-demote number against the old pays_ge rule (46.557), and the sentence was carried over after the rule changed. The document's stated reason for needing the domination criterion ('always demoting has the highest raw mean ... and fails that bar') is therefore not what the probe shows: pays_gt wins on mean and on domination, and the domination tiebreak was never needed to reject always-demote.",
+      "repro": "cd <worktree>; python3 verification/scorer-hedging/policy_probe.py | diff - verification/scorer-hedging/policy-probe-result.txt; read the mean rp column for the three *+demote rows against the three *+pays_gt rows."
+    }
+  ],
+  "non_blocking": [
+    {
+      "id": "N1",
+      "claim": "docs/22 line 110: 'Direct never scores below the plain sort.'",
+      "evidence": "True only for direct+pays_gt and direct+pays_ge in the probe's universe. direct+demote has 75 below in the tracked result, and on the 10-allele universe direct+keep has 976 below (probe6). The sentence names the promotion mode but the property belongs to the promotion and demotion pair.",
+      "repro": "policy-probe-result.txt row direct+demote; probe6_28761f8.py row direct+keep."
+    },
+    {
+      "id": "N2",
+      "claim": "docs/22 line 189 (Review history, notes row): 'the trade is stated in Stage 3'.",
+      "evidence": "Stage 3 (line 112) says 'otherwise the row can only equal or lower the score' and nothing about the trade the previous review's N3 named (a kept sharing pair at a paying rank can score below dropping it under other truths). The trade is not stated anywhere in Step 4; the Review history claims a correction that was not made.",
+      "repro": "grep -n 'trade' docs/22-candidate-selection-rule.md: hits at lines 68 and 189 only."
+    },
+    {
+      "id": "N3",
+      "claim": "tests/test_candidate_selection.py lines 307-309: 'policy_probe.py measured this promotion (\"direct\") ahead of the variant that never passes a higher pair (\"floor\", 46.574 against 43.395)'.",
+      "evidence": "Those are the direct+demote and floor+demote means, a policy family the document rejects. The shipped comparison is 46.833 against 43.438 (docs/22 line 110). Comment only; the assertions are correct.",
+      "repro": "policy-probe-result.txt rows direct+demote, floor+demote, direct+pays_gt, floor+pays_gt."
+    },
+    {
+      "id": "N4",
+      "claim": "docs/22 line 161: 'This document has been independently reviewed twice ... Both verdicts were FAIL.' Line 151: policy_probe.py 'Scores four policies for the losing pair'.",
+      "evidence": "The same section lists three reviews (ea68d94, 741aaad, 1783250), all FAIL. The table row still describes the 1783250 probe; the script now scores twelve combinations plus plain and module (line 114 says so). Stale counts.",
+      "repro": "read docs/22 lines 151, 161, 163-189."
+    },
+    {
+      "id": "N5",
+      "claim": "scripts/verify_no_case_tokens.py design: the gate depends on a gitignored denylist.",
+      "evidence": "Sound in the fail-closed direction: a missing or empty denylist exits 2 with denylist_missing / denylist_empty (verified by running with --denylist /nonexistent), so a fresh clone cannot pass silently; instead Build OS verify can never pass on any host that has not built the list, and nothing in the tree says how the list is built or checks its hash. The regex is case-sensitive and whole-word; a case-insensitive sweep found one lowercase collision in docs/11 (a short config key in an Exomiser YAML excerpt, not a symbol leak), which the gate correctly ignores. The test for the B2 pool scores with the mirror track1_submission.score_submission rather than the vendored evaluator; the mirror is pinned elsewhere, so this is a note.",
+      "repro": "python3 scripts/verify_no_case_tokens.py --denylist /nonexistent; echo $? (2)."
+    }
+  ],
+  "checked": [
+    "HEAD == 28761f803428e6a22316029555aa857e58f883be on mva-reference-setup, origin/mva-reference-setup at the same SHA, remote repository private; git status --porcelain empty before and after; no tracked file modified.",
+    "python3 -m unittest tests.test_candidate_selection: 40 tests OK.",
+    "policy_probe.py and verify_module.py re-run: output byte-identical to policy-probe-result.txt and verify-module-result.txt.",
+    "All twelve probe policies are now distinct functions inside the script (three promotion modes x four STAGE3 lambdas); the module is a separate row calling resolve_rows; the result table shows distinct numbers for every row except module == direct+pays_gt (which is finding B1).",
+    "Stage 1 keys (tier, lane agreement, native rank, first allele, class, second allele) match _make_row lines 152-159; Stage 2 sentence matches _promote_once lines 206-223 (topmost slot, singles fill in order, bystanders fixed, block may pass a higher pair); Stage 3 sentence matches _demote_once lines 264-294 (strict >, remnant in place, lower duplicate single removed, removal when both alleles claimed); the official-tier arithmetic in the prose (demoted from rank 2 under a rank-1 winner; stays at 3 and demoted from 4 under rank 2 or 3; stays at 5 and demoted from 6 under rank 4 or 5) matches _rank_points and the > test; resolve_rows runs stages 2 and 3 to a joint fixpoint.",
+    "_rank_points matches RANK_POINT_TIERS semantics in tools/official-track1/evaluation.py (100 / 50 / 25 / 10 / 0).",
+    "Rule 2 wording now states that Stage 2 may lift the lower pair over the higher; that is what _promote_once does.",
+    "verify_module.py imports the shipped module (no re-implementation); D2 docstring and check now agree (kept sharing pair flagged when points(r) <= 0.5*points(q)); D1-D4 test determinism, no single above a sharing pair, the strict pays invariant, ladder EPCRs, the ten-row cap, firing shares, and domination against the plain sort. Domination also held on a wider 10-allele universe with tiers A-D and mixed recessive flags: 0 below plain in 209,038 comparisons (probe4).",
+    "The module never scored below the plain evidence sort in any universe tried (6-allele, 10-allele, 4 genes, tiers A-D, 2-10 rows).",
+    "Tests pin the strict inequality: rank 2 under a rank-1 winner demoted; rank 3 under rank 2 kept (50 > 25); rank 4 under rank 2 demoted (25 > 25 false). The B2 pool is pinned with both truths scored (50.0 and 100.0).",
+    "Privacy: git check-ignore runtime/privacy/denied-tokens.txt -> .gitignore:17 runtime/; product.json lists case-token-scan (scripts/verify_no_case_tokens.py) with required true; the gate exits 0 clear with 30 denied tokens on the checkout; a case-sensitive whole-word scan of all 201 blobs in the 28761f8 tree against every denylist token found 0 hits, while the same scan of the 1783250 tree hits claims.json and request-1.json (so the gate would have failed on 1783250); no <home> <volume> HP: terms, rsIDs, ENSG/ENST or NM_/NP_ ids in any blob; the only non-round coordinate is chr1:123 in a malformed-input fixture in tests/test_synthetic_journey.py.",
+    "build_claims.py refuses runtime/ excerpts by construction (tracked() returns False for any runtime/ path before consulting git; grab() returns the placeholder) and asserts no excerpt carries a denylist token; claims-post-review-3.json c28 and c29 carry only the placeholder.",
+    "The four 'checked by hand' claims (c04, c23, c24, c25) are genuine excerpt-window misses: c04's excerpt holds the direct+pays_gt row with 0 below but not the header; c23's holds verdict FAIL and B1 with B2 and B3 outside the window; c24's is the B1 evidence text; c25's is the tail of the B2 evidence. Each claim is true against its source.",
+    "Numbers quoted in docs/22 lines 110 and 114 (43.438, 579, 27,594, 4,000, 75, 46.557, 46.833) match the tracked result file; the 46.574 figure exists but is misdescribed (B2)."
+  ]
+}

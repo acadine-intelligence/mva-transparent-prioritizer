@@ -250,14 +250,15 @@ def _demote_once(rows: List[Row]) -> Tuple[List[Row], Optional[str]]:
     is no better than that partial: it becomes a single row for its
     unshared allele in the same position, and a lower single for that
     allele is dropped as a duplicate. It is removed outright when both of
-    its alleles are claimed by pairs above it.
+    its alleles are claimed by pairs above it, or when a single for its
+    unshared allele already sits above it (a remnant there would be a
+    duplicate row, which the submission parser rejects).
 
     Where points(r) is strictly better than the partial, the pair stays.
-    That is the one demotion policy that never scores below the plain
-    evidence sort under any truth (verification/scorer-hedging/
-    policy_probe.py measures every alternative against that bar); always
-    demoting has a marginally higher mean over uniformly random truths and
-    loses that guarantee.
+    That is the demotion policy with the highest mean rank points among
+    those that never score below the plain evidence sort under any truth
+    (verification/scorer-hedging/policy_probe.py measures every alternative
+    against that bar first).
 
     This runs after promotion has reached a fixpoint, so no single row that
     shares an allele with a pair sits above that pair here."""
@@ -281,6 +282,9 @@ def _demote_once(rows: List[Row]) -> Tuple[List[Row], Optional[str]]:
             del out[j]
             return out, "removed"
         (u,) = unshared
+        if any(not out[k].is_pair and out[k].variants == frozenset({u}) for k in range(j)):
+            del out[j]
+            return out, "removed"
         remnant = Row(
             variants=frozenset({u}), gene=row.gene, tier=row.tier, both_lanes=row.both_lanes,
             native_rank=row.native_rank, sort_key=row.sort_key, demoted_from=row.variants,
@@ -297,19 +301,35 @@ def _demote_once(rows: List[Row]) -> Tuple[List[Row], Optional[str]]:
 
 def resolve_rows(rows: List[Row]) -> Tuple[List[Row], int, int, int]:
     """Step 4 stages 2 and 3 to a joint fixpoint. Returns the rows and the
-    promotion, demotion and removal counts."""
+    promotion, demotion and removal counts.
+
+    Schedule: promote to a fixpoint, then demote to a fixpoint, and repeat
+    until a full round changes nothing. Demoting to a fixpoint before any
+    re-promotion means every loser in a round is judged at its evidence rank
+    (its rank in the promoted table), before a single created by an earlier
+    demotion can be promoted over and lift it. The alternative, one
+    demotion then re-promotion, judges later losers one slot lower; the two
+    schedules produce different files on about 1 pool in 80 and the batch
+    schedule scores higher on every seed measured in
+    verification/scorer-hedging/policy_probe.py, with both never below the
+    plain sort."""
     out = list(rows)
     promotions = demoted = removed = 0
     for _ in range(len(out) * len(out) + 1):
         out, n = promote_rows(out)
         promotions += n
-        out, what = _demote_once(out)
-        if what is None:
+        changed = False
+        while True:
+            out, what = _demote_once(out)
+            if what is None:
+                break
+            changed = True
+            if what == "demoted":
+                demoted += 1
+            else:
+                removed += 1
+        if not changed:
             return out, promotions, demoted, removed
-        if what == "demoted":
-            demoted += 1
-        else:
-            removed += 1
     raise SelectionError("pair resolution did not converge")
 
 
