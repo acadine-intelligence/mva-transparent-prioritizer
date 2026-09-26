@@ -1,0 +1,24 @@
+27,594 truth comparisons over 4,000 random pools
+
+mean rank points / mean F-max per policy
+  plain                   34.411   0.7012
+  promote_keep            45.852   0.6829
+  demote_then_promote     45.623   0.6829
+  promote_then_demote     46.557   0.6829
+  promote_then_pays       46.557   0.6829
+
+rank-point wins[row over column]
+                                plain promote_keep demote_then_ promote_then promote_then
+  plain                             0            0            0            0            0
+  promote_keep                 10,132            0        1,133            0            0
+  demote_then_promote           9,603          574            0           42           42
+  promote_then_demote          10,744          901        1,502            0            0
+  promote_then_pays            10,744          901        1,502            0            0
+
+F-max wins[row over column]
+                                plain promote_keep demote_then_ promote_then promote_then
+  plain                             0        8,212        7,453        8,212        8,212
+  promote_keep                  3,980            0        1,237            0            0
+  demote_then_promote           3,178        2,032            0        2,032        2,032
+  promote_then_demote           3,980            0        1,237            0            0
+  promote_then_pays             3,980            0        1,237            0            0

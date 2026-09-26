@@ -1,0 +1,24 @@
+scored combinations: 1843650
+strictly-lower hedge violations: 48608
+equal-EPCR hedge violations:     48252
+
+!! STRICT CLAIM FALSIFIED. First 3 counterexamples:
+  truth=(('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T'))
+  base=[((('chr1', 1000, 'A', 'G'),), 0.9), ((('chr1', 1000, 'A', 'G'),), 0.8)]
+  added=[((('chr1', 1000, 'A', 'G'),), 0.6), ((('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T')), 0.5)]
+  before (pts,f)=(50.0, 0.6666666666666666)  after=(25.0, 1.0)
+  truth=(('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T'))
+  base=[((('chr1', 1000, 'A', 'G'),), 0.9), ((('chr1', 1000, 'A', 'G'),), 0.8)]
+  added=[((('chr1', 2000, 'C', 'T'),), 0.6), ((('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T')), 0.5)]
+  before (pts,f)=(50.0, 0.6666666666666666)  after=(25.0, 1.0)
+  truth=(('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T'))
+  base=[((('chr1', 1000, 'A', 'G'),), 0.9), ((('chr1', 1000, 'A', 'G'),), 0.8)]
+  added=[((('chr2', 3000, 'G', 'A'),), 0.6), ((('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T')), 0.5)]
+  before (pts,f)=(50.0, 0.6666666666666666)  after=(25.0, 0.8)
+
+Equal-EPCR hedging DID reduce the score in 48252 cases.
+  example:
+    truth=(('chr1', 1000, 'A', 'G'),)
+    base=[((('chr1', 1000, 'A', 'G'),), 0.9)]
+    added=[((('chr1', 2000, 'C', 'T'),), 0.9)]
+    before (pts,f)=(100.0, 1.0)  after=(100.0, 0.6666666666666666)

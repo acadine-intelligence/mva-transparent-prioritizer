@@ -1,0 +1,37 @@
+ASSUMPTION: the answer key is a compound-heterozygous pair
+            (official evaluation.py docstring; partial credit gated on len(true_variants) == 2)
+
+Universe 6 alleles, 21 row shapes, 15 truths.
+Sizes 2..4 enumerated in full; sizes 5..10 sampled 40,000 orderings each, seed 20260926.
+
+C1  position-preserving promotion, against leaving the order alone
+    size   kind    comparisons   rank-pts lowered   F-max lowered   F-max raised
+    n= 2  full          6,300               0             120              0
+    n= 3  full        119,700               0           5,700          1,500
+    n= 4  full      2,154,600               0         164,640         61,500
+    n= 5  sample      600,000               0          61,255         26,033
+    n= 6  sample      600,000               0          72,481         33,474
+    n= 7  sample      600,000               0          80,003         38,912
+    n= 8  sample      600,000               0          87,074         43,790
+    n= 9  sample      600,000               0          91,090         47,576
+    n=10  sample      600,000               0          93,611         49,954
+    total              5,880,600               0         655,974        302,739
+    row sets where rank points ROSE: 201,298
+    first F-max lowering at n=2: truth=(('chr1', 1000, 'A', 'G'), ('chr2', 3000, 'G', 'A'))
+       orig=[(('chr1', 1000, 'A', 'G'),), (('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T'))] -> 0.667
+       ruled=[(('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T')), (('chr1', 1000, 'A', 'G'),)] -> 0.500
+
+C2  the promotion moves only the pair and its own singles
+    orderings where it fired                    230,332
+    orderings where a row OUTSIDE the block moved 0
+
+C3  second allele-sharing pair, 0-3 bystanders, 316,800 truth comparisons per policy
+    wins[row policy] over [column policy], rank points:
+                       keep_in_place            drop unshared_single  directly_below
+    keep_in_place                  0          15,120               0          29,100
+    drop                      19,800               0               0          29,100
+    unshared_single           19,800          15,120               0          29,100
+    directly_below            42,030          24,750          22,230               0
+
+RESULT: C1 (rank points) and C2 hold at every row count the gate allows.
+        F-max and C3 are reported as measured trade-offs.

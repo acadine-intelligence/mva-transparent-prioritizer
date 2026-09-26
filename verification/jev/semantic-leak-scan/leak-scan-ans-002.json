@@ -1,0 +1,67 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "docs/01-research.md#1": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "docs/01-research.md#2": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "docs/02-product-requirements.md#1": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "docs/02-product-requirements.md#2": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "docs/03-domain-model.md#1": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "docs/03-domain-model.md#2": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "docs/04-architecture.md#1": {
+      "type": "noul",
+      "noul": 0.13
+    },
+    "docs/04-architecture.md#2": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "docs/04-architecture.md#3": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "docs/05-ux.md#1": {
+      "type": "noul",
+      "noul": 0.17
+    },
+    "docs/06-design-system.md#1": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "docs/07-delivery-contract.md#1": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "docs/07-delivery-contract.md#2": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "docs/08-production-readiness.md#1": {
+      "type": "noul",
+      "noul": 0.12
+    }
+  },
+  "usage": {
+    "input_tokens": 7324,
+    "output_tokens": 363
+  },
+  "digest": "e02da4709903715b2a7084882d7b3d88876eca2c884fe80bd5f66a765c36d03d",
+  "latency_ms": 1649
+}

@@ -1,0 +1,23 @@
+combinations scored: 1843650
+  strictly-below arm: 1735200   equal-EPCR arm: 108450
+  equal-EPCR cases where EITHER metric dropped (brute_force_hedging.py counts these): 48252
+
+A. strictly-below hedging lowered RANK POINTS : 48608
+B. strictly-below hedging lowered F-MAX       : 0
+C. equal-EPCR hedging lowered F-MAX           : 44090
+   equal-EPCR hedging lowered RANK POINTS     : 7216
+
+   of which 'added the exact true pair lower than an existing partial': 48608
+   unexplained by that inversion: 0
+
+--- recommended shape under both truths ---
+  truth=(('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T'))         rank_points= 100.0 f_max=1.000
+  truth=(('chr1', 1000, 'A', 'G'),)                                  rank_points=  50.0 f_max=0.667
+  truth=(('chr1', 2000, 'C', 'T'),)                                  rank_points=  50.0 f_max=0.667
+  truth=(('chr2', 3000, 'G', 'A'),)                                  rank_points=   0.0 f_max=0.000
+
+--- pair-only, no hedge rows ---
+  truth=(('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T'))         rank_points= 100.0 f_max=1.000
+  truth=(('chr1', 1000, 'A', 'G'),)                                  rank_points=   0.0 f_max=0.667
+  truth=(('chr1', 2000, 'C', 'T'),)                                  rank_points=   0.0 f_max=0.667
+  truth=(('chr2', 3000, 'G', 'A'),)                                  rank_points=   0.0 f_max=0.000

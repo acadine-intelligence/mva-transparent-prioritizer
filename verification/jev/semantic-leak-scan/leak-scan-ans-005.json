@@ -1,0 +1,63 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "docs/17-exomiser-probe.md#2": {
+      "type": "noul",
+      "noul": 0.18
+    },
+    "docs/17-exomiser-probe.md#3": {
+      "type": "noul",
+      "noul": 0.22
+    },
+    "docs/18-private-sensitivity-design.md#1": {
+      "type": "noul",
+      "noul": 0.18
+    },
+    "docs/18-private-sensitivity-design.md#2": {
+      "type": "noul",
+      "noul": 0.17
+    },
+    "docs/18-private-sensitivity-design.md#3": {
+      "type": "noul",
+      "noul": 0.21
+    },
+    "docs/18-private-sensitivity-design.md#4": {
+      "type": "noul",
+      "noul": 0.21
+    },
+    "docs/18-private-sensitivity-design.md#5": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "docs/18-private-sensitivity-design.md#6": {
+      "type": "noul",
+      "noul": 0.21
+    },
+    "docs/18-private-sensitivity-design.md#7": {
+      "type": "noul",
+      "noul": 0.22
+    },
+    "docs/18-private-sensitivity-design.md#8": {
+      "type": "noul",
+      "noul": 0.21
+    },
+    "docs/18-private-sensitivity-design.md#9": {
+      "type": "noul",
+      "noul": 0.11
+    },
+    "docs/19-verified-public-sources.md#1": {
+      "type": "noul",
+      "noul": 0.13
+    },
+    "docs/19-verified-public-sources.md#2": {
+      "type": "noul",
+      "noul": 0.17
+    }
+  },
+  "usage": {
+    "input_tokens": 8307,
+    "output_tokens": 368
+  },
+  "digest": "62f1296b02e9cfef062916769f9dcd2b7fd5a1e6eaccc91142e1db06e2a96cf7",
+  "latency_ms": 1663
+}

@@ -1,0 +1,71 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    ".gitignore#1": {
+      "type": "noul",
+      "noul": 0.13
+    },
+    ".project-meta.json#1": {
+      "type": "noul",
+      "noul": 0.11
+    },
+    "AGENTS.md#1": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "README.md#1": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "config/noncoding-acquisition-v1.json#1": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "config/noncoding-benchmark-v1.json#1": {
+      "type": "noul",
+      "noul": 0.18
+    },
+    "config/reference-bundle.json#1": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "config/reference-bundle.json#2": {
+      "type": "noul",
+      "noul": 0.13
+    },
+    "config/reference-bundle.json#3": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "config/reference-bundle.json#4": {
+      "type": "noul",
+      "noul": 0.18
+    },
+    "config/reference-bundle.json#5": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "config/reference-bundle.json#6": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "config/scoring-v1.json#1": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "docs/00-product-brief.md#1": {
+      "type": "noul",
+      "noul": 0.13
+    },
+    "docs/00-product-brief.md#2": {
+      "type": "noul",
+      "noul": 0.13
+    }
+  },
+  "usage": {
+    "input_tokens": 11112,
+    "output_tokens": 353
+  },
+  "digest": "ee503e9c6a650b2a4eb785b7966f81b2a212ef2527feafe2518a30b37702f318",
+  "latency_ms": 1792
+}

@@ -1,0 +1,63 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "tests/fixtures/exomiser_recompute_mutations/SYNG1_homalt.tsv#2": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "tests/fixtures/exomiser_recompute_mutations/SYNG5_becomes_noncoding.json#1": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "tests/fixtures/exomiser_recompute_mutations/SYNG5_becomes_noncoding.tsv#1": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "tests/fixtures/exomiser_recompute_mutations/SYNG5_becomes_noncoding.tsv#2": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "tests/fixtures/exomiser_recompute_mutations/SYNG6_survivor_at_exact_cutoff.json#1": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "tests/fixtures/exomiser_recompute_mutations/SYNG6_survivor_at_exact_cutoff.tsv#1": {
+      "type": "noul",
+      "noul": 0.13
+    },
+    "tests/fixtures/exomiser_recompute_mutations/SYNG6_survivor_at_exact_cutoff.tsv#2": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "tests/fixtures/exomiser_recompute_mutations/SYNG6_survivor_just_above.json#1": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "tests/fixtures/exomiser_recompute_mutations/SYNG6_survivor_just_above.tsv#1": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "tests/fixtures/exomiser_recompute_mutations/SYNG6_survivor_just_above.tsv#2": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "tests/fixtures/exomiser_recompute_mutations/drop_GENOTYPE_column.stderr.txt#1": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "tests/fixtures/exomiser_recompute_mutations/drop_GENOTYPE_column.tsv#1": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "tests/fixtures/exomiser_recompute_mutations/drop_GENOTYPE_column.tsv#2": {
+      "type": "noul",
+      "noul": 0.13
+    }
+  },
+  "usage": {
+    "input_tokens": 14844,
+    "output_tokens": 526
+  },
+  "digest": "730aad1b8713b8d1e70c887388e67dc124631c45d0cf6b3f2b71315b36df7493",
+  "latency_ms": 1770
+}

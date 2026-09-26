@@ -1,0 +1,51 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "mva_prioritizer/reference_bundle.py#4": {
+      "type": "noul",
+      "noul": 0.13
+    },
+    "mva_prioritizer/reference_bundle.py#5": {
+      "type": "noul",
+      "noul": 0.13
+    },
+    "mva_prioritizer/reference_bundle.py#6": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "mva_prioritizer/reference_bundle.py#7": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "mva_prioritizer/reference_bundle.py#8": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "mva_prioritizer/reference_install.py#1": {
+      "type": "noul",
+      "noul": 0.11
+    },
+    "mva_prioritizer/reference_install.py#2": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "mva_prioritizer/reference_install.py#3": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "mva_prioritizer/reference_install.py#4": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "mva_prioritizer/reference_install.py#5": {
+      "type": "noul",
+      "noul": 0.15
+    }
+  },
+  "usage": {
+    "input_tokens": 7228,
+    "output_tokens": 264
+  },
+  "digest": "c6a11cd3edec64484c721de32b07855113c1ba8ffe32e6a9e1d3e53d46d2ad4a",
+  "latency_ms": 1596
+}

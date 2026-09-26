@@ -1,0 +1,55 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "schemas/harness-v1.json#1": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "schemas/harness-v1.json#2": {
+      "type": "noul",
+      "noul": 0.17
+    },
+    "schemas/harness-v1.json#3": {
+      "type": "noul",
+      "noul": 0.26
+    },
+    "scripts/check_threshold_equivalence.py#1": {
+      "type": "noul",
+      "noul": 0.25
+    },
+    "scripts/known_bad_tests.py#1": {
+      "type": "noul",
+      "noul": 0.22
+    },
+    "scripts/known_bad_tests.py#2": {
+      "type": "noul",
+      "noul": 0.18
+    },
+    "scripts/known_bad_tests.py#3": {
+      "type": "noul",
+      "noul": 0.22
+    },
+    "scripts/run_sensitivity_remm963.py#1": {
+      "type": "noul",
+      "noul": 0.21
+    },
+    "scripts/run_sensitivity_remm963.py#2": {
+      "type": "noul",
+      "noul": 0.24
+    },
+    "scripts/run_sensitivity_remm963.py#3": {
+      "type": "noul",
+      "noul": 0.23
+    },
+    "scripts/run_sensitivity_remm963.py#4": {
+      "type": "noul",
+      "noul": 0.17
+    }
+  },
+  "usage": {
+    "input_tokens": 7733,
+    "output_tokens": 288
+  },
+  "digest": "647ade6fc7c6ee329a2db48472db029416968ac7cb6c6dc838a2d71fc7361c7a",
+  "latency_ms": 1614
+}

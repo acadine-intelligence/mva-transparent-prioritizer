@@ -1,0 +1,63 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "tests/fixtures/exomiser_recompute_mutations/lower_SYNG3_survivor_freq.json#1": {
+      "type": "noul",
+      "noul": 0.18
+    },
+    "tests/fixtures/exomiser_recompute_mutations/lower_SYNG3_survivor_freq.tsv#1": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "tests/fixtures/exomiser_recompute_mutations/lower_SYNG3_survivor_freq.tsv#2": {
+      "type": "noul",
+      "noul": 0.11
+    },
+    "tests/fixtures/exomiser_recompute_mutations/manifest.json#1": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "tests/fixtures/exomiser_recompute_mutations/manifest.json#2": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "tests/fixtures/exomiser_recompute_mutations/raise_SYNG2_partner_remm.json#1": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "tests/fixtures/exomiser_recompute_mutations/raise_SYNG2_partner_remm.tsv#1": {
+      "type": "noul",
+      "noul": 0.11
+    },
+    "tests/fixtures/exomiser_recompute_mutations/raise_SYNG2_partner_remm.tsv#2": {
+      "type": "noul",
+      "noul": 0.11
+    },
+    "tests/fixtures/exomiser_recompute_mutations/unknown_SO_term.stderr.txt#1": {
+      "type": "noul",
+      "noul": 0.13
+    },
+    "tests/fixtures/exomiser_recompute_mutations/unknown_SO_term.tsv#1": {
+      "type": "noul",
+      "noul": 0.11
+    },
+    "tests/fixtures/exomiser_recompute_mutations/unknown_SO_term.tsv#2": {
+      "type": "noul",
+      "noul": 0.11
+    },
+    "tests/fixtures/exomiser_recompute_mutations/whitelist_SYNG2_partner.json#1": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "tests/fixtures/exomiser_recompute_mutations/whitelist_SYNG2_partner.tsv#1": {
+      "type": "noul",
+      "noul": 0.1
+    }
+  },
+  "usage": {
+    "input_tokens": 13574,
+    "output_tokens": 496
+  },
+  "digest": "dffae70a4a5547adf33afdfcdc9164964cf7e2f4238f4e51a5995bb384295813",
+  "latency_ms": 1613
+}

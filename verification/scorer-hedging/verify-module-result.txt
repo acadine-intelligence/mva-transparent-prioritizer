@@ -1,0 +1,18 @@
+Module under test: mva_prioritizer.candidate_selection (imported, not copied)
+Pools: 3,000  seed 20260926  universe 6 alleles, tiers A/B, ranks 1-9
+
+D1  determinism: pools with a permutation-dependent result   0
+D2  single above a sharing pair                              0
+D2  kept sharing pair below the rank where it pays           0
+D2  EPCR not the ladder prefix                               0
+D2  more than ten rows                                       0
+D3  pools where promotion fired                              2,042
+D3  pools where demotion or removal fired                    500
+D3  pools where the final order differs from the plain sort  2,062
+D4  truth comparisons, resolved vs plain evidence sort       20,245
+D4  rank points LOWER than the plain sort                    0
+D4  rank points higher than the plain sort                   7,989
+D4  F-max lower / higher than the plain sort                 5,991 / 2,948
+
+RESULT: the shipped module is deterministic, satisfies the docs/22 invariants,
+        exercised both stages, and never scored below the plain evidence sort.

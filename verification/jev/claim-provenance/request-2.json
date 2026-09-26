@@ -1,0 +1,118 @@
+{
+ "state": {
+  "claims": [
+   {
+    "claim_id": "c12",
+    "claim": "The official scorer refuses a submission with more than 10 rows per proband (so an eleventh row is refused).",
+    "excerpt": "    for pid, rows in by_proband.items():\n        if len(rows) > 10:\n            raise ValueError(f\"Proband {pid} has {len(rows)} rows; max is 10\")",
+    "source_path": "tools/official-track1/evaluation.py"
+   },
+   {
+    "claim_id": "c13",
+    "claim": "A brute-force check scored 1,843,650 combinations against the pinned official evaluator vendored at tools/official-track1/evaluation.py, with results stored under runtime/scorer-hedging-20260919/.",
+    "excerpt": "combinations scored: 1843650\n\n...\nROOT = pathlib.Path.home() / \"projects/mva-transparent-prioritizer/.worktrees/reference-setup\"\nsys.path.insert(0, str(ROOT / \"tools/official-track1\"))\n\nimport evaluation as off  # the pinned official scorer",
+    "source_path": "runtime/scorer-hedging-20260919/result.txt + runtime/scorer-hedging-20260919/brute_force_hedging.py"
+   },
+   {
+    "claim_id": "c14",
+    "claim": "The brute-force check found: rows appended strictly below every existing row lowered rank points in 48,608 cases; strictly-below rows never lowered F-max (0 cases); a row added at an EPCR equal to an existing row lowered F-max in 44,090 cases and lowered rank points in 7,216 cases.",
+    "excerpt": "combinations scored: 1843650\n\nA. strictly-below hedging lowered RANK POINTS : 48608\nB. strictly-below hedging lowered F-MAX       : 0\nC. equal-EPCR hedging lowered F-MAX           : 44090\n   equal-EPCR hedging lowered RANK POINTS     : 7216\n\n   of which 'added the exact true pair lower than an existing partial': 48608\n   unexplained by that inversion: 0",
+    "source_path": "runtime/scorer-hedging-20260919/result.txt"
+   },
+   {
+    "claim_id": "c15",
+    "claim": "Every one of the 48,608 rank-point drops was the same inversion: the exact true pair added below a higher-ranked row that already earned partial credit, with 0 drops unexplained by that inversion.",
+    "excerpt": "   of which 'added the exact true pair lower than an existing partial': 48608\n   unexplained by that inversion: 0",
+    "source_path": "runtime/scorer-hedging-20260919/result.txt"
+   },
+   {
+    "claim_id": "c16",
+    "claim": "Of the 48,608 rank-point drops, the higher-ranked partial match was a row pairing one true allele with a wrong partner in 36,456 cases (75.0%) and a single allele of the true pair in 12,152 cases (25.0%).",
+    "excerpt": "total rank-point drops: 48608\n\nwhat the higher-ranked partial match actually was, in the BASE:\n  true_allele_paired_with_wrong_partner        36456  ( 75.0%)\n  single_allele_of_the_pair                    12152  ( 25.0%)",
+    "source_path": "runtime/scorer-hedging-20260919/classify-result.txt"
+   },
+   {
+    "claim_id": "c17",
+    "claim": "Three wider ordering formulations were tested against the pinned scorer and recorded in verify_rule.py: 'every pair above every single row' lowered the score in 1,020 cases; 'every pair above any row sharing an allele' lowered it in 420 cases; 'a pair above every single sharing an allele' never lowered the score in 29,400 comparisons and raised it on 480 row sets.",
+    "excerpt": "def promote_allele_sharing(ordered_shapes):\n    \"\"\"The rule as it survives measurement: promote a pair above every SINGLE row\n    that shares an allele with it. Relative order of two pairs is NEVER changed.\n\n    Two earlier formulations were falsified by this script:\n\n      \"every pair above every single\" moves an UNRELATED pair above a true\n      single and costs 25 points (draft 3, 1,020 cases).\n\n      \"every pair above any row sharing an allele\" reorders two allele-sharing\n      PAIRS, and since the rule cannot know which of them is true, the swap\n      demotes the true pair half the time (draft 4, 420 cases).\n\n    Pair-versus-pair precedence is a question about which hypothesis is stronger.\n    That is evidence, decided by tier in Step 3, not by this ordering rule.\n...\nASSUMPTION: the answer key is a compound-heterozygous pair\n            (official evaluation.py docstring; partial credit gated at line 133)\n\nR1  allele-sharing promotion, comparisons : 29400\nR1  the rule LOWERED the score            : 0\nR1  row sets where it RAISED it           : 480",
+    "source_path": "runtime/scorer-hedging-20260919/verify_rule.py + runtime/scorer-hedging-20260919/verify-rule-result.txt"
+   },
+   {
+    "claim_id": "c18",
+    "claim": "When two candidate pairs share an allele, keeping the weaker one below never scored lower than dropping it and scored higher in 120 of 600 comparisons.",
+    "excerpt": "R2  allele-sharing pair comparisons       : 600\nR2  dropping beat keeping-below           : 0\nR2  keeping-below beat dropping           : 120\nR2  equal                                 : 480\n\nRESULT: both rules hold under a compound-heterozygous answer key.\n  R1 promoting a pair above only the rows SHARING AN ALLELE with it\n     never lowered the score, and raised it on 480 row sets.\n  R2 keeping a weaker allele-sharing pair below never scored lower than\n     dropping it, and scored higher in 120 comparisons.",
+    "source_path": "runtime/scorer-hedging-20260919/verify-rule-result.txt"
+   },
+   {
+    "claim_id": "c19",
+    "claim": "On the recommended shape (exact pair on top, each allele alone below): if the pair is correct it scores 100 points with F-max 1.000; if only one of the two alleles is truly causal it scores 50 points, where a pair-only file scores 0; no tested case scored worse.",
+    "excerpt": "--- recommended shape under both truths ---\n  truth=(('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T'))         rank_points= 100.0 f_max=1.000\n  truth=(('chr1', 1000, 'A', 'G'),)                                  rank_points=  50.0 f_max=0.667\n  truth=(('chr1', 2000, 'C', 'T'),)                                  rank_points=  50.0 f_max=0.667\n  truth=(('chr2', 3000, 'G', 'A'),)                                  rank_points=   0.0 f_max=0.000\n\n--- pair-only, no hedge rows ---\n  truth=(('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T'))         rank_points= 100.0 f_max=1.000\n  truth=(('chr1', 1000, 'A', 'G'),)                                  rank_points=   0.0 f_max=0.667\n  truth=(('chr1', 2000, 'C', 'T'),)                                  rank_points=   0.0 f_max=0.667",
+    "source_path": "runtime/scorer-hedging-20260919/result.txt"
+   },
+   {
+    "claim_id": "c20",
+    "claim": "Across 19,779 sort-key comparisons no two distinct rows tied; across 32,612 runs the same candidate pool shuffled into every input order produced the identical file; truncation climbed out of an exhausted tier in every case; the allele-sharing constraint held without ever reordering two pair rows.",
+    "excerpt": "T1 sort keys compared                      : 19779\nT1 distinct rows with an EQUAL key (ties)  : 0\nT2 permutation runs                        : 32612\nT2 outputs differing by input order        : 0\nT3 cap failures                            : 0\nT4 allele-sharing violations after sort    : 0\nT4 runs where two PAIR rows were reordered : 0\n\nRESULT: the Step 4 ordering is total and operator-independent.\n  No two distinct rows tie, so no comparison falls to a human.\n  Every input permutation of the same pool produced the identical file.\n  Truncation climbs tiers; the allele-sharing constraint holds and never\n  reorders two pair rows.",
+    "source_path": "runtime/scorer-hedging-20260919/verify_rule.py + verify_determinism.py"
+   },
+   {
+    "claim_id": "c21",
+    "claim": "The fixed EPCR ladder assigned by row position is 0.90, 0.75, 0.60, 0.50, 0.40, 0.30, 0.20, 0.15, 0.10, 0.05.",
+    "excerpt": "LADDER = [0.90, 0.75, 0.60, 0.50, 0.40, 0.30, 0.20, 0.15, 0.10, 0.05]  (verify_rule.py line 48)\n...\nLADDER = [0.90, 0.75, 0.60, 0.50, 0.40, 0.30, 0.20, 0.15, 0.10, 0.05]  (verify_determinism.py line 29)",
+    "source_path": "runtime/scorer-hedging-20260919/verify_rule.py"
+   },
+   {
+    "claim_id": "c22",
+    "claim": "The scorer-hedging scripts import the vendored official evaluator at tools/official-track1/evaluation.py, whose bytes are pinned by full SHA-256 in tests/test_track1_submission.py (6d18b581e65a45e1...).",
+    "excerpt": "ROOT = pathlib.Path.home() / \"projects/mva-transparent-prioritizer/.worktrees/reference-setup\"\nsys.path.insert(0, str(ROOT / \"tools/official-track1\"))\n\nimport evaluation as off  # the pinned official scorer\n...\nROOT = Path(__file__).resolve().parent.parent\nOFFICIAL = ROOT / \"tools\" / \"official-track1\" / \"evaluation.py\"\nOFFICIAL_SHA256 = \"6d18b581e65a45e1ccc120071d588e740c2e42e983ff50704c60a40232b19180\"\nTEMPLATE = ROOT / \"tools\" / \"official-track1\" / \"track1_submission_template.csv\"\nTEMPLATE_SHA256 = \"7b3ed41c091d34fb6c5622d049c7a3f46124211fc7ec02947e69daef8752755a\"",
+    "source_path": "runtime/scorer-hedging-20260919/brute_force_hedging.py + tests/test_track1_submission.py"
+   }
+  ]
+ },
+ "questions": {
+  "c12": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c12. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c13": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c13. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c14": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c14. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c15": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c15. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c16": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c16. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c17": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c17. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c18": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c18. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c19": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c19. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c20": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c20. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c21": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c21. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c22": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c22. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  }
+ }
+}

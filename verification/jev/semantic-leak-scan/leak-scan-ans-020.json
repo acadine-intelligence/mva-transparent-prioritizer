@@ -1,0 +1,55 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "tests/fixtures/exomiser_recompute_mutations/whitelist_SYNG2_partner.tsv#2": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "tests/fixtures/exomiser_roundtrip_output.jsonl#1": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "tests/fixtures/exomiser_roundtrip_output.jsonl#2": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "tests/fixtures/exomiser_roundtrip_output.jsonl#3": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "tests/fixtures/exomiser_roundtrip_output.jsonl#4": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "tests/fixtures/exomiser_roundtrip_output.jsonl#5": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "tests/fixtures/exomiser_roundtrip_output.jsonl#6": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "tests/fixtures/exomiser_roundtrip_output.jsonl#7": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "tests/fixtures/exomiser_roundtrip_output.jsonl#8": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "tests/fixtures/exomiser_roundtrip_output.jsonl#9": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "tests/fixtures/exomiser_roundtrip_strict.json#1": {
+      "type": "noul",
+      "noul": 0.18
+    }
+  },
+  "usage": {
+    "input_tokens": 11234,
+    "output_tokens": 372
+  },
+  "digest": "9ded295e2b43ca020589216ea0f5faf7f49d460298f394e3ced160dabf1620cf",
+  "latency_ms": 1725
+}

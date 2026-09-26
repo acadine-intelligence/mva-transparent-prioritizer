@@ -1,0 +1,55 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "tests/fixtures/exomiser_roundtrip_variants.tsv#1": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "tests/fixtures/exomiser_roundtrip_variants.tsv#2": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "tests/fixtures/noncoding_benchmark_cases.json#1": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "tests/fixtures/noncoding_benchmark_cases.json#2": {
+      "type": "noul",
+      "noul": 0.2
+    },
+    "tests/fixtures/synthetic_case.json#1": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "tests/test_cli.py#1": {
+      "type": "noul",
+      "noul": 0.25
+    },
+    "tests/test_cli.py#2": {
+      "type": "noul",
+      "noul": 0.21
+    },
+    "tests/test_cli.py#3": {
+      "type": "noul",
+      "noul": 0.24
+    },
+    "tests/test_cli.py#4": {
+      "type": "noul",
+      "noul": 0.23
+    },
+    "tests/test_cli.py#5": {
+      "type": "noul",
+      "noul": 0.25
+    },
+    "tests/test_cli.py#6": {
+      "type": "noul",
+      "noul": 0.27
+    }
+  },
+  "usage": {
+    "input_tokens": 8898,
+    "output_tokens": 281
+  },
+  "digest": "2593adcc740bcdb5b9e947476b0d9ede493b845d717a5218e1ad1fce8a75dc68",
+  "latency_ms": 1592
+}

@@ -1,0 +1,55 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "tests/test_cli.py#7": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "tests/test_cli.py#8": {
+      "type": "noul",
+      "noul": 0.2
+    },
+    "tests/test_cli.py#9": {
+      "type": "noul",
+      "noul": 0.17
+    },
+    "tests/test_cli.py#10": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "tests/test_cli.py#11": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "tests/test_cli.py#12": {
+      "type": "noul",
+      "noul": 0.18
+    },
+    "tests/test_cli.py#13": {
+      "type": "noul",
+      "noul": 0.17
+    },
+    "tests/test_cli.py#14": {
+      "type": "noul",
+      "noul": 0.2
+    },
+    "tests/test_contract.py#1": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "tests/test_environment.py#1": {
+      "type": "noul",
+      "noul": 0.17
+    },
+    "tests/test_environment.py#2": {
+      "type": "noul",
+      "noul": 0.16
+    }
+  },
+  "usage": {
+    "input_tokens": 7619,
+    "output_tokens": 240
+  },
+  "digest": "5869e985122e3991d966d0822120420526724c8f00b5183aed420ef541a430b8",
+  "latency_ms": 1657
+}

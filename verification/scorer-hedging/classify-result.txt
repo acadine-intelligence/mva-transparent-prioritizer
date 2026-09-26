@@ -1,0 +1,25 @@
+total rank-point drops: 48608
+
+what the higher-ranked partial match actually was, in the BASE:
+  true_allele_paired_with_wrong_partner        36456  ( 75.0%)
+  single_allele_of_the_pair                    12152  ( 25.0%)
+
+worked example of each kind:
+
+  [single_allele_of_the_pair]
+    truth = (('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T'))
+    base  = [((('chr1', 1000, 'A', 'G'),), 0.9), ((('chr1', 1000, 'A', 'G'),), 0.8)]
+    added = [((('chr1', 1000, 'A', 'G'),), 0.6), ((('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T')), 0.5)]
+    rank points 50.0 -> 25.0
+
+  [true_allele_paired_with_wrong_partner]
+    truth = (('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T'))
+    base  = [((('chr1', 1000, 'A', 'G'), ('chr2', 3000, 'G', 'A')), 0.9), ((('chr1', 1000, 'A', 'G'),), 0.8)]
+    added = [((('chr1', 1000, 'A', 'G'),), 0.6), ((('chr1', 1000, 'A', 'G'), ('chr1', 2000, 'C', 'T')), 0.5)]
+    rank points 50.0 -> 25.0
+
+--- verdict on the document's wording ---
+'below an existing SINGLE ALLELE' is TOO NARROW: 36456 of 48608 drops
+had the partial credit coming from a row pairing a true allele with a WRONG
+partner, which is a two-variant row, not a single allele.
+Correct wording: 'below any existing row that already earns partial credit'.

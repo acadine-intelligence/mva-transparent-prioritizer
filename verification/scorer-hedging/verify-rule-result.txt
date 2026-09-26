@@ -1,0 +1,18 @@
+ASSUMPTION: the answer key is a compound-heterozygous pair
+            (official evaluation.py docstring; partial credit gated at line 133)
+
+R1  allele-sharing promotion, comparisons : 29400
+R1  the rule LOWERED the score            : 0
+R1  row sets where it RAISED it           : 480
+
+R2  allele-sharing pair comparisons       : 600
+R2  dropping beat keeping-below           : 0
+R2  keeping-below beat dropping           : 120
+R2  equal                                 : 480
+
+RESULT: both rules hold under a compound-heterozygous answer key.
+  R1 promoting a pair above only the rows SHARING AN ALLELE with it
+     never lowered the score, and raised it on 480 row sets.
+  R2 keeping a weaker allele-sharing pair below never scored lower than
+     dropping it, and scored higher in 120 comparisons.
+     Step 4 must therefore KEEP the conflicting pair, not drop it.

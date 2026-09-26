@@ -1,0 +1,63 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "docs/22-candidate-selection-rule.md#2": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "docs/22-candidate-selection-rule.md#3": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "docs/22-candidate-selection-rule.md#4": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "docs/22-candidate-selection-rule.md#5": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "docs/22-candidate-selection-rule.md#6": {
+      "type": "noul",
+      "noul": 0.13
+    },
+    "docs/22-candidate-selection-rule.md#7": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "docs/22-candidate-selection-rule.md#8": {
+      "type": "noul",
+      "noul": 0.13
+    },
+    "docs/22-candidate-selection-rule.md#9": {
+      "type": "noul",
+      "noul": 0.13
+    },
+    "docs/REFERENCE-DATA-PLAN.md#1": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "docs/REFERENCE-DATA-PLAN.md#2": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "docs/REFERENCE-DATA-PLAN.md#3": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "docs/source-ledger.json#1": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "mva_prioritizer/__init__.py#1": {
+      "type": "noul",
+      "noul": 0.19
+    }
+  },
+  "usage": {
+    "input_tokens": 8414,
+    "output_tokens": 361
+  },
+  "digest": "8349755b8ae0ff068e586da7af9b8c2e2fe968f99be077a7ff1bf7c11664bab4",
+  "latency_ms": 1767
+}

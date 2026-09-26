@@ -1,0 +1,55 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "mva_prioritizer/track1_submission.py#3": {
+      "type": "noul",
+      "noul": 0.2
+    },
+    "mva_prioritizer/track1_submission.py#4": {
+      "type": "noul",
+      "noul": 0.21
+    },
+    "mva_prioritizer/track1_submission.py#5": {
+      "type": "noul",
+      "noul": 0.18
+    },
+    "mva_prioritizer/track1_submission.py#6": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "mva_prioritizer/track1_submission.py#7": {
+      "type": "noul",
+      "noul": 0.22
+    },
+    "mva_prioritizer/verify.py#1": {
+      "type": "noul",
+      "noul": 0.17
+    },
+    "product.json#1": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "product.json#2": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "product.json#3": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "product.json#4": {
+      "type": "noul",
+      "noul": 0.13
+    },
+    "product.json#5": {
+      "type": "noul",
+      "noul": 0.11
+    }
+  },
+  "usage": {
+    "input_tokens": 8230,
+    "output_tokens": 266
+  },
+  "digest": "8f209fe53833fe0d0dcd4d3bcfea4d74efb2e17a692cb008072ef906f2d00f88",
+  "latency_ms": 1615
+}

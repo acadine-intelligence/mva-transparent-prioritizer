@@ -1,0 +1,55 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "mva_prioritizer/source_scan.py#1": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "mva_prioritizer/source_scan.py#2": {
+      "type": "noul",
+      "noul": 0.2
+    },
+    "mva_prioritizer/synthetic.py#1": {
+      "type": "noul",
+      "noul": 0.22
+    },
+    "mva_prioritizer/synthetic.py#2": {
+      "type": "noul",
+      "noul": 0.22
+    },
+    "mva_prioritizer/synthetic.py#3": {
+      "type": "noul",
+      "noul": 0.25
+    },
+    "mva_prioritizer/synthetic.py#4": {
+      "type": "noul",
+      "noul": 0.26
+    },
+    "mva_prioritizer/synthetic.py#5": {
+      "type": "noul",
+      "noul": 0.29
+    },
+    "mva_prioritizer/synthetic.py#6": {
+      "type": "noul",
+      "noul": 0.29
+    },
+    "mva_prioritizer/synthetic.py#7": {
+      "type": "noul",
+      "noul": 0.28
+    },
+    "mva_prioritizer/track1_submission.py#1": {
+      "type": "noul",
+      "noul": 0.24
+    },
+    "mva_prioritizer/track1_submission.py#2": {
+      "type": "noul",
+      "noul": 0.3
+    }
+  },
+  "usage": {
+    "input_tokens": 8126,
+    "output_tokens": 301
+  },
+  "digest": "286dd4e6da0eb72470fa3906cfebb97b5312d9272bb9e0a58abfdd4b53e1024e",
+  "latency_ms": 1670
+}

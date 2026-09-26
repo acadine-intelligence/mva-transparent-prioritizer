@@ -1,0 +1,51 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "tests/test_reference_install.py#8": {
+      "type": "noul",
+      "noul": 0.22
+    },
+    "tests/test_run_sensitivity_driver.py#1": {
+      "type": "noul",
+      "noul": 0.25
+    },
+    "tests/test_run_sensitivity_driver.py#2": {
+      "type": "noul",
+      "noul": 0.25
+    },
+    "tests/test_run_sensitivity_driver.py#3": {
+      "type": "noul",
+      "noul": 0.25
+    },
+    "tests/test_run_sensitivity_driver.py#4": {
+      "type": "noul",
+      "noul": 0.26
+    },
+    "tests/test_run_sensitivity_driver.py#5": {
+      "type": "noul",
+      "noul": 0.24
+    },
+    "tests/test_run_sensitivity_driver.py#6": {
+      "type": "noul",
+      "noul": 0.22
+    },
+    "tests/test_run_sensitivity_driver.py#7": {
+      "type": "noul",
+      "noul": 0.25
+    },
+    "tests/test_run_sensitivity_driver.py#8": {
+      "type": "noul",
+      "noul": 0.22
+    },
+    "tests/test_run_sensitivity_driver.py#9": {
+      "type": "noul",
+      "noul": 0.24
+    }
+  },
+  "usage": {
+    "input_tokens": 8133,
+    "output_tokens": 260
+  },
+  "digest": "4225089028846e27d439b9e92a4ddd643e8262470106caa507977217a302f99a",
+  "latency_ms": 1675
+}

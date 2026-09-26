@@ -1,0 +1,13 @@
+T1 sort keys compared                      : 19779
+T1 distinct rows with an EQUAL key (ties)  : 0
+T2 permutation runs                        : 32612
+T2 outputs differing by input order        : 0
+T3 cap failures                            : 0
+T4 allele-sharing violations after sort    : 0
+T4 runs where two PAIR rows were reordered : 0
+
+RESULT: the Step 4 ordering is total and operator-independent.
+  No two distinct rows tie, so no comparison falls to a human.
+  Every input permutation of the same pool produced the identical file.
+  Truncation climbs tiers; the allele-sharing constraint holds and never
+  reorders two pair rows.

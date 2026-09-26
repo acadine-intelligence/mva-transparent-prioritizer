@@ -1,0 +1,109 @@
+{
+ "state": {
+  "claims": [
+   {
+    "claim_id": "c23",
+    "claim": "The five scripts brute_force_hedging.py, hedging_modes.py, classify_drops.py, verify_rule.py and verify_determinism.py exist in runtime/scorer-hedging-20260919/, and verify_determinism.py executes the Step 4 ordering as code, confirming the order is total and operator-independent.",
+    "excerpt": "ripgrep file listing of runtime/scorer-hedging-20260919/ (2026-09-26): hedging_modes.py, brute_force_hedging.py, verify_determinism.py, verify_rule.py, classify_drops.py (plus result.txt, classify-result.txt, verify-rule-result.txt, verify-determinism-result.txt, __pycache__).\n...\nverify-determinism-result.txt lines 9-13:\nRESULT: the Step 4 ordering is total and operator-independent.\n  No two distinct rows tie, so no comparison falls to a human.\n  Every input permutation of the same pool produced the identical file.\n  Truncation climbs tiers; the allele-sharing constraint holds and never\n  reorders two pair rows.",
+    "source_path": "runtime/scorer-hedging-20260919/ (listing + verify-determinism-result.txt)"
+   },
+   {
+    "claim_id": "c24",
+    "claim": "For a pair row the native-rank key is the better (numerically lower) rank of its two alleles, implemented as min(row['ranks']) in the Step 4 sort key.",
+    "excerpt": "def row_sort_key(row):\n    \"\"\"The five keys of Step 4, in order.\n\n    row = {alleles: tuple, tier: str, both_lanes: bool, ranks: tuple[int,...]}\n    \"\"\"\n    alleles = tuple(sorted(row[\"alleles\"], key=allele_key))\n    return (\n        0 if len(alleles) == 2 else 1,            # 1. class: pairs first\n        TIER_ORDER[row[\"tier\"]],                   # 2. tier\n        0 if row[\"both_lanes\"] else 1,             # 3. lane agreement\n        min(row[\"ranks\"]),                         # 4. better native rank\n        tuple(allele_key(a) for a in alleles),     # 5. coordinate\n    )",
+    "source_path": "runtime/scorer-hedging-20260919/verify_determinism.py"
+   },
+   {
+    "claim_id": "c25",
+    "claim": "The Step 4 allele-sharing constraint promotes a pair row above every single row that shares an allele with it, and the relative order of two pair rows is never changed by this step.",
+    "excerpt": "def apply_allele_sharing(rows):\n    \"\"\"A pair row is promoted above every SINGLE row sharing an allele with it.\n    Two pair rows are never reordered.\"\"\"\n    out = list(rows)\n    for _ in range(len(out) ** 2 + 1):\n        for i, upper in enumerate(out):\n            if len(upper[\"alleles\"]) != 1:\n                continue\n            for j in range(i + 1, len(out)):\n                lower = out[j]\n                if len(lower[\"alleles\"]) == 2 and (set(upper[\"alleles\"]) & set(lower[\"alleles\"])):\n                    out.insert(i, out.pop(j))\n                    break\n            else:\n                continue\n            break\n        else:\n            return out",
+    "source_path": "runtime/scorer-hedging-20260919/verify_determinism.py"
+   },
+   {
+    "claim_id": "c26",
+    "claim": "A mitochondrial row blocks the file: the validator reports mitochondrial_rows and a candidate file carrying a mitochondrial row must not be uploaded until the organizers confirm the contig spelling.",
+    "excerpt": "## Open representation risk: the mitochondrial contig\n\nPublic sources name the answer key's chromosome form only by example (`chr15`, `chr1`, `chr7`, `chr2`). Nothing public says whether a mitochondrial variant would be written `chrM` (UCSC and GRCh38 no-alt analysis-set convention) or `chrMT`; the private key could plausibly use either. The validator therefore takes the spelling as a parameter (`mitochondrial_name`, CLI `--mitochondrial-name`, values `chrM` or `chrMT`, default `chrM`) and never accepts an unprefixed form. `track1-check` reports `mitochondrial_rows`. A candidate file that carries a mitochondrial row must not be uploaded until the organizers confirm the spelling in the Community tab, or the candidate set is known to be nuclear.",
+    "source_path": "docs/20-track1-submission-gate.md"
+   },
+   {
+    "claim_id": "c27",
+    "claim": "track1-check runs the canonical parser together with the gate mirror, and validate_against_lane_representation checks every submitted variant against the lane contig keys it is given.",
+    "excerpt": "`score_submission` mirrors `score_proband`. `validate_against_lane_representation` maps submission chromosomes to the lane's contig naming (no prefix, `MT` for the mitochondrion) and requires every submitted variant to exist among the lane keys it is given; it receives keys, never rows, and reports counts only.\n\n`tests/test_sensitivity_partition_mutations.py` disables each of 30 guards and scoring constants in this module and 2 in the CLI boundary in turn and requires the named test to fail.\n\nCLI: `python3 -m mva_prioritizer.cli track1-check --submission <file> [--synthetic-truth '[[chrom,pos,ref,alt],...]'] [--mitochondrial-name chrM|chrMT] [--allow-ties] [--allow-unsorted] [--allow-repeated-pairings]`. One JSON line with counts on success; the file is opened with `O_NOFOLLOW`, decided on the descriptor, bounded at 1 MiB; after the canonical parse the CLI also runs the gate mirror and refuses if the two ranked variant lists differ. Every refusal, including argument errors (argument parsing runs inside the same boundary, with usage output suppressed), exits 2 with the fixed `input_rejected` line and never echoes a row or an argument.",
+    "source_path": "docs/20-track1-submission-gate.md"
+   },
+   {
+    "claim_id": "c28",
+    "claim": "The canonical validator has an --allow-repeated-pairings flag, existing for the shape of alternative pairings for an uncertain partner.",
+    "excerpt": "docs/20-track1-submission-gate.md line 58 (canonical validator): \"By default it also refuses repeated variants, EPCR ties and unsorted rows; each has a flag because each is legal at the gate and occasionally deliberate (alternative pairings for an uncertain partner).\"\n...\nline 64 (CLI): \"python3 -m mva_prioritizer.cli track1-check --submission <file> [--synthetic-truth '[[chrom,pos,ref,alt],...]'] [--mitochondrial-name chrM|chrMT] [--allow-ties] [--allow-unsorted] [--allow-repeated-pairings]\".",
+    "source_path": "docs/20-track1-submission-gate.md",
+    "deterministic_hit": "true"
+   },
+   {
+    "claim_id": "c29",
+    "claim": "The supplied data is a singleton VCF with no read-backed phase linking distant loci and no parental data, so two heterozygous alleles in one gene cannot be shown to be in trans from this input alone.",
+    "excerpt": "It does not measure how often this happens in the private genome. It does not exercise phenotype scoring, gene ranking, the frequency filter, regulatory feature filtering, or the full CLI. Single-proband unphased data cannot distinguish cis from trans; the engine's recessive annotation reflects that ambiguity and so does this probe.",
+    "source_path": "docs/17-exomiser-probe.md"
+   },
+   {
+    "claim_id": "c30",
+    "claim": "The official challenge requires a methods report alongside the Track 1 prediction CSV.",
+    "excerpt": "The 3-minute pitch video is a Track 2 requirement in `tabs/submit_track2.py`. Track 1 requires a prediction CSV and a methods report. Its form also requires a repository link. The Track 1 instructions do not state a pitch-video requirement. The official workbook still says one final Track 2 submission, while the submission interface and organizer update allow three attempts with only the latest reviewed. Treat those as three attempts toward one reviewed final entry.",
+    "source_path": "docs/20-track1-submission-gate.md"
+   },
+   {
+    "claim_id": "c31",
+    "claim": "config/reference-bundle.json holds the SHA-256 pins for the pinned reference artifacts.",
+    "excerpt": "The Java program checked in as `tools/exomiser-probe/Probe.java` (SHA-256 `f8947dac3c5021e3cd482d41b5e091292fcba6af257823d89698f1b41b346881`), compiled against the published `exomiser-core-15.1.0.jar` and executed with the pinned Temurin 21 JDK. Both artifacts were downloaded from their public release URLs into a scratch directory on the M4 and matched the SHA-256 pins in `config/reference-bundle.json` exactly. The engine source was not modified. The encrypted M1 volume was not touched. The same directory holds the later `RoundTrip.java` and `Recompute.java`; each fixture in `tests/fixtures/` names the program and the run that produced it.",
+    "source_path": "docs/17-exomiser-probe.md"
+   },
+   {
+    "claim_id": "c32",
+    "claim": "Work on this project producing results existed by 5 September 2026 (the Exomiser probe note and the Track 1 submission gate note are both dated 2026-09-05).",
+    "excerpt": "# Exomiser 15.1.0 threshold and inheritance probe\n\nDate: 2026-09-05. Scope: public synthetic probe of two engine classes. No patient data, no reference databases, no private analysis.\n...\n# Track 1 submission gate: pinned official code, local validator, scorer mirror\n\nDate: 2026-09-05. Public and synthetic only. This note authorizes no upload. Every example variant below is invented.",
+    "source_path": "docs/17-exomiser-probe.md + docs/20-track1-submission-gate.md"
+   }
+  ]
+ },
+ "questions": {
+  "c23": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c23. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c24": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c24. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c25": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c25. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c26": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c26. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c27": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c27. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c28": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c28. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c29": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c29. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c30": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c30. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c31": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c31. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c32": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c32. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  }
+ }
+}

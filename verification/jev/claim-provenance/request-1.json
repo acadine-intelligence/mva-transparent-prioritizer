@@ -1,0 +1,118 @@
+{
+ "state": {
+  "claims": [
+   {
+    "claim_id": "c01",
+    "claim": "The nine-gene audit (9 September) established that all nine regions carry recorded alternate genotypes in both the stored original VCF and the prepared analysis VCF, and that two regional records per input matched saved filtered rows.",
+    "excerpt": "9 September 2026\n\nAll nine target regions contained recorded alternate genotypes in both the stored original VCF and the prepared analysis VCF. All eight genes missing from the filtered 500-gene packet had regional records in both input files.\n\nThe authorized read-only audit is complete. A separate verification run recomputed the audit from its sources and reproduced the saved output bytes.\n\n## Recorded evidence\n\n| Measure | Original VCF | Prepared analysis VCF |\n| --- | ---: | ---: |\n| Records scanned | 5,012,204 | 5,035,176 |\n| Records in the inspected regions | 1,272 | 1,283 |\n| Regional records with an exact allele-key match in saved filtered rows | 2 | 2 |\n| Regional records that triggered the reader's quality flags | 0 | 0 |\n\nEvery regional record counted above contained a recorded alternate genotype. These are record counts. A multiallelic record can contain several alleles. An exact match means that at least one of its allele keys matched a saved filtered row. The match counts provide a trace into existing outputs; clinical relevance remains unassessed.",
+    "source_path": "runtime/nine-gene-audit-20260909/audit-summary.md"
+   },
+   {
+    "claim_id": "c02",
+    "claim": "The diagnostic replay, named replay-2 and verified, is the run whose outputs the later recurrent-gene analysis read, and the run's regional selection included the nine target regions plus the frozen passing controls.",
+    "excerpt": "{\n  \"output_directory\": \"recurrent-1\",\n  \"replay_directory\": \"review-work/diagnostic-replay-20260909/replay-2\",\n  \"replay_receipt_sha256\": \"09769e3e027d5afb443930222f8559fab2b20bcdc9b021aede02397301718142\",\n  \"replay_result_sha256\": \"1a62e8cc91514b1d5bf6240558fd00668f139ff0929446916566fda4943e5d47\",\n  \"schema\": \"mva-recurrent-genes-pins-v1\",\n  \"stage\": \"review-work/recurrent-genes-20260911\",\n  \"top_n\": [10, 30]\n}\n...\n## What this does and does not mean\n\n- One of the eleven recurrent genes sits in a predeclared public-literature region. This is a diagnostic observation about ranking behaviour in a bounded regional run, not a discovery and not a clinical finding.\n- The run's regional selection includes the nine target regions plus the frozen passing controls, so recurrence partly reflects that selection. It does not describe the whole genome.\n- Rank here is native output order only. No score, filter state or pathogenicity conclusion is asserted.",
+    "source_path": "runtime/recurrent-genes-20260911/recurrent-pins.json + runtime/recurrent-genes-20260911/aggregate-report.md"
+   },
+   {
+    "claim_id": "c03",
+    "claim": "The recurrent-gene run (11 September, verified) flagged eleven genes appearing in the top thirty of both lanes, of which one lies inside a predeclared region.",
+    "excerpt": "# Recurrent-gene flagging: result\n\nBuilt and verified on encrypted M1, 11 September 2026. Build and verify agree byte for byte.\n\n## What was measured\n\nEvery gene in both lanes of the verified diagnostic replay, ranked by native output order. A gene is flagged when it appears in the top 30 of both lanes.\n\n## Counts\n\n| Measure | Coding | Noncoding |\n|---|---:|---:|\n| Genes in lane | 510 | 508 |\n\n| Measure | Value |\n|---|---:|\n| Union of genes across lanes | 522 |\n| In the top 30 of both lanes | 11 |\n| In the top 10 of both lanes | 5 |\n| Recurrent and inside the nine predeclared regions | 1 |\n\nRecurrent symbols: ACLY, ADAMTS1, ARL9, BUB1B, CACNB1, CDC7, FANCD2, HK1, LZTR1, SERPINA1, SLC25A5.",
+    "source_path": "runtime/recurrent-genes-20260911/aggregate-report.md"
+   },
+   {
+    "claim_id": "c04",
+    "claim": "The ReMM 0.963 sensitivity run was executed (state prepared_and_verified, 2026-09-06) and retained 263 of 365 unique variants and 175 of 243 genes; 90 variants fell to the cutoff and 12 more lost inheritance compatibility; 7 retained genes changed inheritance mode.",
+    "excerpt": "  \"schema\": \"mva-private-review-preparation-receipt-v1\",\n  \"verified_at_utc\": \"2026-09-06T13:07:00Z\",\n  \"state\": \"prepared_and_verified\",\n  \"specialist_review\": \"pending\",\n  \"clinical_interpretation\": false,\n  \"clinical_probability\": false,\n  \"hidden_top_n\": null,\n  \"source_commit\": \"380f24a111a6e4399164e716e6a121b557cf86e0\",\n  \"source_worktree_clean\": true,\n  \"source_integrity_and_permissions_rechecked\": true,\n  \"private_rows_exported\": false,\n  \"submission_performed\": false,\n  \"publication_performed\": false,\n  \"sensitivity\": {\n    \"cutoff\": 0.963,\n    \"original_unique_variants\": 365,\n    \"retained_unique_variants\": 263,\n    \"removed_by_cutoff_unique_variants\": 90,\n    \"removed_by_inheritance_unique_variants\": 12,\n    \"original_genes\": 243,\n    \"retained_genes\": 175,\n    \"removed_by_cutoff_genes\": 56,\n    \"removed_by_inheritance_genes\": 12,\n    \"retained_genes_with_changed_modes\": 7,\n    \"receipt_sha256\": \"d5ba10df94dcf68415580d5fdb9e204fb5f2f1ad43186792d88bd0b7912b504f\"\n  },",
+    "source_path": "runtime/candidate-review-20260906/completion.json"
+   },
+   {
+    "claim_id": "c05",
+    "claim": "A receipt whose SHA-256 begins d5ba10df94dcf684 is recorded in runtime/candidate-review-20260906/completion.json for the sensitivity run.",
+    "excerpt": "  \"sensitivity\": {\n    \"cutoff\": 0.963,\n    \"original_unique_variants\": 365,\n    \"retained_unique_variants\": 263,\n    \"removed_by_cutoff_unique_variants\": 90,\n    \"removed_by_inheritance_unique_variants\": 12,\n    \"original_genes\": 243,\n    \"retained_genes\": 175,\n    \"removed_by_cutoff_genes\": 56,\n    \"removed_by_inheritance_genes\": 12,\n    \"retained_genes_with_changed_modes\": 7,\n    \"receipt_sha256\": \"d5ba10df94dcf68415580d5fdb9e204fb5f2f1ad43186792d88bd0b7912b504f\"\n  },",
+    "source_path": "runtime/candidate-review-20260906/completion.json"
+   },
+   {
+    "claim_id": "c06",
+    "claim": "The candidate review dossier (6 September) preserved 421 coding gene rows with 794 variant associations and 290 noncoding gene rows with 454 associations over a 500-gene union, and it carries 19 inheritance-review entries.",
+    "excerpt": "  \"candidate_review\": {\n    \"gene_union_count\": 500,\n    \"coding_unique_genes\": 364,\n    \"noncoding_unique_genes\": 243,\n    \"initial_detail_gene_count\": 34,\n    \"inheritance_review_count\": 19,\n    \"coding_gene_rows_preserved\": 421,\n    \"coding_variant_associations_preserved\": 794,\n    \"noncoding_gene_rows_preserved\": 290,\n    \"noncoding_variant_associations_preserved\": 454,\n    \"output_hashes_rechecked\": true,\n    \"read_only_permissions_verified\": true,\n    \"review_receipt_sha256\": \"7bf0ca66854b7a4b73a608f8bf67a167391bbc8ea9137f1ba018494b664480db\"\n  },",
+    "source_path": "runtime/candidate-review-20260906/completion.json"
+   },
+   {
+    "claim_id": "c07",
+    "claim": "The official scorer contains exactly this code: if full_match_rank is not None: rank_points = float(_rank_to_points(full_match_rank)) elif partial_match_rank is not None: rank_points = 0.5 * _rank_to_points(partial_match_rank)",
+    "excerpt": "    # --- Rank points (metric 1) ---\n    if full_match_rank is not None:\n        rank_points = float(_rank_to_points(full_match_rank))\n    elif partial_match_rank is not None:\n        # CAGI-style partial credit: half weight for recovering only one\n        # of two causal variants in a compound-het pair.\n        rank_points = 0.5 * _rank_to_points(partial_match_rank)",
+    "source_path": "tools/official-track1/evaluation.py"
+   },
+   {
+    "claim_id": "c08",
+    "claim": "The official scorer awards the full match unconditionally once found: a full match at rank 4 scores 25 points and a partial match at rank 1 scores 50, so the full-match branch wins even when the partial match would have scored more.",
+    "excerpt": "# Rank-point scale, compressed from CAGI's RGP weighting to fit a single\n# proband with a max of 10 submitted candidates (rather than CAGI's\n# multi-family, up-to-100-candidate benchmark).\nRANK_POINT_TIERS = [\n    (1, 100),\n    (3, 50),\n    (5, 25),\n    (10, 10),\n]\n...\n    # --- Rank points (metric 1) ---\n    if full_match_rank is not None:\n        rank_points = float(_rank_to_points(full_match_rank))\n    elif partial_match_rank is not None:\n        # CAGI-style partial credit: half weight for recovering only one\n        # of two causal variants in a compound-het pair.\n        rank_points = 0.5 * _rank_to_points(partial_match_rank)",
+    "source_path": "tools/official-track1/evaluation.py"
+   },
+   {
+    "claim_id": "c09",
+    "claim": "Full-match rank-point tiers are 100 at rank 1, 50 at ranks 2 to 3, 25 at ranks 4 to 5, and 10 at ranks 6 to 10.",
+    "excerpt": "# Rank-point scale, compressed from CAGI's RGP weighting to fit a single\n# proband with a max of 10 submitted candidates (rather than CAGI's\n# multi-family, up-to-100-candidate benchmark).\nRANK_POINT_TIERS = [\n    (1, 100),\n    (3, 50),\n    (5, 25),\n    (10, 10),\n]\n...\ndef _rank_to_points(rank: int) -> int:\n    for max_rank, points in RANK_POINT_TIERS:\n        if rank <= max_rank:\n            return points\n    return 0",
+    "source_path": "tools/official-track1/evaluation.py"
+   },
+   {
+    "claim_id": "c10",
+    "claim": "A pair placed below rank 3 scores worse than the partial credit its own single allele would have earned at rank 1 (a pair at rank 4 or 5 earns 25, while a partial match at rank 1 earns half of 100, i.e. 50).",
+    "excerpt": "RANK_POINT_TIERS = [\n    (1, 100),\n    (3, 50),\n    (5, 25),\n    (10, 10),\n]\n...\n    elif partial_match_rank is not None:\n        # CAGI-style partial credit: half weight for recovering only one\n        # of two causal variants in a compound-het pair.\n        rank_points = 0.5 * _rank_to_points(partial_match_rank)",
+    "source_path": "tools/official-track1/evaluation.py"
+   },
+   {
+    "claim_id": "c11",
+    "claim": "The scorer's partial-match test is row.variants & true_variants, an intersection, so a two-variant row naming one correct allele and one incorrect one earns the same partial credit as that allele alone.",
+    "excerpt": "    if is_compound_het and full_match_rank is None:\n        # Look for a row containing exactly one of the two true variants -\n        # either proposed alone, or paired with an incorrect second variant.\n        for row in submission_rows:\n            if row.variants & true_variants:\n                partial_match_rank = row.rank\n                break",
+    "source_path": "tools/official-track1/evaluation.py"
+   }
+  ]
+ },
+ "questions": {
+  "c01": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c01. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c02": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c02. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c03": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c03. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c04": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c04. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c05": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c05. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c06": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c06. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c07": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c07. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c08": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c08. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c09": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c09. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c10": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c10. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  },
+  "c11": {
+   "type": "noul",
+   "instructions": "Consider the entry in `claims` whose `claim_id` is c11. Does its `excerpt` fully support its `claim`, including every number and quoted line, with no contradiction? Answer no if any number differs, if the excerpt is about something else, or if the claim goes beyond what the excerpt says."
+  }
+ }
+}

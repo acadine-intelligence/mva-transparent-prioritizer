@@ -1,0 +1,55 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "c01": {
+      "type": "noul",
+      "noul": 0.44
+    },
+    "c02": {
+      "type": "noul",
+      "noul": 0.45
+    },
+    "c03": {
+      "type": "noul",
+      "noul": 0.76
+    },
+    "c04": {
+      "type": "noul",
+      "noul": 0.77
+    },
+    "c05": {
+      "type": "noul",
+      "noul": 0.94
+    },
+    "c06": {
+      "type": "noul",
+      "noul": 0.71
+    },
+    "c07": {
+      "type": "noul",
+      "noul": 0.85
+    },
+    "c08": {
+      "type": "noul",
+      "noul": 0.6
+    },
+    "c09": {
+      "type": "noul",
+      "noul": 0.74
+    },
+    "c10": {
+      "type": "noul",
+      "noul": 0.57
+    },
+    "c11": {
+      "type": "noul",
+      "noul": 0.64
+    }
+  },
+  "usage": {
+    "input_tokens": 4451,
+    "output_tokens": 202
+  },
+  "digest": "a4c1d7431cbc2c4d34fd737a92848cb1fa57f848a3bb671f526ecfd0703ea365",
+  "latency_ms": 1675
+}

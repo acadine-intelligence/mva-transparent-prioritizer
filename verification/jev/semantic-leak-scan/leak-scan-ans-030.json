@@ -1,0 +1,55 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "tests/test_sensitivity_partition_mutations.py#4": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "tests/test_sensitivity_partition_mutations.py#5": {
+      "type": "noul",
+      "noul": 0.22
+    },
+    "tests/test_sensitivity_partition_mutations.py#6": {
+      "type": "noul",
+      "noul": 0.22
+    },
+    "tests/test_sensitivity_partition_mutations.py#7": {
+      "type": "noul",
+      "noul": 0.21
+    },
+    "tests/test_sensitivity_partition_mutations.py#8": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "tests/test_sensitivity_partition_mutations.py#9": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "tests/test_synthetic_journey.py#1": {
+      "type": "noul",
+      "noul": 0.23
+    },
+    "tests/test_synthetic_journey.py#2": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "tests/test_synthetic_journey.py#3": {
+      "type": "noul",
+      "noul": 0.2
+    },
+    "tests/test_synthetic_journey.py#4": {
+      "type": "noul",
+      "noul": 0.23
+    },
+    "tests/test_synthetic_journey.py#5": {
+      "type": "noul",
+      "noul": 0.26
+    }
+  },
+  "usage": {
+    "input_tokens": 8136,
+    "output_tokens": 296
+  },
+  "digest": "4e5da1b7dbd9db4262d4a064c1595fd8477e10b40ed4ee02f3f9676827c816bb",
+  "latency_ms": 1527
+}

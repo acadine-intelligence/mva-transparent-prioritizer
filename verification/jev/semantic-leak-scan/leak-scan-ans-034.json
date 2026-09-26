@@ -1,0 +1,47 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "tools/exomiser-probe/RoundTrip.java#2": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "tools/exomiser-probe/RoundTrip.java#3": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "tools/exomiser-probe/RoundTrip.java#4": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "tools/exomiser-probe/RoundTrip.java#5": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "tools/official-track1/evaluation.py#1": {
+      "type": "noul",
+      "noul": 0.18
+    },
+    "tools/official-track1/evaluation.py#2": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "tools/official-track1/evaluation.py#3": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "tools/official-track1/evaluation.py#4": {
+      "type": "noul",
+      "noul": 0.18
+    },
+    "tools/official-track1/track1_submission_template.csv#1": {
+      "type": "noul",
+      "noul": 0.16
+    }
+  },
+  "usage": {
+    "input_tokens": 5910,
+    "output_tokens": 244
+  },
+  "digest": "b3d0938e97c3b9915e23f75edfa0400918913ac480602b85a0eddad47b08e213",
+  "latency_ms": 1631
+}

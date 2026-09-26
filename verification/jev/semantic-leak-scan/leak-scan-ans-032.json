@@ -1,0 +1,63 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "tests/test_track1_submission.py#7": {
+      "type": "noul",
+      "noul": 0.2
+    },
+    "tests/test_track1_submission.py#8": {
+      "type": "noul",
+      "noul": 0.18
+    },
+    "tests/test_track1_submission.py#9": {
+      "type": "noul",
+      "noul": 0.17
+    },
+    "tests/test_track1_submission.py#10": {
+      "type": "noul",
+      "noul": 0.18
+    },
+    "tests/test_validate_receipt_basis_cli.py#1": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "tests/test_validate_receipt_basis_cli.py#2": {
+      "type": "noul",
+      "noul": 0.21
+    },
+    "tests/test_validate_receipt_basis_cli.py#3": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "tests/test_validate_receipt_basis_cli.py#4": {
+      "type": "noul",
+      "noul": 0.21
+    },
+    "tests/test_verify.py#1": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "tests/test_verify.py#2": {
+      "type": "noul",
+      "noul": 0.2
+    },
+    "tests/test_verify_script.py#1": {
+      "type": "noul",
+      "noul": 0.21
+    },
+    "tools/exomiser-probe/Probe.java#1": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "tools/exomiser-probe/Probe.java#2": {
+      "type": "noul",
+      "noul": 0.2
+    }
+  },
+  "usage": {
+    "input_tokens": 8419,
+    "output_tokens": 313
+  },
+  "digest": "7e2fb43dd2b9a318a99d5dc857cc915be4038026ac02b74acfa1b97ab7d5ae0d",
+  "latency_ms": 1655
+}

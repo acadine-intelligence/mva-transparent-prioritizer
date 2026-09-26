@@ -1,0 +1,55 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "mva_prioritizer/paths.py#2": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "mva_prioritizer/paths.py#3": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "mva_prioritizer/paths.py#4": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "mva_prioritizer/privacy_scan.py#1": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "mva_prioritizer/privacy_scan.py#2": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "mva_prioritizer/receipt_basis.py#1": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "mva_prioritizer/receipt_basis.py#2": {
+      "type": "noul",
+      "noul": 0.2
+    },
+    "mva_prioritizer/receipt_basis.py#3": {
+      "type": "noul",
+      "noul": 0.21
+    },
+    "mva_prioritizer/reference_bundle.py#1": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "mva_prioritizer/reference_bundle.py#2": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "mva_prioritizer/reference_bundle.py#3": {
+      "type": "noul",
+      "noul": 0.14
+    }
+  },
+  "usage": {
+    "input_tokens": 7636,
+    "output_tokens": 300
+  },
+  "digest": "449ef50bca71f660181be62e377dae722a02b5a3a6cb5e6beb66a4885335da38",
+  "latency_ms": 1656
+}

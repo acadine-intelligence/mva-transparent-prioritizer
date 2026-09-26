@@ -1,0 +1,55 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "tools/exomiser-probe/Probe.java#3": {
+      "type": "noul",
+      "noul": 0.17
+    },
+    "tools/exomiser-probe/Probe.java#4": {
+      "type": "noul",
+      "noul": 0.18
+    },
+    "tools/exomiser-probe/Probe.java#5": {
+      "type": "noul",
+      "noul": 0.2
+    },
+    "tools/exomiser-probe/Probe.java#6": {
+      "type": "noul",
+      "noul": 0.22
+    },
+    "tools/exomiser-probe/Recompute.java#1": {
+      "type": "noul",
+      "noul": 0.22
+    },
+    "tools/exomiser-probe/Recompute.java#2": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "tools/exomiser-probe/Recompute.java#3": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "tools/exomiser-probe/Recompute.java#4": {
+      "type": "noul",
+      "noul": 0.26
+    },
+    "tools/exomiser-probe/Recompute.java#5": {
+      "type": "noul",
+      "noul": 0.2
+    },
+    "tools/exomiser-probe/Recompute.java#6": {
+      "type": "noul",
+      "noul": 0.21
+    },
+    "tools/exomiser-probe/RoundTrip.java#1": {
+      "type": "noul",
+      "noul": 0.16
+    }
+  },
+  "usage": {
+    "input_tokens": 8290,
+    "output_tokens": 297
+  },
+  "digest": "acaf73611a396cbb58b3ee9a50d38b69cddedb1f2ea257360bbb0c71818ce9d4",
+  "latency_ms": 1588
+}

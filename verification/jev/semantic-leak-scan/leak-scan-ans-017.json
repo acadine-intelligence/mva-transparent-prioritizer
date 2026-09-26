@@ -1,0 +1,71 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "scripts/run_sensitivity_remm963.py#5": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "scripts/run_sensitivity_remm963.py#6": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "scripts/run_sensitivity_remm963.py#7": {
+      "type": "noul",
+      "noul": 0.18
+    },
+    "scripts/validate_receipt_basis.py#1": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "scripts/validate_receipt_basis.py#2": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "scripts/verify.sh#1": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "scripts/verify.sh#2": {
+      "type": "noul",
+      "noul": 0.17
+    },
+    "scripts/verify_public_tree.py#1": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "tests/fixtures/count_basis_receipt.json#1": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "tests/fixtures/exomiser_probe_output.json#1": {
+      "type": "noul",
+      "noul": 0.1
+    },
+    "tests/fixtures/exomiser_probe_output.json#2": {
+      "type": "noul",
+      "noul": 0.13
+    },
+    "tests/fixtures/exomiser_recompute_detail.json#1": {
+      "type": "noul",
+      "noul": 0.12
+    },
+    "tests/fixtures/exomiser_recompute_from_tsv.json#1": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "tests/fixtures/exomiser_recompute_mutations/SYNG1_homalt.json#1": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "tests/fixtures/exomiser_recompute_mutations/SYNG1_homalt.tsv#1": {
+      "type": "noul",
+      "noul": 0.13
+    }
+  },
+  "usage": {
+    "input_tokens": 9764,
+    "output_tokens": 432
+  },
+  "digest": "d59b1d7079617c6ed72e4581c267120293e4074c40d03171590652a968832eec",
+  "latency_ms": 1582
+}

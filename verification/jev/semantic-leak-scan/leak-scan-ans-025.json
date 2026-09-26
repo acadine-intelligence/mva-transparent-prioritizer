@@ -1,0 +1,59 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "tests/test_noncoding_benchmark.py#2": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "tests/test_noncoding_benchmark.py#3": {
+      "type": "noul",
+      "noul": 0.17
+    },
+    "tests/test_noncoding_benchmark.py#4": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "tests/test_noncoding_benchmark.py#5": {
+      "type": "noul",
+      "noul": 0.17
+    },
+    "tests/test_path_guards.py#1": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "tests/test_path_guards.py#2": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "tests/test_privacy_scan.py#1": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "tests/test_privacy_scan.py#2": {
+      "type": "noul",
+      "noul": 0.15
+    },
+    "tests/test_public_source_scan.py#1": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "tests/test_public_source_scan.py#2": {
+      "type": "noul",
+      "noul": 0.18
+    },
+    "tests/test_receipt_basis.py#1": {
+      "type": "noul",
+      "noul": 0.18
+    },
+    "tests/test_receipt_basis.py#2": {
+      "type": "noul",
+      "noul": 0.18
+    }
+  },
+  "usage": {
+    "input_tokens": 7870,
+    "output_tokens": 292
+  },
+  "digest": "c52921cbecb29c65d44539f64c13b12aead7d788dfe9af9760714f81d54a2d09",
+  "latency_ms": 1660
+}

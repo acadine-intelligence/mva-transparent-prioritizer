@@ -1,0 +1,59 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "docs/09-adoption.md#1": {
+      "type": "noul",
+      "noul": 0.11
+    },
+    "docs/10-track-1-scoring-and-next-evidence-lane.md#1": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "docs/10-track-1-scoring-and-next-evidence-lane.md#2": {
+      "type": "noul",
+      "noul": 0.17
+    },
+    "docs/10-track-1-scoring-and-next-evidence-lane.md#3": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "docs/10-track-1-scoring-and-next-evidence-lane.md#4": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "docs/10-track-1-scoring-and-next-evidence-lane.md#5": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "docs/11-run-3-noncoding-benchmark-proposal.md#1": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "docs/11-run-3-noncoding-benchmark-proposal.md#2": {
+      "type": "noul",
+      "noul": 0.17
+    },
+    "docs/11-run-3-noncoding-benchmark-proposal.md#3": {
+      "type": "noul",
+      "noul": 0.27
+    },
+    "docs/11-run-3-noncoding-benchmark-proposal.md#4": {
+      "type": "noul",
+      "noul": 0.23
+    },
+    "docs/11-run-3-noncoding-benchmark-proposal.md#5": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "docs/12-dual-lane-evidence.md#1": {
+      "type": "noul",
+      "noul": 0.2
+    }
+  },
+  "usage": {
+    "input_tokens": 7971,
+    "output_tokens": 398
+  },
+  "digest": "e963d82d4c8d77d8c93d5372761061def149b866cb81be4700f314b410551dfd",
+  "latency_ms": 1710
+}

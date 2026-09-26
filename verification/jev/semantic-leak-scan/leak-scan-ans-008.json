@@ -1,0 +1,55 @@
+{
+  "model": "jev-latest",
+  "answers": {
+    "mva_prioritizer/bounded_input.py#1": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "mva_prioritizer/cli.py#1": {
+      "type": "noul",
+      "noul": 0.14
+    },
+    "mva_prioritizer/cli.py#2": {
+      "type": "noul",
+      "noul": 0.19
+    },
+    "mva_prioritizer/cli.py#3": {
+      "type": "noul",
+      "noul": 0.26
+    },
+    "mva_prioritizer/cli.py#4": {
+      "type": "noul",
+      "noul": 0.21
+    },
+    "mva_prioritizer/cli.py#5": {
+      "type": "noul",
+      "noul": 0.2
+    },
+    "mva_prioritizer/cli.py#6": {
+      "type": "noul",
+      "noul": 0.21
+    },
+    "mva_prioritizer/cli.py#7": {
+      "type": "noul",
+      "noul": 0.27
+    },
+    "mva_prioritizer/contract.py#1": {
+      "type": "noul",
+      "noul": 0.21
+    },
+    "mva_prioritizer/environment.py#1": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "mva_prioritizer/environment.py#2": {
+      "type": "noul",
+      "noul": 0.19
+    }
+  },
+  "usage": {
+    "input_tokens": 7633,
+    "output_tokens": 291
+  },
+  "digest": "f3aaf141cde1e1e15578ab0f83546d6c4860bf6926268519787be8d055ff5f10",
+  "latency_ms": 1664
+}

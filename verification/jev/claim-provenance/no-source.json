@@ -1,0 +1,34 @@
+[
+ {
+  "claim_id": "n01",
+  "claim": "Nine gene regions were declared from public MVA literature on 7 September, before any case inspection. (No allowed artifact states this date or the declaration event; '7 September' appears nowhere.)"
+ },
+ {
+  "claim_id": "n02",
+  "claim": "The frozen map is runtime/nine-gene-audit-20260909/gene-interval-map.json on the encrypted host. (No file of that name exists in that directory, and the string appears in no allowed artifact.)"
+ },
+ {
+  "claim_id": "n03",
+  "claim": "The specialist packet (10 September, verified) covers the alleles that passed every filter in each lane and nineteen inheritance-sensitive entries. (No allowed artifact names or dates a specialist packet; '10 September' appears nowhere.)"
+ },
+ {
+  "claim_id": "n04",
+  "claim": "Another team raised the phasing limitation publicly on 18 September in Space discussion 24. (No allowed artifact mentions this discussion or date.)"
+ },
+ {
+  "claim_id": "n05",
+  "claim": "A reader running brute_force_hedging.py will see 48,252 for the equal-EPCR arm. (The number 48,252 appears in no allowed artifact; result.txt reports no such count.)"
+ },
+ {
+  "claim_id": "n06",
+  "claim": "The comparison arms are 1,735,200 strictly-below comparisons plus 108,450 equal-EPCR comparisons. (Neither number appears in any allowed artifact; only the 1,843,650 total is recorded.)"
+ },
+ {
+  "claim_id": "n07",
+  "claim": "The frozen Exomiser output records the annotation string AUTOSOMAL_RECESSIVE for a gene's recessive compatibility. (The token appears in no allowed artifact; docs/17 describes modes in prose only.)"
+ },
+ {
+  "claim_id": "n08",
+  "claim": "The document's first draft received an independent review verdict of FAIL with five blocking findings. (The review artifacts are outside the allowed read set; no allowed artifact records this verdict.)"
+ }
+]

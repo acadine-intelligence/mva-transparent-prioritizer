@@ -1,0 +1,83 @@
+{
+ "reviewed": "working-tree bytes of docs/22-candidate-selection-rule.md on 2026-09-19, later committed unchanged as ea68d94",
+ "reviewer": "independent adversarial subagent (delegation deleg_74bbf689, model glm-5.3), no part in authoring",
+ "reviewed_at": "2026-09-19",
+ "recorded_from": "the reviewer's final JSON answer as returned to the parent session; the live transcript was pruned from cache before this copy was made, so this record is the parent's verbatim copy of the returned object",
+ "verdict": "FAIL",
+ "scripts_reproduced": true,
+ "numbers_observed": {
+  "combinations_scored": 1843650,
+  "strictly_below_rank_point_drops": 48608,
+  "strictly_below_f_max_drops": 0,
+  "equal_epcr_f_max_drops": 44090,
+  "equal_epcr_rank_point_drops": 7216,
+  "rank_point_drops_base_partial_single_allele": 12152,
+  "rank_point_drops_base_partial_wrong_partner_pair": 36456
+ },
+ "blocking_findings": [
+  {
+   "claim": "\"Every one of the 48,608 rank-point drops was the same inversion: the exact true pair added below an existing single allele of that pair. None had another cause.\" (line 48)",
+   "why_wrong": "False as a characterization of the measured space. In 36,456 cases (74.9%) the base file's scoring partial match was a wrong-partner PAIR row, not a single-allele row; only 12,152 had a single-allele partial. hedging_modes.py only checked 'added the exact true pair lower than an existing partial' (any partial row), so its 'unexplained: 0' never distinguished single from mixed partials.",
+   "evidence": "Independent re-enumeration, identical universe and arms (1,735,200 strict-below comparisons): rank_point_drops=48,608; base partial SINGLE: 12,152; base partial MIXED pair: 36,456; other: 0."
+  },
+  {
+   "claim": "Rule 2 'Never place a single allele above the pair it belongs to' combined with Step 4 pair formation",
+   "why_wrong": "Rule 2 guards only single rows, but 75% of measured drops come from a wrong-partner PAIR above the true pair, a shape Step 4 explicitly creates with three or more qualifying alleles in one gene. Nothing selects which pair takes row 1.",
+   "evidence": "evaluation.py lines 152-153 (full match taken unconditionally); classifier counts above."
+  },
+  {
+   "claim": "Step 4 ordering 'fully determined by the evidence; no discretionary reordering is permitted'",
+   "why_wrong": "Four unconstrained choices survive: cross-tier order among singles and among pairs is unstated; whether pairing operates within each tier or across the A-B union is unstated; with three or more alleles in a gene no rule picks which pair is row 1; 'the stricter lane's native rank' is undefined for a pair row.",
+   "evidence": "Line 72; Step 5 assigns EPCR by final row position, so every choice propagates into the score."
+  },
+  {
+   "claim": "Tier C: 'surviving the 0.963 sensitivity run with changed inheritance compatibility'",
+   "why_wrong": "The disclosure section lists five prior workstreams and no 0.963 sensitivity run, yet Tier C consumes its output. 'Changed inheritance compatibility' is also undefined.",
+   "evidence": "Doc lines 11-15 vs line 69; docs/17-exomiser-probe.md line 37 describes the comparison as conditional."
+  },
+  {
+   "claim": "Step 2 drop conditions 'cannot be resolved' and 'no annotation evidence supporting the gene assignment'",
+   "why_wrong": "Unpinned human judgments: no resolution procedure, tool, evidence source or threshold is named. Two operators can drop different alleles and both claim compliance. Tier B's 'compatible with a recessive mechanism' is likewise not pinned to the annotation vocabulary.",
+   "evidence": "Lines 63 and 68, against the determinism claim at line 72."
+  }
+ ],
+ "nonblocking_findings": [
+  {
+   "claim": "Rule 3: ties cost F-max in 44,090 cases",
+   "why_wrong": "Understated: result.txt also records 7,216 equal-EPCR rank-point drops, omitted from the document.",
+   "evidence": "result.txt line 6, reproduced."
+  },
+  {
+   "claim": "Step 1 consumes 'the candidate dossier'; the disclosure names only the specialist packet",
+   "why_wrong": "Artifact naming drift, or a source outside the disclosed list.",
+   "evidence": "Lines 15 and 61."
+  },
+  {
+   "claim": "Step 6 truncation",
+   "why_wrong": "Silent when truncating the lowest tier still leaves more than ten rows.",
+   "evidence": "Line 76; evaluation.py lines 104-105."
+  },
+  {
+   "claim": "'What remains genuinely undecided'",
+   "why_wrong": "Tier A membership was already determinable from the disclosed replay-2 and specialist-packet outputs before the rule was written.",
+   "evidence": "Lines 13, 15 and 17."
+  },
+  {
+   "claim": "Both scripts import the vendored evaluator",
+   "why_wrong": "Reconciliation trap: brute_force_hedging.py prints 48,252 for the equal-EPCR arm (either metric) while the document's 44,090 is hedging_modes.py's F-max-only count.",
+   "evidence": "Reviewer's runs: 48,252 vs 44,090 and 7,216; arm sizes 1,735,200 + 108,450 = 1,843,650."
+  }
+ ],
+ "claims_verified": [
+  "Unconditional full match (evaluation.py lines 152-159).",
+  "Rank-point tiers 100 / 50 / 25 / 10 at ranks 1 / 2-3 / 4-5 / 6-10.",
+  "A pair at rank 4 scores 25 while its single allele at rank 1 scores 50 partial.",
+  "Equal EPCR values can reduce F-max (44,090 reproduced).",
+  "Rows appended strictly below never reduced F-max (0 cases, reproduced).",
+  "hedging_modes.py output matches result.txt line for line.",
+  "sha256(tools/official-track1/evaluation.py) = 6d18b581e65a45e1ccc120071d588e740c2e42e983ff50704c60a40232b19180, equal to OFFICIAL_SHA256 in tests/test_track1_submission.py.",
+  "Ties break by file order (evaluation.py line 107).",
+  "The gate refuses an eleventh row.",
+  "EPCR ladder: 10 distinct descending values in (0,1]."
+ ]
+}
