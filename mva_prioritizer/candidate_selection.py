@@ -31,7 +31,8 @@ Step 4 has three stages, applied in this order:
    partial value. Otherwise it becomes a single row for its unshared
    allele, in the same position, or is removed when both alleles are
    claimed above. ``verification/scorer-hedging/policy_probe.py`` measures
-   twelve promotion and demotion policies, each implemented in the probe,
+   24 schedule, promotion and demotion policies, each implemented in the
+   probe,
    against one bar first (never scoring below the plain evidence sort
    under any truth) and mean rank points second; this rule is the best
    policy that clears the bar, and the probe checks that the module
@@ -260,8 +261,13 @@ def _demote_once(rows: List[Row]) -> Tuple[List[Row], Optional[str]]:
     (verification/scorer-hedging/policy_probe.py measures every alternative
     against that bar first).
 
-    This runs after promotion has reached a fixpoint, so no single row that
-    shares an allele with a pair sits above that pair here."""
+    The first call in a round runs after promotion has reached a fixpoint,
+    so no single row sharing an allele with a pair sits above that pair.
+    Later calls in the same round (the batch schedule demotes to a fixpoint
+    before any re-promotion) can see a remnant single from an earlier
+    demotion above a pair that shares its allele; the "single for the
+    unshared allele already sits above" branch below handles that case by
+    removing the pair instead of writing a duplicate single."""
     claimed: Dict[Variant, int] = {}
     for j, row in enumerate(rows):
         if not row.is_pair:

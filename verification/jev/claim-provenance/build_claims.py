@@ -65,6 +65,11 @@ CLAIMS = [
  ("Verification", "The gate has a --history flag that scans every blob reachable from any ref", "scripts/verify_no_case_tokens.py", '"--history"'),
  ("Verification", "build_case_token_denylist.py reads the interval map, the HGNC responses and the aggregate report, and writes runtime/privacy/denied-tokens.txt", "scripts/build_case_token_denylist.py", "INTERVAL_MAP = ROOT"),
  ("Verification", "build_case_token_denylist.py takes alias_symbol and prev_symbol from the HGNC responses", "scripts/build_case_token_denylist.py", '"alias_symbol", "prev_symbol"'),
+ ("Verification", "build_case_token_denylist.py also takes Entrez, Ensembl gene, RefSeq, OMIM, CCDS, UniProt and MANE ids from the HGNC responses", "scripts/build_case_token_denylist.py", "HGNC_ID_FIELDS = ("),
+ ("Verification", "verify-module-result.txt reports 8,305 comparisons with rank points higher than the plain sort and 0 lower", "verification/scorer-hedging/verify-module-result.txt", "D4  rank points higher"),
+ ("Step 4 stage 3", "The schedule test asserts the batch file and asserts the step file is not produced, on the pool from the review of 28761f8", "tests/test_candidate_selection.py", "self.assertNotEqual(variants, step)"),
+ ("Review history", "The review of 25d0b47 found the tracked verify_module receipt was produced by an intermediate module and the schedule test did not separate the schedules", "verification/reviews/25d0b47.json", "7,982"),
+ ("Step 4 stage 3", "The two schedules diverge on 22 of the 3,000 tracked pools", "docs/22-candidate-selection-rule.md", "22 of the 3,000"),
  ("Review history", "The review of 1783250 returned FAIL", "verification/reviews/1783250.json", '"verdict": "FAIL"'),
  ("Review history", "The review of 28761f8 returned FAIL with blocking findings B1 and B2", "verification/reviews/28761f8.json", '"verdict"'),
  ("Review history", "B1 of 28761f8: the probe demoted to a fixpoint before re-promoting while the module re-promoted after every demotion, hidden by a universe with at most three alleles per gene", "verification/reviews/28761f8.json", "three alleles per gene"),
@@ -74,7 +79,7 @@ CLAIMS = [
  ("Provenance", "The literature-overlay artifacts in runtime/internal-review-20260907/ are host-local", "runtime/internal-review-20260907/research-review.md", ""),
  ("Row rules", "The parser rejects repeated variant ids across rows unless allow_repeated_pairings is set", "mva_prioritizer/track1_submission.py", "if variant in seen_variants and not allow_repeated_pairings:"),
  ("Step 4 stage 1", "Tier is the first key of the evidence sort, before lane count and native rank", "mva_prioritizer/candidate_selection.py", "TIERS.index(tier),"),
- ("Publication", "docs/20 says the history scan found three historical blobs and that the test fixture symbol was a pre-registered literature gene", "docs/20-track1-submission-gate.md", "three historical blobs"),
+ ("Publication", "docs/20 says the history scan found three historical blobs, that the fixture gene was pre-registered from literature and is also a case-flagged recurrent gene, and that both facts are checkable only from runtime/", "docs/20-track1-submission-gate.md", "checkable only from the host-local artifacts"),
 ]
 
 claims = []

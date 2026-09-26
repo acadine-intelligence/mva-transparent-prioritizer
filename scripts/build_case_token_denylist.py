@@ -56,11 +56,22 @@ def from_interval_map(path: Path) -> set[str]:
             bare = hgnc.split(":")[-1]
             if len(bare) >= 5:
                 tokens.add(bare)
+        entrez = str(gene.get("entrez_id") or "")
+        if len(entrez) >= 4:
+            tokens.add(entrez)
         for transcript in gene.get("transcripts") or []:
             transcript = str(transcript)
             tokens.add(transcript)
             tokens.add(transcript.split(".")[0])
     return tokens
+
+
+# HGNC fields whose values identify the gene in some public database. Each
+# value is added whole and, for versioned accessions, without the version.
+HGNC_ID_FIELDS = (
+    "hgnc_id", "entrez_id", "ensembl_gene_id", "refseq_accession", "omim_id",
+    "ccds_id", "uniprot_ids", "mane_select", "ucsc_id", "vega_id", "mgd_id", "rgd_id",
+)
 
 
 def from_hgnc_responses(directory: Path) -> set[str]:
@@ -73,6 +84,16 @@ def from_hgnc_responses(directory: Path) -> set[str]:
                 for item in (value if isinstance(value, list) else [value]):
                     if item and len(str(item)) >= 3:
                         tokens.add(str(item))
+            for key in HGNC_ID_FIELDS:
+                value = doc.get(key)
+                for item in (value if isinstance(value, list) else [value]):
+                    if not item:
+                        continue
+                    item = str(item)
+                    # "MGI:12345" style: whole id plus the bare accession.
+                    for part in {item, item.split(":")[-1], item.split(".")[0]}:
+                        if len(part) >= 4:
+                            tokens.add(part)
     return tokens
 
 

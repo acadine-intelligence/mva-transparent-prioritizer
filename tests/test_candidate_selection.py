@@ -230,24 +230,33 @@ class Demotion(unittest.TestCase):
         self.assertEqual((result.demoted_pairs, result.removed_pairs), (1, 1))
 
     def test_demotions_run_to_a_fixpoint_before_any_repromotion(self):
-        # The schedule, pinned. After promotion, every loser in a round is
-        # judged at its rank in that table before a single created by an
-        # earlier demotion can be promoted over and lift a later loser. The
-        # reviewer's pool (review of 28761f8): a stepwise schedule left a
-        # second single a in the file; the batch schedule removes the pair
-        # whose remnant would duplicate it. policy_probe.py measured batch
-        # ahead of step on every seed, both never below the plain sort.
-        g = allele("chr4", 7000)
-        v3, v5, v4 = allele("chr1", 3000), allele("chr2", 5000), allele("chr2", 4000)
-        w4, w1, x5 = allele("chr1", 4000), allele("chr1", 1000), allele("chr3", 5000)
-        pool = [cand(g, "G4", "A", rank=1), cand(v3, "G1", "A", rank=2), cand(v5, "G2", "A", rank=3),
-                cand(v4, "G2", "A", both_lanes=False, rank=4), cand(w4, "G1", "A", both_lanes=False, rank=5),
-                cand(w1, "G1", "B", rank=1), cand(x5, "G3", "C", rank=1)]
+        # The schedule, pinned on the pool from the review of 28761f8, the
+        # smallest pool found where the two schedules write different files
+        # (it needs four alleles in one gene). Batch: after promotion every
+        # loser in the round is judged at its rank in that table before any
+        # re-promotion. Step: one demotion, then re-promote, so a single
+        # created by the first demotion is promoted over and the second loser
+        # is judged one slot lower. This test asserts the batch file and
+        # asserts the step file is not produced; a module that went back to
+        # one demotion per round fails on the third row. policy_probe.py
+        # measured batch ahead of step on every seed, both never below the
+        # plain sort.
+        c1, c2, c3, c4 = (allele("chr1", 1000), allele("chr1", 2000),
+                          allele("chr1", 3000), allele("chr1", 4000))
+        d2, e1 = allele("chr2", 2000), allele("chr3", 1000)
+        pool = [cand(e1, "G3", "B", rank=1), cand(c1, "G1", "A", rank=3),
+                cand(c4, "G1", "B", rank=3), cand(d2, "G2", "A", both_lanes=False, rank=5),
+                cand(c2, "G1", "A", both_lanes=False, rank=8),
+                cand(c3, "G1", "A", both_lanes=False, rank=6)]
         result = select_rows(pool)
         variants = [r.variants for r in result.rows]
-        self.assertEqual(variants.count(frozenset({w1})), 1)
-        self.assertEqual(len(variants), len(set(variants)))
-        self.assertEqual(variants[:3], [frozenset({g}), frozenset({v3, w4}), frozenset({v4, v5})])
+        batch = [frozenset({c1, c2}), frozenset({c3, c4}), frozenset({c3}), frozenset({d2}),
+                 frozenset({c4}), frozenset({e1}), frozenset({c1}), frozenset({c2})]
+        step = [frozenset({c1, c2}), frozenset({c3, c4}), frozenset({d2}), frozenset({c3}),
+                frozenset({e1}), frozenset({c1}), frozenset({c2}), frozenset({c4})]
+        self.assertEqual(variants, batch)
+        self.assertNotEqual(variants, step)
+        self.assertEqual((result.promotions, result.demoted_pairs, result.removed_pairs), (6, 2, 2))
 
     def test_losing_pair_stays_only_where_its_full_match_strictly_pays(self):
         # The rule's arithmetic, pinned. Winner at rank 2 gives a partial worth
