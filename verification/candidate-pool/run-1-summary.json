@@ -1,0 +1,67 @@
+{
+ "case_rows_exported": false,
+ "inputs": {
+  "audit_core_sha256": "7b7e69aada37762fe98b3270ab41027d1f9f5edbe5cc77edb2d3245e1c947764",
+  "candidate_review_sha256": "0e420e193d18a8e385c322de803b6ecde67bca506ac16f742b6cfc112a3eb994",
+  "diagnostic_replay_sha256": "1a62e8cc91514b1d5bf6240558fd00668f139ff0929446916566fda4943e5d47",
+  "interval_map_sha256": "66bf66fa6f11918e64a9d4f2156733ddc5e21755c55199bd210725fb665cec87",
+  "lane_input_vcf_sha256": "ea6d07fc782c09fa522f58b8e013e733b37943e93a68d28d482c49e4451f0403",
+  "recurrent_genes_sha256": "3458ebe3f38ec6afbeeba6a6ebd3ffabeb466efcfa07cb855453e547fac459dd",
+  "replay_receipt_sha256": "09769e3e027d5afb443930222f8559fab2b20bcdc9b021aede02397301718142"
+ },
+ "lane_passed_counts": {
+  "coding": 589,
+  "noncoding": 365
+ },
+ "read_only_inputs": true,
+ "rule": "docs/22-candidate-selection-rule.md",
+ "schema": "mva-candidate-pool-v1",
+ "step1": {
+  "pool_before_exclusion": 2070,
+  "sources": {
+   "dossier_inheritance_review": 40,
+   "passed_either_lane": 789,
+   "recurrent_gene": 133,
+   "region_called": 1283
+  }
+ },
+ "step2": {
+  "dropped": {
+   "gene_assignment": 0,
+   "quality": 0,
+   "representation": 0
+  },
+  "gene_span_not_pinned": 787,
+  "pool_after_exclusion": 2070
+ },
+ "step3": {
+  "both_lanes": 165,
+  "genes_by_tier": {
+   "A": 107,
+   "B": 0,
+   "C": 17,
+   "D": 412
+  },
+  "in_region_by_tier": {
+   "A": 2,
+   "B": 0,
+   "C": 89,
+   "D": 1192
+  },
+  "pairable_genes": 22,
+  "recessive_by_tier": {
+   "A": 85,
+   "B": 0,
+   "C": 16,
+   "D": 318
+  },
+  "sensitivity_changed_survivors_in_pool": 19,
+  "tier_sizes": {
+   "A": 165,
+   "B": 0,
+   "C": 105,
+   "D": 1800
+  }
+ },
+ "stricter_lane": "noncoding"
+}

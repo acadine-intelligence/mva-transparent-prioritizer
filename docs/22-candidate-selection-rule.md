@@ -83,12 +83,32 @@ Every drop is counted with its reason. A drop for any other reason, or a judgmen
 
 The same pinning applies to Tier B below. "An inheritance mode compatible with a recessive mechanism" means the frozen Exomiser output records `AUTOSOMAL_RECESSIVE` for that allele's gene (the token as it appears in the engine's output; the public fixture `tests/fixtures/exomiser_probe_output.json` and `mva_prioritizer/sensitivity_partition.py` carry it verbatim), in the lane being read. It is the recorded annotation vocabulary, not an assessment. The sensitivity run showed this distinction has teeth: twelve variants kept their numerical scores and lost recessive compatibility, so "compatible" must name the annotation and the run it came from.
 
+**Readings pinned before the first run, for the runner `scripts/build_candidate_pool.py`.** Steps 1 to 3 leave five phrases to the operator. They are fixed here, from the frozen artifacts' own vocabulary, before the runner touched case data, so the run cannot shape them:
+
+1. "Passing every filter" in a lane is `filterStatus == "PASSED"` on the variant evaluation in that lane's `replay.jsonl`.
+2. "Its gene" is the gene both lanes assign when the allele passed both (if they disagree the run is invalid); the passing lane's gene when it passed one; the declared region's gene when it passed neither and sits in exactly one region; otherwise the lane gene the region agrees with. Any residual ambiguity invalidates the run. The lanes are known to disagree on 90 of 2,070 alleles, 75 of them inside the nine regions, none of which passed both lanes.
+3. "Transcript span" is the `start`..`end` interval of the gene's entry in the frozen interval map (one based, inclusive). The 50 kb upstream inspection windows are not transcript spans. A gene absent from the map has no pinned span, so the first condition of exclusion 3 cannot be established for it and the rule never drops it.
+4. "Stricter lane" is the lane with fewer `PASSED` alleles in `replay.jsonl` (noncoding, 365 against 589); the native rank is the smallest `#RANK` among the allele's rows in that lane's `replay.variants.tsv`. For an allele that passed one lane, that lane's rank.
+5. "Recorded recessive annotation" is a row for the allele with `MOI == "AR"` in the `replay.variants.tsv` of a lane where it passed. Tier C's sensitivity clause is read at the variant level: an entry under a gene's `noncoding_sensitivity.variants` with `stage1_pass` true and its own `baseline_modes` different from its `strict_modes`.
+
+The quality criteria of exclusion 1 are `recorded_quality_issues` from the reviewed audit module, whose SHA-256 the runner checks against the pin in `diagnostic-replay.json`, applied to the allele's record in the lane `input.vcf`. Representation drops cover multiallelic records, non-ACGT alleles and contigs outside the nuclear set and the mitochondrion. Only `summary.json` (counts and input hashes) leaves the host; `pool.json` stays beside the frozen inputs.
+
 **Step 3. Tier what remains.**
 
 - **Tier A.** Alleles passing every filter in both lanes.
 - **Tier B.** Alleles passing in one lane inside a predeclared region, with an inheritance mode compatible with a recessive mechanism.
 - **Tier C.** Alleles in recurrent genes, or surviving the 0.963 sensitivity run with changed inheritance compatibility.
 - **Tier D.** Everything else in the pool.
+
+**Steps 1 to 3 were executed once, on 26 September 2026** (`verification/candidate-pool/run-1-summary.json`; the private `pool.json` stays on the encrypted host at `review-work/candidate-pool-20260926/run-1/`). The run was read-only on its inputs, under a sandbox that denied the network and confined writes to the run directory, with the audit module and interval map checked against the pins in `diagnostic-replay.json`. Counts, no values:
+
+| Step | Result |
+|---|---|
+| 1, pool before exclusion | 2,070 alleles, which is every allele in the frozen replay input. The four sources overlap completely: 789 passed either lane, 1,283 sit in the nine regions with a recorded alternate genotype, 133 belong to the eleven recurrent genes, 40 come from the nineteen inheritance-review genes |
+| 2, exclusions | 0 quality, 0 representation, 0 gene assignment. The nine-gene audit had already recorded zero quality flags over the regions, the frozen analysis VCF has no multiallelic or symbolic records, and every allele carries a lane annotation for its gene. 787 alleles belong to genes outside the interval map, so exclusion 3 has no pinned span for them and never applies |
+| 3, tiers | A 165 (107 genes, 85 with the recessive annotation, 22 genes with two or more such alleles); B 0; C 105; D 1,800 |
+
+Tier B is empty because only two regional alleles passed any lane, and both passed both lanes, so they are Tier A. A consequence of the tiering as pre-registered: 608 alleles that passed one lane outside the nine regions land in Tier D, and 16 more in Tier C through a recurrent gene. The rule was written that way and reviewed that way; it is executed as written. Step 4 has not yet run on this pool.
 
 **Step 4. Form the rows.** Pairing operates across the union of Tier A and Tier B, not within each tier separately: any two alleles in the same gene, both in Tier A or Tier B, with the recorded recessive annotation, form a pair row. A pair row formed from alleles in different tiers takes the weaker of the two tiers. With three or more qualifying alleles in a gene, `C(k,2)` pair rows form; which of them survive is decided in stage 3 below, by a stated test.
 
