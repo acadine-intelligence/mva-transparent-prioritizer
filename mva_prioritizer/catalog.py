@@ -13,9 +13,17 @@ NUCLEAR = {str(i) for i in range(1, 23)} | {"X", "Y"}
 
 
 @dataclass(frozen=True)
+class CatalogEntry:
+    variant: Variant
+    gene: str
+    mechanism: str
+
+
+@dataclass(frozen=True)
 class Catalog:
     counted_variants: FrozenSet[Variant]
     null_entries: int = 0
+    counted_entries: Tuple[CatalogEntry, ...] = ()
 
 
 def lane_contig(chrom: str) -> str:
@@ -44,6 +52,7 @@ def load_catalog(path: Path) -> Catalog:
     if not isinstance(entries, list):
         raise InputRejected("invalid catalog")
     seen, counted = set(), set()
+    counted_entries = []
     null_entries = 0
     for item in entries:
         if not isinstance(item, dict) or set(item) != ENTRY_FIELDS:
@@ -76,4 +85,5 @@ def load_catalog(path: Path) -> Catalog:
         seen.add(key)
         if item["confidence"] in {"high", "medium"}:
             counted.add(key)
-    return Catalog(frozenset(counted), null_entries)
+            counted_entries.append(CatalogEntry(key, item["gene"], item["mechanism"]))
+    return Catalog(frozenset(counted), null_entries, tuple(counted_entries))

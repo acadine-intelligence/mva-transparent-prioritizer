@@ -87,7 +87,9 @@ class RunnerTest(unittest.TestCase):
         summary = json.loads((self.out / "selection-summary.json").read_text())
         self.assertEqual(json.loads(proc.stdout), summary)
         self.assertEqual(set(summary), {"rows", "pair_rows", "single_rows", "truncated_by_tier",
-                                      "promotions", "demotions", "catalog_matches_by_tier", "catalog_null_entries"})
+                                      "promotions", "demotions", "catalog_matches_by_tier", "catalog_null_entries",
+                                      "catalog_direct_added"})
+        self.assertEqual(summary["catalog_direct_added"], 0)
         self.assertEqual((summary["rows"], summary["pair_rows"], summary["single_rows"]), (7, 1, 6))
         self.assertEqual(stat.S_IMODE(self.out.stat().st_mode), 0o700)
         def counts_only(value):
@@ -206,6 +208,65 @@ class RunnerTest(unittest.TestCase):
                 code = runner.main(["--pool", str(self.pool), "--out", str(self.out)])
             self.assertEqual((code, stdout.getvalue(), stderr.getvalue()), (2, "", "candidate selection refused\n"))
             self.assertFalse(self.out.exists())
+
+    def extras(self, rows):
+        path = self.root / "matches.json"
+        path.write_text(json.dumps(rows))
+        return str(path)
+
+    def test_zero_direct_matches_preserve_part1_csv(self):
+        catalog = self.catalog([entry()])
+        self.assertEqual(self.run_cli("--catalog", catalog).returncode, 0)
+        out = self.root / "empty-extras"
+        proc = self.run_cli("--catalog", catalog, "--extra-candidates", self.extras([]), out=out)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertEqual((self.out / "submission.csv").read_bytes(), (out / "submission.csv").read_bytes())
+        self.assertEqual(json.loads(proc.stdout)["catalog_direct_added"], 0)
+
+    def test_direct_pool_overlap_uses_pool_gene_rank_and_part1_tier(self):
+        catalog = self.catalog([entry()])
+        self.assertEqual(self.run_cli("--catalog", catalog).returncode, 0)
+        for chrom in ("1", "chr1"):
+            extra = {"variant": [chrom, 1000, "A", "G"], "gene": "OTHER_SYN", "genotype": "0/1"}
+            out = self.root / chrom
+            # Direct matches alone also establish the Part 1 K match.
+            proc = self.run_cli("--extra-candidates", self.extras([extra]), out=out)
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            self.assertEqual((self.out / "submission.csv").read_bytes(), (out / "submission.csv").read_bytes())
+            summary = json.loads(proc.stdout)
+            self.assertEqual(summary["catalog_direct_added"], 0)
+            self.assertEqual(summary["catalog_matches_by_tier"]["A"], 1)
+
+    def test_direct_added_k_pairs_with_same_gene_a_and_has_worst_rank(self):
+        from scripts import select_candidates as runner
+        pool = runner.load_pool(self.pool)
+        extra = {"variant": ["1", 45000, "A", "G"], "gene": "SYN1", "genotype": "0/2"}
+        path = self.extras([extra])
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with patch.object(runner, "select_rows", wraps=select_rows) as select:
+            with redirect_stdout(stdout), redirect_stderr(stderr):
+                code = runner.main(["--pool", str(self.pool), "--out", str(self.out),
+                                    "--extra-candidates", path])
+        self.assertEqual((code, stderr.getvalue()), (0, ""))
+        candidates = select.call_args.args[0]
+        added = [c for c in candidates if c.variant[1] == 45000]
+        self.assertEqual(added, [Candidate(("chr1", 45000, "A", "G"), "SYN1", "K", False,
+                                          max(c.native_rank for c in pool) + 1, False)])
+        self.assertEqual(json.loads(stdout.getvalue())["catalog_direct_added"], 1)
+        rows = select_rows(candidates).rows
+        self.assertTrue(any(r.tier == "K" and r.variants == frozenset({added[0].variant,
+                            ("chr1", 1000, "A", "G")}) for r in rows))
+
+    def test_malformed_direct_inputs_refused(self):
+        valid = {"variant": ["1", 45000, "A", "G"], "gene": "SYN1", "genotype": "0/1"}
+        invalid = [None, {}, [None], [valid, valid]]
+        for field, value in (("variant", ["1", True, "A", "G"]), ("gene", ""),
+                             ("genotype", "./."), ("genotype", "0|0"), ("genotype", 1),
+                             ("genotype", "0//1"), ("extra", True)):
+            invalid.append([{**valid, field: value}])
+        for rows in invalid:
+            with self.subTest(rows=rows):
+                self.assert_refused(self.run_cli("--extra-candidates", self.extras(rows)))
 
 
 if __name__ == "__main__":
