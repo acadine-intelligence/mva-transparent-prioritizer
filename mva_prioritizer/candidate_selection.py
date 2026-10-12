@@ -59,8 +59,8 @@ RULE_VERSION = "docs/22"
 # Step 5: "Descending, distinct, from a fixed ladder assigned by row position".
 EPCR_LADDER: Tuple[float, ...] = (0.90, 0.75, 0.60, 0.50, 0.40, 0.30, 0.20, 0.15, 0.10, 0.05)
 
-TIERS: Tuple[str, ...] = ("A", "B", "C", "D")
-PAIRING_TIERS: FrozenSet[str] = frozenset({"A", "B"})
+TIERS: Tuple[str, ...] = ("K", "A", "B", "C", "D")
+PAIRING_TIERS: FrozenSet[str] = frozenset({"K", "A", "B"})
 
 # Step 4 coordinate key: "the pinned contig order". Numeric autosomes, then X,
 # Y, and the mitochondrion under either accepted spelling.
@@ -166,20 +166,23 @@ def _form_rows(pool: Sequence[Candidate]) -> List[Row]:
     for c in pool:
         rows.append(_make_row([c.variant], c.gene, c.tier, c.both_lanes, c.native_rank))
 
-    # Step 4: pairing across the union of Tier A and Tier B, same gene, both
-    # carrying the recessive annotation. A cross-tier pair takes the weaker tier.
+    # Amendment K adds K with any A/B/K partner, without an AR requirement.
+    # All other pairs still need both recorded recessive annotations.
     by_gene: Dict[str, List[Candidate]] = {}
     for c in pool:
-        if c.tier in PAIRING_TIERS and c.recessive_annotation:
+        if c.tier in PAIRING_TIERS:
             by_gene.setdefault(c.gene, []).append(c)
     for gene, members in by_gene.items():
         members = sorted(members, key=lambda c: _variant_key(c.variant))
         for i in range(len(members)):
             for j in range(i + 1, len(members)):
                 a, b = members[i], members[j]
+                catalog_pair = "K" in (a.tier, b.tier)
+                if not catalog_pair and not (a.recessive_annotation and b.recessive_annotation):
+                    continue
                 rows.append(_make_row(
                     [a.variant, b.variant], gene,
-                    _weaker_tier(a.tier, b.tier),
+                    "K" if catalog_pair else _weaker_tier(a.tier, b.tier),
                     a.both_lanes and b.both_lanes,
                     min(a.native_rank, b.native_rank),
                 ))
@@ -383,6 +386,6 @@ def build_submission_csv(result: SelectionResult, proband_id: str = EXPECTED_PRO
             second[2] if second else "", second[3] if second else "",
             f"{r.epcr:.2f}",
             "primary",
-            f"tier={r.tier} rule={RULE_VERSION}",
+            f"tier={r.tier} rule={RULE_VERSION}" + (" amendment=docs/24" if r.tier == "K" else ""),
         ])
     return buf.getvalue()
