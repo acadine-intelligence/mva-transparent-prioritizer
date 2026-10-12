@@ -1,0 +1,11 @@
+{
+  "gene": "ZZLEAKSYNTHGENEQZX947",
+  "gene_alias": "ZZLEAKSYNTHALIASQZX947",
+  "hpo": "HP:9999947",
+  "variant": ["17", 42424201, "A", "C"],
+  "coordinate_spellings": ["chr17:42424201:A:C", "17-42424201-A-C", "chr17 g.42424201A>C"],
+  "hgvs": "NM_999999999.1:c.4242A>C",
+  "rsid": "rs999999999947",
+  "clinvar": "VCV999999999947",
+  "method_canary": "leakqzx947"
+}

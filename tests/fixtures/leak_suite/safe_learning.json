@@ -1,0 +1,10 @@
+{
+  "external_actions": 0,
+  "finding_count": 1,
+  "finding_type_counts": {"single": 1},
+  "method_version": "transparent-review-v1",
+  "schema_version": 1,
+  "state": "review_ready",
+  "synthetic": true,
+  "warning_count": 0
+}
