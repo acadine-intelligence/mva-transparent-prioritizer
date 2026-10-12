@@ -42,6 +42,14 @@ class ParserTest(unittest.TestCase):
         for gt in ("0/0", "./.", "0|0", ".", "0", "0/."):
             self.assertIsNone(self.parse(record(gt=gt)))
 
+    def test_breakend_alts_beside_catalog_allele(self):
+        # Review of d3ce4c0: valid breakend ALTs must not abort the lookup.
+        self.assertEqual(self.parse(record(alt="G,A]2:2000]", gt="0/1")), "0/1")
+        self.assertEqual(self.parse(record(alt="A.,G", gt="0/2")), "0/2")
+        self.assertEqual(self.parse(record(alt="[2:2000[A,G", gt="0/2")), "0/2")
+        self.assertIsNone(self.parse(record(alt="G,A]2:2000]", gt="0/2")))
+        self.assertIsNone(self.parse(record(alt="A.", gt="0/1")))
+
     def test_malformed_records_refused(self):
         for text in ("bad\n", record().replace("\t1000\t", "\t1.5\t"),
                      record().replace("\tGT:DP\t", "\tDP\t"),

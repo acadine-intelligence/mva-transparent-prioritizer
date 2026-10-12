@@ -73,8 +73,11 @@ def parse_records(text: str, variant: Variant) -> Optional[str]:
         if re.fullmatch(r'[1-9][0-9]*', pos) is None or re.fullmatch(r'[ACGTN]+', ref) is None:
             raise InputRejected('invalid VCF coordinate')
         alts = alt_text.split(',')
+        # VCF 4.2 ALT forms: bases, '*', symbolic <ID>, and breakends
+        # (t[p[, t]p], ]p]t, [p[t, single-breakend t. and .t).
+        breakend = r'[ACGTN]+[\[\]][^\s,\[\]]+[\[\]]|[\[\]][^\s,\[\]]+[\[\]][ACGTN]+|[ACGTN]+\.|\.[ACGTN]+'
         if len(set(alts)) != len(alts) or any(
-                re.fullmatch(r'[ACGTN]+|\*|<[^<>\s,]+>|\.', a) is None or a == ref for a in alts):
+                re.fullmatch(r'[ACGTN]+|\*|<[^<>\s,]+>|\.|' + breakend, a) is None or a == ref for a in alts):
             raise InputRejected('invalid VCF alleles')
         if '.' in alts and alts != ['.']:
             raise InputRejected('invalid missing ALT')
