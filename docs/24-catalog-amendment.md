@@ -126,3 +126,13 @@ new count. The representation check accepts the union of retained pool tuples
 and direct VCF match tuples. A direct tuple does not establish lane support.
 Step 7 still requires original lane checks on the encrypted host, and selected
 mitochondrial rows still require the confirmed mitochondrial name option.
+
+## Frozen catalog for the case run
+
+12 October 2026, before any lookup against case data. The catalog used for the
+case run has 27 counted entries (confidence high or medium, each with a GRCh38
+tuple whose reference bases were checked against Ensembl GRCh38). It was built
+from two public literature reviews and is held host-local until the
+publication pass, because its gene symbols overlap the case-token denylist.
+SHA-256: `ee0545c31e860d68022a1ddc6944a81e0f2b0f13b352eda8e6880602fedb2d01`.
+A run against any other catalog bytes is not this pre-registered run.
