@@ -53,11 +53,14 @@ class ParserTest(unittest.TestCase):
     def test_malformed_breakends_refused(self):
         # Delta review of 3af1760: mismatched brackets and bad mate loci must refuse.
         from mva_prioritizer.bounded_input import InputRejected
-        for alt in ("G,A[2:2000]", "G,A]not-a-locus]", "G,[2:xyz[A", "G,A]2:0]", "G,A]2:2000[", "G,A]]"):
+        for alt in ("G,A[2:2000]", "G,A]not-a-locus]", "G,[2:xyz[A", "G,A]2:01]", "G,A]2:2000[", "G,A]]"):
             with self.subTest(alt=alt):
                 with self.assertRaises(InputRejected):
                     self.parse(record(alt=alt, gt="0/1"))
         self.assertEqual(self.parse(record(alt="G,A]<ctg1>:5]", gt="0/1")), "0/1")
+        # Delta review of 56a691c: VCF 4.2 telomeric mates sit at position 0.
+        self.assertEqual(self.parse(record(alt="G,A]2:0]", gt="0/1")), "0/1")
+        self.assertEqual(self.parse(record(alt="G,[2:0[A", gt="0/1")), "0/1")
 
     def test_malformed_records_refused(self):
         for text in ("bad\n", record().replace("\t1000\t", "\t1.5\t"),
