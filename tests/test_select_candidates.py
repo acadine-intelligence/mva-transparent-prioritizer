@@ -1,4 +1,5 @@
 """Synthetic contracts for the Steps 4 to 7 runner and Amendment K."""
+import csv
 import io
 import json
 import stat
@@ -197,7 +198,9 @@ class RunnerTest(unittest.TestCase):
             result[pid] = replace(result[pid], rows=result[pid].rows[:-1])
             return result
         for mock in (patch.object(runner, "parse_as_official", side_effect=wrong_gate),
-                     patch.object(runner, "parse_submission", side_effect=SubmissionError("SYN1"))):
+                     patch.object(runner, "parse_submission", side_effect=SubmissionError("SYN1")),
+                     # Review of 7b111e8: an over-limit CSV field raised csv.Error past the handler.
+                     patch.object(runner, "parse_submission", side_effect=csv.Error("field larger than field limit"))):
             stdout, stderr = io.StringIO(), io.StringIO()
             with mock, redirect_stdout(stdout), redirect_stderr(stderr):
                 code = runner.main(["--pool", str(self.pool), "--out", str(self.out)])

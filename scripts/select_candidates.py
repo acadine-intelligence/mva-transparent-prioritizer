@@ -7,6 +7,7 @@ Inputs are bounded regular files; a fresh output directory is required.
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import os
 import sys
@@ -138,7 +139,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     try:
         args = parser.parse_args(argv)
         summary = run(args.pool, args.out, args.catalog, args.mitochondrial_name)
-    except (OSError, ValueError, TypeError, KeyError, OverflowError, RecursionError):
+    except (OSError, ValueError, TypeError, KeyError, OverflowError, RecursionError, csv.Error):
         print(ERROR_MESSAGE, file=sys.stderr)
         return 2
     print(json.dumps(summary, sort_keys=True, separators=(",", ":")))
