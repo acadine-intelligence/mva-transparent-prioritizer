@@ -75,7 +75,8 @@ def parse_records(text: str, variant: Variant) -> Optional[str]:
         alts = alt_text.split(',')
         # VCF 4.2 ALT forms: bases, '*', symbolic <ID>, and breakends
         # (t[p[, t]p], ]p]t, [p[t, single-breakend t. and .t).
-        breakend = r'[ACGTN]+[\[\]][^\s,\[\]]+[\[\]]|[\[\]][^\s,\[\]]+[\[\]][ACGTN]+|[ACGTN]+\.|\.[ACGTN]+'
+        mate = r'(?:\[(?:<[^<>\s,]+>|[^\s,:\[\]<>]+):[1-9][0-9]*\[|\](?:<[^<>\s,]+>|[^\s,:\[\]<>]+):[1-9][0-9]*\])'
+        breakend = r'[ACGTN]+' + mate + r'|' + mate + r'[ACGTN]+|[ACGTN]+\.|\.[ACGTN]+'
         if len(set(alts)) != len(alts) or any(
                 re.fullmatch(r'[ACGTN]+|\*|<[^<>\s,]+>|\.|' + breakend, a) is None or a == ref for a in alts):
             raise InputRejected('invalid VCF alleles')
