@@ -63,7 +63,7 @@ The inheritance analysis supports compound-heterozygous compatibility, and the s
 
 Standard filters can remove a known disease allele that sits outside coding sequence or carries a misleading annotation. The documented example is a regulatory allele about 44 kb upstream of a known MVA gene that explained families first reported with only one detectable allele. Before any lookup, we froze a catalog of 27 published MVA and related alleles (high or medium confidence, each GRCh38 tuple checked base for base against the Ensembl reference) by SHA-256 in `docs/24-catalog-amendment.md`. Each entry was matched against the candidate pool and looked up directly in the original VCF, with a match requiring identical position, reference and alternate allele and a genotype carrying that allele.
 
-Result: 0 of 27 matched. As the amendment requires for zero matches, the submission file is byte-identical to the file the original rule produces. The search rules out the documented published-allele route for this case; it does not rule out novel alleles, structural variants, or alleles absent from the supplied calls.
+Result: 0 of 27 matched. As the amendment requires for zero matches, the submission file is byte-identical to the file the original rule produces. Zero matches means none of these 27 published alleles is present as a called variant in the supplied VCF. It does not exclude the mechanism, novel alleles, structural variants, or alleles absent from the supplied calls.
 
 ## Secondary findings
 
